@@ -14,6 +14,7 @@ const converter = require( '../shared/image-converter' )
  */
 async function maybeConvertFile( file ) {
 	try {
+		// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
 		return await converter.convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
 	} catch ( e ) {
 		// On failure, fallback to original file to avoid breaking uploads
@@ -47,63 +48,55 @@ function addDropZoneListenerToMediaManager( mediaFrame ) {
 		return
 	}
 
-	// const frameContent = mediaFrame.content.get()
-
 	// Find the drop zone in the Media Manager
+	// TODO: This needs to have a better way to be selected / identified.
 	const dropZone = document.querySelector( '.supports-drag-drop' )
-	// console.log( dropZone )
-	// const dropZone = frameContent.$el.find( '[id^="__wp-uploader-"]' )
 
-	if ( dropZone ) {
-		// Remove any existing listeners to avoid duplicates
-		// dropZone.off( 'drop' )
-
-		// Add our custom drop listener
-		dropZone.addEventListener( 'drop', async event => {
-			// If the file dropped is webp, just return
-			if ( event.dataTransfer.files[ 0 ].type === 'image/webp' ) {
-				return
-			}
-
-			// Prevent default browser behavior
-			event.preventDefault()
-			event.stopPropagation()
-
-			// dropZone.on( 'drop', function( event ) {
-			// console.log( 'File dropped in Media Manager!' )
-
-			// Hide the drop files to upload note
-			// document.querySelector( '.uploader-window' )?.setAttribute( 'style', '' )
-			document.querySelector( '.uploader-window' )?.setAttribute( 'style', 'display: none;' )
-
-			// // Handle the drop event
-			await handleMediaManagerDrop( event )
-		}, true ) // This needs to be true or else we cannot stop the default dropping behavior
-
-		// console.log( 'Drop zone listener added to Media Manager' )
-	}
-}
-
-const handleMediaManagerDrop = async event => {
-	const file = event.dataTransfer.files[ 0 ]
-	if ( ! file ) {
+	if ( ! dropZone ) {
 		return
 	}
 
-	// Process and optimize the image file here,
+	// Add our custom drop listener
+	dropZone.addEventListener( 'drop', async event => {
+		// If the file dropped is webp, just return
+		if ( event.dataTransfer.files[ 0 ].type === 'image/webp' ) {
+			return
+		}
+
+		// Prevent default browser behavior
+		event.preventDefault()
+		event.stopPropagation()
+
+		// Hide the drop files to upload note
+		document.querySelector( '.uploader-window' )?.setAttribute( 'style', 'display: none;' )
+
+		// Handle the drop event ourselves.
+		await handleMediaManagerDrop( event )
+	}, true ) // This needs to be true or else we cannot stop the default dropping behavior
+
+	// console.log( 'Drop zone listener added to Media Manager' )
+}
+
+// Let's do the conversion.
+const handleMediaManagerDrop = async event => {
+	const files = Array.from( event.dataTransfer.files )
+	if ( ! files.length ) {
+		return
+	}
+
+	// Process and optimize each image file here,
 	// e.g. resizing or compressing
-	// const optimizedFile = await optimizeImage(file);
-	const optimizedFile = file.type.startsWith( 'image/' )
-		? await maybeConvertFile( file )
-		: file
+	const optimizedFiles = await Promise.all(
+		files.map( maybeConvertFile )
+	)
 
-	// JUST TESTING THIS:
-	// Now simulate dropping this processed file on the original drop zone
-	// Instead of dispatching a new Event, we manually call the drop handler logic with the adjusted file
-	// To truly mimic a user file drop in the Media Library, we need to use the native File API and
-	// trigger the file input element that the Media Library uses internally.
-	// This approach finds the file input and sets its files property, then dispatches a change event.
+	dispatchOriginalDrop( optimizedFiles )
+}
 
+// To truly mimic a user file drop in the Media Library, we need to use the native File API and
+// trigger the file input element that the Media Library uses internally.
+// This approach finds the file input and sets its files property, then dispatches a change event.
+const dispatchOriginalDrop = files => {
 	const dropZone = document.querySelector( '.supports-drag-drop' )
 	if ( dropZone ) {
 		// Find the file input inside the drop zone or media modal
@@ -115,7 +108,9 @@ const handleMediaManagerDrop = async event => {
 		if ( fileInput ) {
 			// Create a DataTransfer to hold the optimized file
 			const dataTransfer = new DataTransfer()
-			dataTransfer.items.add( optimizedFile )
+			files.forEach( file => {
+				dataTransfer.items.add( file )
+			} )
 
 			// Assign the files to the input element
 			fileInput.files = dataTransfer.files
@@ -129,8 +124,6 @@ const handleMediaManagerDrop = async event => {
 	}
 }
 
-// WORKING: 1st method, we overlap our own dropzone, and.
 domReady( () => {
-	/* When the Media Manager opens, add an event listener to the drop zone */
 	setupSpecificMediaManagerListener()
 } )
