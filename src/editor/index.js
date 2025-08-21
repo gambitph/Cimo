@@ -1,1 +1,1 @@
-// Placeholder entry for block editor scripts. No runtime code yet.
+import './media-manager-drop'

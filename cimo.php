@@ -19,4 +19,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Scaffold only. No runtime code yet.
 
+add_action( 'enqueue_block_editor_assets', function () {
+	$asset_base = plugin_dir_url( __FILE__ ) . 'build/';
+	$asset_path = plugin_dir_path( __FILE__ ) . 'build/editor/index.js';
+	if ( file_exists( $asset_path ) ) {
+		wp_enqueue_script(
+			'cimo-editor',
+			$asset_base . 'editor/index.js',
+			[ 'wp-element', 'wp-hooks', 'wp-dom-ready', 'wp-media-utils' ],
+			filemtime( $asset_path ),
+			true
+		);
+	}
+} );
+
 

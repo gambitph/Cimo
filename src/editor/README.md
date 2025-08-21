@@ -1,0 +1,1 @@
+We latch on to WordPress events, replace the file with the converted file, then re-dispatch the event so WordPress can handle it properly as if the user uploaded the converted file.

@@ -1,0 +1,1 @@
+- We should check for Avif support (imagick) before allowing it since the media manager will throw an error. Local by flyhweel PHP 8.2 doesn't have avif support, PHP 8.3 has

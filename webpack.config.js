@@ -1,4 +1,4 @@
-const defaultConfig = require('@wordpress/scripts/config/webpack.config');
+const defaultConfig = require( '@wordpress/scripts/config/webpack.config' )
 
 module.exports = {
 	...defaultConfig,
@@ -7,6 +7,5 @@ module.exports = {
 		'admin/index': './src/admin/index.js',
 		'frontend/index': './src/frontend/index.js',
 	},
-};
-
+}
 
