@@ -1,0 +1,24 @@
+{
+	"editor.insertSpaces": false,
+	"editor.tabSize": 4,
+	"editor.detectIndentation": false,
+	"files.eol": "\n",
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit",
+		"source.fixAll.stylelint": true,
+		"source.organizeImports": "never"
+	},
+	"eslint.validate": [
+		"javascript",
+		"javascriptreact"
+	],
+	"stylelint.validate": [
+		"css",
+		"scss"
+	],
+	"css.validate": false,
+	"scss.validate": false
+}
+
+

@@ -1,0 +1,19 @@
+{
+	"name": "your-vendor/cimo",
+	"description": "Convert images to WebP on upload (scaffold only)",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"wp-coding-standards/wpcs": "^3.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1"
+	},
+	"scripts": {
+		"lint:php": [
+			"phpcs --standard=phpcs.xml.dist -s"
+		]
+	}
+}
+
+
