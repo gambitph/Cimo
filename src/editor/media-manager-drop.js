@@ -46,8 +46,13 @@ function addDropZoneListenerToMediaManager() {
 		event.preventDefault()
 		event.stopPropagation()
 
-		// Hide the drop files to upload note
-		document.querySelector( '.uploader-window' )?.setAttribute( 'style', 'display: none;' )
+		// Hide the drop files to upload note. Sometimes, like in Elementor, if
+		// there are multiple media managers opened, this can be many, hide them
+		// all.
+		let uploaderWindow
+		while ( ( uploaderWindow = document.querySelector( '.uploader-window[style*="display: block"]' ) ) ) {
+			uploaderWindow.style.display = 'none'
+		}
 
 		// Handle the drop event ourselves.
 		const files = Array.from( event.dataTransfer.files )
