@@ -33,4 +33,17 @@ add_action( 'enqueue_block_editor_assets', function () {
 	}
 } );
 
-
+// Load editor script for Elementor
+add_action( 'elementor/editor/before_enqueue_scripts', function () {
+	$asset_base = plugin_dir_url( __FILE__ ) . 'build/';
+	$asset_path = plugin_dir_path( __FILE__ ) . 'build/editor/index.js';
+	if ( file_exists( $asset_path ) ) {
+		wp_enqueue_script(
+			'cimo-elementor-editor',
+			$asset_base . 'editor/index.js',
+			[ 'elementor-editor' ],
+			filemtime( $asset_path ),
+			true
+		);
+	}
+} );
