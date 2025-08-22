@@ -2,6 +2,7 @@
  * This handles the upload and select files in the following areas:
  *
  * Dropping files from the Media Manager
+ * Dropping files from the Media > Add Media File
  */
 
 const domReady = require( '@wordpress/dom-ready' )
@@ -94,9 +95,13 @@ function addDropZoneListenerToMediaManager() {
 			// Target the current dropzone
 		   event.target.dispatchEvent( dropEvent )
 	   } else {
-			// Find the file input inside the drop zone or media modal
+			// Find the file input inside the Media Manager modal
 			// TODO: There might be a better way to do this.
-			const fileInput = document.querySelector( '.media-modal input[type="file"]' )
+			const fileInput = document.querySelector( '.media-modal input[type="file"]' ) ||
+				// Fallback, this is the Media > Add Media File
+				document.querySelector( '.media-upload-form input[type="file"]' ) ||
+				// Just in case
+				document.querySelector( 'input[type="file"]' )
 
 			if ( fileInput ) {
 				// Assign the files to the input element

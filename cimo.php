@@ -26,7 +26,7 @@ add_action( 'enqueue_block_editor_assets', function () {
 		wp_enqueue_script(
 			'cimo-editor',
 			$asset_base . 'editor/index.js',
-			[ 'wp-element', 'wp-hooks', 'wp-dom-ready', 'wp-media-utils' ],
+			[],
 			filemtime( $asset_path ),
 			true
 		);
@@ -41,7 +41,22 @@ add_action( 'elementor/editor/before_enqueue_scripts', function () {
 		wp_enqueue_script(
 			'cimo-elementor-editor',
 			$asset_base . 'editor/index.js',
-			[ 'elementor-editor' ],
+			[],
+			filemtime( $asset_path ),
+			true
+		);
+	}
+} );
+
+// Load admin script for admin areas with drop zones
+add_action( 'admin_enqueue_scripts', function () {
+	$asset_base = plugin_dir_url( __FILE__ ) . 'build/';
+	$asset_path = plugin_dir_path( __FILE__ ) . 'build/admin/index.js';
+	if ( file_exists( $asset_path ) ) {
+		wp_enqueue_script(
+			'cimo-admin',
+			$asset_base . 'admin/index.js',
+			[],
 			filemtime( $asset_path ),
 			true
 		);

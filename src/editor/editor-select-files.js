@@ -3,6 +3,7 @@
  *
  * Clicking the "Select Files" in the media manager
  * Clicking the "Upload" button from the Image Block
+ * Clicking "Select Files" from the Media > Add Media File
  */
 const domReady = require( '@wordpress/dom-ready' )
 const converter = require( '../shared/image-converter' )

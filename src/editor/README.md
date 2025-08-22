@@ -8,10 +8,10 @@ Support the following file upload locations:
 - [x] Clicking the "Select Files" in the media manager
  - [x] TODO: multiple file uploads
 - [x] Clicking the "Upload" button from the Image Block
-- [ ] Dropping files from the Media > Add Media File
- - [ ] TODO: multiple file uploads
-- [ ] Clicking "Select Files" from the Media > Add Media File
- - [ ] TODO: multiple file uploads
+- [x] Dropping files from the Media > Add Media File
+ - [x] TODO: multiple file uploads
+- [x] Clicking "Select Files" from the Media > Add Media File
+ - [x] TODO: multiple file uploads
 
 Other TODOs:
 - [ ] Show information on the media showing that Cimo optimized it and show the following details: original format, original size, new format, new size, % decrease in filesize, optimized in X secs

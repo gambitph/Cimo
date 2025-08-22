@@ -1,1 +1,2 @@
-// Placeholder entry for admin-side scripts. No runtime code yet.
+import '../editor/media-manager-drop'
+import '../editor/editor-select-files'
