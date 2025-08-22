@@ -39,7 +39,7 @@ add_action( 'elementor/editor/before_enqueue_scripts', function () {
 	$asset_path = plugin_dir_path( __FILE__ ) . 'build/editor/index.js';
 	if ( file_exists( $asset_path ) ) {
 		wp_enqueue_script(
-			'cimo-elementor-editor',
+			'cimo-editor',
 			$asset_base . 'editor/index.js',
 			[],
 			filemtime( $asset_path ),
@@ -54,7 +54,7 @@ add_action( 'admin_enqueue_scripts', function () {
 	$asset_path = plugin_dir_path( __FILE__ ) . 'build/admin/index.js';
 	if ( file_exists( $asset_path ) ) {
 		wp_enqueue_script(
-			'cimo-admin',
+			'cimo-editor',
 			$asset_base . 'admin/index.js',
 			[],
 			filemtime( $asset_path ),
