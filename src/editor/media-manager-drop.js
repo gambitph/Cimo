@@ -1,5 +1,10 @@
-const domReadyModule = require( '@wordpress/dom-ready' )
-const domReady = domReadyModule.default || domReadyModule
+/**
+ * This handles the upload and select files in the following areas:
+ *
+ * Dropping files from the Media Manager
+ */
+
+const domReady = require( '@wordpress/dom-ready' )
 const converter = require( '../shared/image-converter' )
 
 /**
@@ -59,6 +64,7 @@ function addDropZoneListenerToMediaManager( mediaFrame ) {
 	// Add our custom drop listener
 	dropZone.addEventListener( 'drop', async event => {
 		// If the file dropped is webp, just return
+		// TODO: We want to support other file types
 		if ( event.dataTransfer.files[ 0 ].type === 'image/webp' ) {
 			return
 		}
