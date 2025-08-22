@@ -38,6 +38,10 @@ function addDropZoneListenerToMediaManager() {
 			return
 		}
 
+		// TODO: We also want to filter out the target so we can set when this
+		// is triggered. We might break other funcitonality that we don't have
+		// the conversion to happen.
+
 		// Prevent default browser behavior
 		event.preventDefault()
 		event.stopPropagation()
@@ -63,15 +67,41 @@ function addDropZoneListenerToMediaManager() {
 			dataTransfer.items.add( file )
 		} )
 
-		// Find the file input inside the drop zone or media modal
-		const fileInput = document.querySelector( '.media-modal input[type="file"]' )
+		// Check if the drop was initiated from a WordPress DropZone component,
+		// if it is, then we will have to follow the simulation on how to make
+		// the DropZone trigger and detect files properly.
+		//
+		// If this stops working, use SCRIPT_DEBUG true, then check the value
+		// inside the DropZoneComponent.
+		//
+		// @see https://github.com/WordPress/gutenberg/blob/f8140c4fcc8db2d6078ad76fd433c79df3543860/packages/components/src/drop-zone/index.tsx#L59
+		if ( event.target?.classList.contains( 'components-drop-zone' ) ) {
+			// Create a drop event
+			const dropEvent = new Event( 'drop', { bubbles: true } )
 
-		// Assign the files to the input element
-		fileInput.files = dataTransfer.files
+			// Define the dataTransfer property, DropZoneComponent's onDrop will
+			// check this. This is the way to add a property to an Event object.
+			Object.defineProperty( dropEvent, 'dataTransfer', {
+				value: dataTransfer,
+				writable: false,
+			} )
 
-		// Dispatch a change event to trigger the native upload flow
-		const changeEvent = new Event( 'change', { bubbles: true } )
-		fileInput.dispatchEvent( changeEvent )
+			// Target the current dropzone
+		   event.target.dispatchEvent( dropEvent )
+	   } else {
+			// Find the file input inside the drop zone or media modal
+			// TODO: There might be a better way to do this.
+			const fileInput = document.querySelector( '.media-modal input[type="file"]' )
+
+			if ( fileInput ) {
+				// Assign the files to the input element
+				fileInput.files = dataTransfer.files
+
+				// Dispatch a change event to trigger the native upload flow
+				const changeEvent = new Event( 'change', { bubbles: true } )
+				fileInput.dispatchEvent( changeEvent )
+			}
+		}
 	}, true ) // This needs to be true or else we cannot stop the default dropping behavior
 
 	// console.log( 'Drop zone listener added to Media Manager' )
