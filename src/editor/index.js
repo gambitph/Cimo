@@ -1,2 +1,2 @@
 import './media-manager-drop'
-import './media-manager-select-files'
+import './editor-select-files'
