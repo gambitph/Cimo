@@ -31,19 +31,28 @@ async function maybeConvertFile( file ) {
 	}
 }
 
+// TODO: Make this configurable.
+const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png' ]
+
 // Add event listener to the Media Manager's drop zone
 function addDropZoneListenerToMediaManager() {
 	// Add our custom drop listener
 	document.body.addEventListener( 'drop', async event => {
-		// If the file dropped is webp, just return
-		// TODO: We want to support other file types
-		if ( event.dataTransfer.files[ 0 ].type === 'image/webp' ) {
+		// If we do not have any dropped files to convert that are included in FILES_TO_CONVERT, return
+		const hasFilesToConvert = Array.from( event.dataTransfer.files ).some( file => FILES_TO_CONVERT.includes( file.type ) )
+		if ( ! hasFilesToConvert ) {
 			return
 		}
 
 		// TODO: We also want to filter out the target so we can set when this
 		// is triggered. We might break other funcitonality that we don't have
 		// the conversion to happen.
+		if ( ! event.target.closest( '.media-frame-uploader' ) && // Allowed to drop in the Media Manager
+			! event.target.closest( '.media-upload-form' ) && // Allowed to drop in the admin Media > Add Media File.
+			! event.target.closest( '.editor-post-featured-image' ) && // Allowed to drop in the featured image drop zone.
+			! event.target.closest( '.editor-styles-wrapper' ) ) { // Allowed to drop in the block editor when adding new image blocks
+			return
+		}
 
 		// Prevent default browser behavior
 		event.preventDefault()

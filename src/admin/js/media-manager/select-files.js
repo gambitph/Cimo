@@ -25,6 +25,9 @@ async function maybeConvertFile( file ) {
 	}
 }
 
+// TODO: Make this configurable.
+const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png' ]
+
 // Add event listener to the Media Manager's drop zone
 function addSelectFilesListenerToFileUploads() {
 	if ( ! window.wp ) {
@@ -37,13 +40,19 @@ function addSelectFilesListenerToFileUploads() {
 			return
 		}
 
+		// If we do not have any selected files to convert that are included in FILES_TO_CONVERT, return
+		const hasFilesToConvert = Array.from( event.target.files ).some( file => FILES_TO_CONVERT.includes( file.type ) )
+		if ( ! hasFilesToConvert ) {
+			return
+		}
+
 		// TODO: We need filter this so that we will only override this on file
 		// selects that we want to, like the media manager picker or the image
 		// block uploader.
-
-		// If the file is image/webp, then just do the normal behavior.
-		// TODO: We want to support other file types
-		if ( event.target.files[ 0 ].type === 'image/webp' ) {
+		// Allow these locations to be able to select files.
+		if ( ! event.target.closest( '.components-form-file-upload' ) && // Allow uploads to the image block
+			! event.target.closest( '.media-frame' ) && // Allow uploads from the Media Manager
+			! event.target.closest( '.media-upload-form' ) ) { // Allow uploads from the admin Media > Add Media File
 			return
 		}
 

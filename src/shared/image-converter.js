@@ -202,7 +202,7 @@ async function convertImageClientSide( file, options ) {
 		const end = performance.now()
 
 		// Get the file extension for the new format
-		const extension = format === 'jpg' ? 'jpg' : format
+		const extension = format === 'jpeg' ? 'jpg' : format
 		// Prepend a unique identified to the filename
 		const prefix = Math.random().toString( 36 ).substring( 2, 10 )
 		const newName = prefix + '-' + file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension

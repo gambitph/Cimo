@@ -13,7 +13,7 @@
  * @param {number} maxRetries - Maximum number of retry attempts (default: 5)
  * @param {number} retryDelay - Delay between retries in milliseconds (default: 2000)
  */
-export const saveMetadata = ( filename, metadata, delay = 1000, maxRetries = 5, retryDelay = 2000 ) => {
+export const saveMetadata = ( filename, metadata, delay = 1000, maxRetries = 20, retryDelay = 2000 ) => {
 	// Track if we've already succeeded for this filename/metadata combination
 	if ( getCachedMetadata( filename ) ) {
 		// eslint-disable-next-line no-console
