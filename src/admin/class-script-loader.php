@@ -25,25 +25,27 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				return;
 			}
 
-			$asset_base = plugin_dir_url( CIMO_FILE ) . 'build/';
-			$asset_path = plugin_dir_path( CIMO_FILE ) . 'build/admin/index.js';
+			$build_dir = plugin_dir_path( CIMO_FILE ) . 'build/admin/';
+			$build_url = plugin_dir_url( CIMO_FILE ) . 'build/admin/';
+
+			// Enqueue the main admin JavaScript file
+			$script_asset = include $build_dir . 'index.asset.php';
 			wp_enqueue_script(
 				'cimo-editor',
-				$asset_base . 'admin/index.js',
-				[],
-				filemtime( $asset_path ),
+				$build_url . 'index.js',
+				$script_asset['dependencies'],
+				$script_asset['version'],
 				true
 			);
 
-			$asset_path = plugin_dir_path( CIMO_FILE ) . 'build/admin/admin.css';
-			if ( file_exists( $asset_path ) ) {
-				wp_enqueue_style(
-					'cimo-admin',
-					$asset_base . 'admin/admin.css',
-					[],
-					filemtime( $asset_path )
-				);
-			}
+			// Enqueue the admin CSS file
+			$style_asset = include $build_dir . 'admin.asset.php';
+			wp_enqueue_style(
+				'cimo-admin',
+				$build_url . 'admin.css',
+				$style_asset['dependencies'],
+				$style_asset['version']
+			);
 		}
 	}
 

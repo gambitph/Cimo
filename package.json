@@ -9,14 +9,15 @@
 	},
 	"scripts": {
 		"prebuild": "npm run lint",
-		"build": "wp-scripts build",
+		"build": "wp-scripts build && npm run package",
 		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js",
 		"lint:js:fix": "wp-scripts lint-js --fix",
 		"lint:css": "wp-scripts lint-style",
 		"lint:css:fix": "wp-scripts lint-style --fix",
 		"lint": "npm run lint:js && npm run lint:css",
-		"format": "wp-scripts format"
+		"format": "wp-scripts format",
+		"package": "node scripts/package.js"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -26,6 +27,7 @@
 		"@wordpress/prettier-config": "^4.29.0",
 		"@wordpress/scripts": "^30.0.0",
 		"@wordpress/stylelint-config": "^23.21.0",
+		"archiver": "^6.0.1",
 		"eslint": "^8.57.0",
 		"eslint-plugin-compat": "^6.0.2",
 		"prettier": "^3.3.3"

@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Cimo
- * Plugin URI: https://example.com/
+ * Plugin URI: https://wpcimo.com/
  * Description: Convert images to WebP on upload.
  * Version: 0.1.0
- * Author: Your Name
+ * Author: Benjamin Intal
  * Author URI: https://example.com/
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
