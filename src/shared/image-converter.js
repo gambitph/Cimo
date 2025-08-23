@@ -114,6 +114,8 @@ function calculateDimensions( originalWidth, originalHeight, options ) {
 const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
 	return new Promise( ( resolve, reject ) => {
 		const img = new Image()
+		let objectUrl = null
+
 		img.onload = async function() {
 			const canvas = document.createElement( 'canvas' )
 
@@ -155,6 +157,15 @@ const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
 			const quality = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? formatConfig.quality : undefined
 
 			canvas.toBlob( function( blob ) {
+				// Clean up resources
+				URL.revokeObjectURL( objectUrl )
+				objectUrl = null
+
+				// Clear canvas to free memory
+				ctx.clearRect( 0, 0, canvas.width, canvas.height )
+				canvas.width = 0
+				canvas.height = 0
+
 				if ( blob ) {
 					resolve( blob )
 				} else {
@@ -162,8 +173,18 @@ const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
 				}
 			}, format.mimeType, quality )
 		}
-		img.onerror = () => reject( new Error( 'Failed to load image' ) )
-		img.src = URL.createObjectURL( fileItem.file )
+
+		img.onerror = () => {
+			// Clean up on error too
+			if ( objectUrl ) {
+				URL.revokeObjectURL( objectUrl )
+				objectUrl = null
+			}
+			reject( new Error( 'Failed to load image' ) )
+		}
+
+		objectUrl = URL.createObjectURL( fileItem.file )
+		img.src = objectUrl
 	} )
 }
 
