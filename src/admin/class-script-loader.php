@@ -34,6 +34,16 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				filemtime( $asset_path ),
 				true
 			);
+
+			$asset_path = plugin_dir_path( CIMO_FILE ) . 'build/admin/admin.css';
+			if ( file_exists( $asset_path ) ) {
+				wp_enqueue_style(
+					'cimo-admin',
+					$asset_base . 'admin/admin.css',
+					[],
+					filemtime( $asset_path )
+				);
+			}
 		}
 	}
 

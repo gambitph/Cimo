@@ -5,6 +5,7 @@ module.exports = {
 	entry: {
 		'editor/index': './src/editor/index.js',
 		'admin/index': './src/admin/js/index.js',
+		'admin/admin': './src/admin/css/admin.css',
 		'frontend/index': './src/frontend/index.js',
 	},
 }

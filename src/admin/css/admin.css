@@ -1,0 +1,55 @@
+.cimo-media-manager-metadata {
+	float: left;
+	margin: 1em 0 0;
+	padding: 1em;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	background-color: #fff;
+	color: #000;
+}
+
+.cimo-media-manager-metadata ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.cimo-media-manager-metadata-title {
+	margin: 0 0 16px;
+	font-size: 1.2em;
+
+	svg {
+		width: 20px;
+		height: 20px;
+		vertical-align: middle;
+		margin-top: -3px;
+		fill: #19af19;
+	}
+}
+
+.cimo-compression-savings {
+	font-size: 1.4em;
+    font-weight: 700;
+    color: #19af19;
+	margin-bottom: 8px;
+}
+
+.cimo-filesize {
+	margin-bottom: 16px;
+}
+
+.cimo-converted,
+.cimo-time {
+	padding-left: 0.5em;
+    margin-left: 1.5em;
+    list-style-type: '—';
+
+	&::marker {
+		color: #aaa;
+        font-weight: 700;
+	}
+
+	.cimo-value {
+		font-weight: 700;
+	}
+}

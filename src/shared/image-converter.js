@@ -5,6 +5,8 @@
  * Supports optional resizing, scaling, and aspect ratio cropping.
  */
 
+import { saveMetadata } from './metadata-saver'
+
 // Supported output formats
 const supportedFormats = [
 	{ value: 'webp', mimeType: 'image/webp' },
@@ -195,11 +197,27 @@ async function convertImageClientSide( file, options ) {
 	const fileItem = { file }
 
 	try {
+		const start = performance.now()
 		const convertedBlob = await convertImage( fileItem, format )
+		const end = performance.now()
 
 		// Get the file extension for the new format
 		const extension = format === 'jpg' ? 'jpg' : format
-		const newName = file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
+		// Prepend a unique identified to the filename
+		const prefix = Math.random().toString( 36 ).substring( 2, 10 )
+		const newName = prefix + '-' + file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
+
+		const conversionMetadata = {
+			originalFormat: file.type,
+			originalFilesize: file.size,
+			convertedFormat: formatInfo.mimeType,
+			convertedFilesize: convertedBlob.size,
+			conversionTime: end - start,
+			compressionSavings: file.size > 0 ? convertedBlob.size / file.size : null,
+		}
+
+		// Dispatch the metadata to the server.
+		saveMetadata( newName, conversionMetadata )
 
 		const outFile = new File( [ convertedBlob ], newName, {
 			type: formatInfo.mimeType,
@@ -211,7 +229,7 @@ async function convertImageClientSide( file, options ) {
 	}
 }
 
-module.exports = {
+export {
 	convertImageClientSide,
 	convertImage,
 }
