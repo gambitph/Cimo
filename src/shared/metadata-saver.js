@@ -4,7 +4,6 @@
  * after a short delay, we need to trigger a POST in order to save to the server
  * the metadata of the image conversion.
  */
-import apiFetch from '@wordpress/api-fetch'
 
 /**
  * Saves metadata to the server via REST API with retry logic
@@ -34,29 +33,44 @@ export const saveMetadata = ( filename, metadata, delay = 1000, maxRetries = 5, 
 				// eslint-disable-next-line no-console
 				console.log( `Attempting to save metadata for ${ filename } (attempt ${ attempts }/${ maxRetries })` )
 
-				apiFetch( {
-					path: '/cimo/v1/metadata',
+				// Use normal fetch here because apiFetch is not available sometimes, like in Elementor.
+				fetch( '/wp-json/cimo/v1/metadata', {
 					method: 'POST',
-					data: {
+					headers: {
+						'Content-Type': 'application/json',
+						Accept: 'application/json',
+						// If you need nonce for authentication, add it here:
+						'X-WP-Nonce': window.wpApiSettings?.nonce,
+					},
+					body: JSON.stringify( {
 						filename,
 						metadata,
-					},
+					} ),
+					credentials: 'same-origin',
 				} )
+					.then( response => {
+						if ( ! response.ok ) {
+							return response.json().then( err => {
+								throw new Error( err.message || response.statusText )
+							} )
+						}
+						return response.json()
+					} )
 					.then( data => {
-					// eslint-disable-next-line no-console
+						// eslint-disable-next-line no-console
 						console.log( 'Metadata saved successfully for:', filename, data )
 						resolve( data )
 					} )
 					.catch( error => {
-					// eslint-disable-next-line no-console
+						// eslint-disable-next-line no-console
 						console.error( `Failed to save metadata for ${ filename } (attempt ${ attempts }):`, error )
 
 						if ( attempts < maxRetries ) {
-						// eslint-disable-next-line no-console
+							// eslint-disable-next-line no-console
 							console.log( `Retrying in ${ retryDelay }ms...` )
 							setTimeout( attemptSave, retryDelay )
 						} else {
-						// eslint-disable-next-line no-console
+							// eslint-disable-next-line no-console
 							console.error( `Failed to save metadata for ${ filename } after ${ maxRetries } attempts` )
 							reject( new Error( `Failed to save metadata after ${ maxRetries } attempts: ${ error.message }` ) )
 						}

@@ -53,3 +53,7 @@
 		font-weight: 700;
 	}
 }
+
+#cimo-data-meta-box.postbox .inside {
+	padding-top: 12px;
+}

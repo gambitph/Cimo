@@ -14,13 +14,14 @@ Support the following file upload locations:
  - [x] TODO: multiple file uploads
 
 Other TODOs:
-- [ ] Show information on the media showing that Cimo optimized it and show the following details: original format, original size, new format, new size, % decrease in filesize, optimized in X secs
+- [x] Show information on the media showing that Cimo optimized it and show the following details: original format, original size, new format, new size, % decrease in filesize, optimized in X secs
 - [ ] Settings
 	- [ ] Which mime types to auto-convert
 	- [ ] Image quality
+- [ ] Filter only locations where auto-conversion is allowed (hard code this for now)
 
 Bugs:
-- [ ] There are random times when you open the Media Manager and we somehow do not override the drop function
+- [x] There are random times when you open the Media Manager and we somehow do not override the drop function
 
 Good to haves, premium?:
 - [ ] Convert button in the Media Manager (browser will download the image, convert, then reupload in the same attachment ID)
