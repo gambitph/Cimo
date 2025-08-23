@@ -20,6 +20,7 @@ async function maybeConvertFile( file ) {
 	} catch ( e ) {
 		// On failure, fallback to original file to avoid breaking uploads
 		// TODO: add a notice here so the user will know that it didn't work.
+		console.error( e ) // eslint-disable-line no-console
 		return file
 	}
 }

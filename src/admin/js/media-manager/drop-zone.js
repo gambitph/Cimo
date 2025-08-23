@@ -19,15 +19,16 @@ const converter = require( '../../../shared/image-converter' )
  * @return {Promise<File>} Promise resolving to the converted file, or the original on failure.
  */
 async function maybeConvertFile( file ) {
-	// try {
+	try {
 	// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
-	const convertedFile = await converter.convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
-	return convertedFile
-	// } catch ( e ) {
+		const convertedFile = await converter.convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
+		return convertedFile
+	} catch ( e ) {
 	// On failure, fallback to original file to avoid breaking uploads
 	// TODO: add a notice here so the user will know that it didn't work.
-	// 	return file
-	// }
+		console.error( e ) // eslint-disable-line no-console
+		return file
+	}
 }
 
 // Add event listener to the Media Manager's drop zone
