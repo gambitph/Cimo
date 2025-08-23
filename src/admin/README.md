@@ -23,6 +23,7 @@ Other TODOs:
 Bugs:
 - [x] There are random times when you open the Media Manager and we somehow do not override the drop function
 - [ ] Opening the media manager, then selecing a file to uplaod doesn't show the compression stats
+- [ ] Comporession info doesn't appear if you open the media in the Admin > Media while in grid view
 
 Good to haves, premium?:
 - [ ] Convert button in the Media Manager (browser will download the image, convert, then reupload in the same attachment ID)
