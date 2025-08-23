@@ -1,2 +1,1 @@
-import './media-manager-drop'
-import './editor-select-files'
+// Placeholder entry for editor scripts.

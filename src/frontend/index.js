@@ -1,1 +1,1 @@
-// Placeholder entry for frontend scripts. No runtime code yet.
+// Placeholder entry for frontend scripts.

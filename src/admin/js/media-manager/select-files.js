@@ -6,7 +6,7 @@
  * Clicking "Select Files" from the Media > Add Media File
  */
 const domReady = require( '@wordpress/dom-ready' )
-const converter = require( '../shared/image-converter' )
+const converter = require( '../../../shared/image-converter' )
 
 /**
  * Wrap a file with conversion if it's an image; otherwise return unchanged.
