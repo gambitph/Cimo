@@ -69,10 +69,20 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 
 						$converted_format = isset( $cimo['convertedFormat'] ) ? cimo_convert_mimetype_to_format( $cimo['convertedFormat'] ) : '';
 						$converttime = isset( $cimo['conversionTime'] ) ? floatval( $cimo['conversionTime'] ) : null;
-						$converttime_str = $converttime !== null ? number_format( $converttime, 2 ) . 'ms' : 'N/A';
+						if ( $converttime !== null ) {
+							if ( $converttime < 1000 ) {
+								$converttime_str = number_format( $converttime, 0 ) . ' ms';
+							} elseif ( $converttime < 60000 ) {
+								$converttime_str = number_format( $converttime / 1000, 1 ) . ' sec';
+							} else {
+								$converttime_str = number_format( $converttime / 60000, 1 ) . ' min';
+							}
+						} else {
+							$converttime_str = 'N/A';
+						}
 
 						// echo '<div class="cimo-media-manager-metadata">';
-						echo '<h3 class="cimo-media-manager-metadata-title">' . $svg . ' Image Optimized by Cimo!</h3>';
+						echo '<h3 class="cimo-media-manager-metadata-title">' . $svg . ' Image Optimized by Cimo</h3>';
 						echo '<ul>';
 
 						// Optimization savings
