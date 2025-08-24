@@ -82,27 +82,35 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						}
 
 						// echo '<div class="cimo-media-manager-metadata">';
-						echo '<h3 class="cimo-media-manager-metadata-title">' . $svg . ' Image Optimized by Cimo</h3>';
+						echo '<div class="cimo-media-manager-metadata-title-container">';
+						echo $svg;
+						echo '<h3 class="cimo-media-manager-metadata-title">Image Optimized by Cimo</h3>';
+						echo '</div>';
 						echo '<ul>';
 
 						// Optimization savings
 						echo '<li class="cimo-compression-savings ' . esc_attr( $optimization_savings_class ) . '">';
-						echo 'Saved ' . esc_html( $optimization_savings ) . '% (' . esc_html( $kb_saved ) . ')';
+						echo 'Saved ' . esc_html( $optimization_savings ) . '% <span class="cimo-compression-savings-bytes">(-' . esc_html( $kb_saved ) . ')</span>';
 						echo '</li>';
 
-						// Filesize
-						echo '<li class="cimo-filesize">';
-						echo 'Original: <span class="cimo-original-filesize-value">' . esc_html( $original_size ) . '</span> → Optimized: <span class="cimo-converted-filesize">' . esc_html( $converted_size ) . '</span>';
+						// Filesize original
+						echo '<li class="cimo-filesize-original">';
+						echo 'Original: <span class="cimo-value">' . esc_html( $original_size ) . '</span>';
+						echo '</li>';
+
+						// Filesize optimized
+						echo '<li class="cimo-filesize-optimized">';
+						echo 'Optimized: <span class="cimo-value">' . esc_html( $converted_size ) . '</span>';
 						echo '</li>';
 
 						// Converted format
 						echo '<li class="cimo-converted">';
-						echo 'Converted to <span class="cimo-value">' . esc_html( $converted_format ) . '</span>';
+						echo '🏞️ Converted to <span class="cimo-value">' . esc_html( $converted_format ) . '</span>';
 						echo '</li>';
 
 						// Conversion time
 						echo '<li class="cimo-time">';
-						echo 'Done in <span class="cimo-value">' . esc_html( $converttime_str ) . ' ⚡️</span>';
+						echo '⚡️ Done in <span class="cimo-value">' . esc_html( $converttime_str ) . '</span>';
 						echo '</li>';
 
 						echo '</ul>';

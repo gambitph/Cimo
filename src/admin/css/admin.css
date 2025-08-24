@@ -1,57 +1,65 @@
 .cimo-media-manager-metadata {
 	float: left;
-	margin: 1em 0 0;
-	padding: 1em;
-	border: 1px solid #ccc;
-	border-radius: 4px;
+	margin: 1.5em 0;
 	background-color: #fff;
 	color: #000;
+	padding: 16px 20px;
+    border-radius: 16px;
+	box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+}
+
+.cimo-media-manager-metadata-title-container {
+	display: flex;
+	margin: 0 0 16px;
+	gap: 4px;
+
+	svg {
+		width: 20px;
+		height: 20px;
+		vertical-align: middle;
+		margin-top: -1px;
+		fill: #19af19;
+	}
 }
 
 .cimo-media-manager-metadata ul {
 	list-style: none;
 	padding: 0;
 	margin: 0;
+	font-size: 13px;
+
+	li {
+		margin-bottom: 4px;
+	}
 }
 
 .cimo-media-manager-metadata-title {
-	margin: 0 0 16px;
-	font-size: 1.2em;
-
-	svg {
-		width: 20px;
-		height: 20px;
-		vertical-align: middle;
-		margin-top: -3px;
-		fill: #19af19;
-	}
+	margin: 0;
+	font-size: 16px;
+    line-height: 1.2;
 }
 
 .cimo-compression-savings {
-	font-size: 1.4em;
+	font-size: 21px;
     font-weight: 700;
     color: #19af19;
-	margin-bottom: 8px;
+	margin-bottom: 16px !important;
+	text-align: center;
 }
 
-.cimo-filesize {
-	margin-bottom: 16px;
+.cimo-compression-savings-bytes {
+	display: block;
+	font-size: 13px;
+    font-weight: 500;
+    color: #999;
 }
 
-.cimo-converted,
-.cimo-time {
-	padding-left: 0.5em;
-    margin-left: 1.5em;
-    list-style-type: '—';
+.cimo-value {
+	font-weight: 600;
+}
 
-	&::marker {
-		color: #aaa;
-        font-weight: 700;
-	}
-
-	.cimo-value {
-		font-weight: 700;
-	}
+.cimo-filesize-optimized {
+	margin-bottom: 16px !important;
 }
 
 #cimo-data-meta-box.postbox .inside {

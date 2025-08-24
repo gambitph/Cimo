@@ -51,8 +51,11 @@ domReady( () => {
 				const customContent = document.createElement( 'div' )
 				customContent.className = 'cimo-media-manager-metadata'
 
-				const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20"><path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5zM465.5 273.9C477.6 264.2 479.5 246.6 469.9 234.5C460.3 222.4 442.6 220.5 430.5 230.1C378 272.1 330.3 341.9 306.7 379.4C291.4 359.3 267.2 331.1 239.5 312.6C226.6 304 209.2 307.5 200.7 320.4C192.2 333.3 195.6 350.7 208.5 359.2C237.4 378.5 264.1 415.1 274.1 429.9C281.5 440.9 294 447.9 307.9 447.9C322.3 447.9 335.5 440.3 342.8 428C357.2 403.5 410 318.3 465.6 273.8z"/></svg>`
-				let html = `<h3 class="cimo-media-manager-metadata-title">${ svg } Image Optimized by Cimo</h3><ul>`
+				let html = `<div class="cimo-media-manager-metadata-title-container">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20"><path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5zM465.5 273.9C477.6 264.2 479.5 246.6 469.9 234.5C460.3 222.4 442.6 220.5 430.5 230.1C378 272.1 330.3 341.9 306.7 379.4C291.4 359.3 267.2 331.1 239.5 312.6C226.6 304 209.2 307.5 200.7 320.4C192.2 333.3 195.6 350.7 208.5 359.2C237.4 378.5 264.1 415.1 274.1 429.9C281.5 440.9 294 447.9 307.9 447.9C322.3 447.9 335.5 440.3 342.8 428C357.2 403.5 410 318.3 465.6 273.8z"/></svg>
+				<h3 class="cimo-media-manager-metadata-title">Image Optimized by Cimo</h3>
+				</div>
+				<ul>`
 
 				/**
 				 * Format optimization savings, display an arrow up or down and color it green or red.
@@ -63,19 +66,20 @@ domReady( () => {
 				const kbSaved = formatFilesize( customMetadata.originalFilesize - customMetadata.convertedFilesize )
 				const optimizationSavingsClass = optimizationSavings > 0 ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down'
 
-				html += `<li class="cimo-compression-savings ${ optimizationSavingsClass }">Saved ${ optimizationSavings }% (${ kbSaved })</li>`
+				html += `<li class="cimo-compression-savings ${ optimizationSavingsClass }">Saved ${ optimizationSavings }% <span class="cimo-compression-savings-bytes">(-${ kbSaved })</span></li>`
 
 				/**
 				 * Filesize
 				 */
 				const originalSize = formatFilesize( parseInt( customMetadata.originalFilesize ) || 0 )
 				const convertedSize = formatFilesize( parseInt( customMetadata.convertedFilesize ) || 0 )
-				html += `<li class="cimo-filesize">Original: <span class="cimo-original-filesize-value">${ originalSize }</span> → Optimized: <span class="cimo-converted-filesize">${ convertedSize }</span></li>`
+				html += `<li class="cimo-filesize-original">Original: <span class="cimo-value">${ originalSize }</span></li>`
+				html += `<li class="cimo-filesize-optimized">Optimized: <span class="cimo-value">${ convertedSize }</span></li>`
 
 				/**
 				 * Original format
 				 */
-				html += `<li class="cimo-converted">Converted to <span class="cimo-value">${ convertMimetypeToFormat( customMetadata.convertedFormat ) }</span></li>`
+				html += `<li class="cimo-converted">🏞️ Converted to <span class="cimo-value">${ convertMimetypeToFormat( customMetadata.convertedFormat ) }</span></li>`
 
 				/**
 				 * Conversion time
@@ -92,7 +96,7 @@ domReady( () => {
 						conversionTimeDisplay = `${ ( timeMs / 60000 ).toFixed( 1 ) } min`
 					}
 				}
-				html += `<li class="cimo-time">Done in <span class="cimo-value">${ conversionTimeDisplay } ⚡️</span></li>`
+				html += `<li class="cimo-time">⚡️ Done in <span class="cimo-value">${ conversionTimeDisplay }</span></li>`
 
 				customContent.innerHTML = html
 				details.appendChild( customContent )
