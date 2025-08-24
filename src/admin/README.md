@@ -16,14 +16,22 @@ Support the following file upload locations:
 Other TODOs:
 - [x] Show information on the media showing that Cimo optimized it and show the following details: original format, original size, new format, new size, % decrease in filesize, optimized in X secs
 - [ ] Settings
-	- [ ] Which mime types to auto-convert
-	- [ ] Image quality
-- [ ] Filter only locations where auto-conversion is allowed (hard code this for now)
+	- [ ] Show/hide compression stats
+	- Image options
+		- [ ] Which mime types to auto-convert
+		- [ ] Convert to WebP or AVIF
+		- [ ] Image quality
+		- [ ] Image max dimensions when uploading
+	
+- [x] Filter only locations where auto-conversion is allowed (hard code this for now)
+- [x] Safari is not supported, throw a console error
 
 Bugs:
 - [x] There are random times when you open the Media Manager and we somehow do not override the drop function
+- [ ] Dropping directly on an image block doesn't work (maybe because it's in an iframe?)
 - [ ] Opening the media manager, then selecing a file to uplaod doesn't show the compression stats
 - [ ] Comporession info doesn't appear if you open the media in the Admin > Media while in grid view
 
 Good to haves, premium?:
 - [ ] Convert button in the Media Manager (browser will download the image, convert, then reupload in the same attachment ID)
+- [ ] 

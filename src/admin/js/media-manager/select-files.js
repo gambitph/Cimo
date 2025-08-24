@@ -26,7 +26,7 @@ async function maybeConvertFile( file ) {
 }
 
 // TODO: Make this configurable.
-const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png' ]
+const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png', 'image/gif' ]
 
 // Add event listener to the Media Manager's drop zone
 function addSelectFilesListenerToFileUploads() {
@@ -37,6 +37,11 @@ function addSelectFilesListenerToFileUploads() {
 	document.body.addEventListener( 'change', async event => {
 		// Check if it's a file select.
 		if ( event.target.type !== 'file' ) {
+			return
+		}
+
+		// If this is a synthetic change event dispatched by us after conversion, skip conversion.
+		if ( event.__cimo_converted ) {
 			return
 		}
 
@@ -81,6 +86,8 @@ function addSelectFilesListenerToFileUploads() {
 
 		// Simulate the user selecting our converted file/s
 		const changeEvent = new Event( 'change', { bubbles: true } )
+		// Mark this event so we know conversion is already done
+		changeEvent.__cimo_converted = true // eslint-disable-line camelcase
 		event.target.dispatchEvent( changeEvent )
 	}, true )
 }

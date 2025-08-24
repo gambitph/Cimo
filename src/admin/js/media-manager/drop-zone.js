@@ -32,12 +32,16 @@ async function maybeConvertFile( file ) {
 }
 
 // TODO: Make this configurable.
-const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png' ]
+const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png', 'image/gif' ]
 
 // Add event listener to the Media Manager's drop zone
 function addDropZoneListenerToMediaManager() {
-	// Add our custom drop listener
-	document.body.addEventListener( 'drop', async event => {
+	const customDropHandler = async event => {
+		// If this is a synthetic change event dispatched by us after conversion, skip conversion.
+		if ( event.__cimo_converted ) {
+			return
+		}
+
 		// If we do not have any dropped files to convert that are included in FILES_TO_CONVERT, return
 		const hasFilesToConvert = Array.from( event.dataTransfer.files ).some( file => FILES_TO_CONVERT.includes( file.type ) )
 		if ( ! hasFilesToConvert ) {
@@ -103,6 +107,9 @@ function addDropZoneListenerToMediaManager() {
 				writable: false,
 			} )
 
+			// Mark this event so we know conversion is already done
+			dropEvent.__cimo_converted = true // eslint-disable-line camelcase
+
 			// Target the current dropzone
 		   event.target.dispatchEvent( dropEvent )
 	   } else {
@@ -120,10 +127,17 @@ function addDropZoneListenerToMediaManager() {
 
 				// Dispatch a change event to trigger the native upload flow
 				const changeEvent = new Event( 'change', { bubbles: true } )
+
+				// Mark this event so we know conversion is already done
+				changeEvent.__cimo_converted = true // eslint-disable-line camelcase
+
 				fileInput.dispatchEvent( changeEvent )
 			}
 		}
-	}, true ) // This needs to be true or else we cannot stop the default dropping behavior
+	}
+
+	// Add our custom drop listener
+	document.body.addEventListener( 'drop', customDropHandler, true ) // This needs to be true or else we cannot stop the default dropping behavior
 
 	// console.log( 'Drop zone listener added to Media Manager' )
 }
