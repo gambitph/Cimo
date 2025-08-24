@@ -1,24 +1,29 @@
-Cimo (Scaffold)
+# WP Cimo
 
-This repository currently contains only the project scaffolding and build system to reach a buildable state.
+This repository contains the Cimo WordPress plugin, which automatically converts uploaded images to WebP format for improved performance.
 
-Requirements:
-- Node 18+
-- npm 9+
+## Requirements
 
-Scripts:
-- npm start – Dev build with watch
-- npm run build – Production build
-- npm run lint:js – Lint JS/TS
- - npm run lint:js – Lint JS
-- npm run format – Prettier
+- Node.js v18 or higher
+- npm v9 or higher
+- PHP 8.2+ (for AVIF support, PHP 8.3+ recommended)
+- WordPress
 
-Structure:
-- src/admin/index.js
-- src/editor/index.js
-- src/frontend/index.js
-- build/ (output)
+## Scripts
 
-No runtime plugin logic is included yet.
+- `npm start` – Development build with watch mode
+- `npm run build` – Production build
+- `npm run lint:js` – Lint JavaScript
+- `npm run format` – Format code with Prettier
 
+## Structure
 
+- `src/admin/index.js` – Admin-side scripts
+- `src/editor/index.js` – Editor-side scripts
+- `src/frontend/index.js` – Frontend scripts
+- `build/` – Compiled output
+
+## Notes
+
+- AVIF support requires Imagick with AVIF enabled. Not all local PHP environments (e.g., Local by Flywheel with PHP 8.2) support AVIF. PHP 8.3+ is recommended for full compatibility.
+- The plugin is licensed under GPL-2.0-or-later.

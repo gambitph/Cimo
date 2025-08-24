@@ -1,7 +1,7 @@
 {
 	"name": "cimo",
 	"version": "0.1.0",
-	"description": "Convert images to WebP on upload (scaffold only)",
+	"description": "Convert images to WebP on upload",
 	"private": true,
 	"license": "GPL-2.0-or-later",
 	"engines": {

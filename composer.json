@@ -1,6 +1,6 @@
 {
-	"name": "your-vendor/cimo",
-	"description": "Convert images to WebP on upload (scaffold only)",
+	"name": "gambitph/cimo",
+	"description": "Convert images to WebP on upload",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {},
