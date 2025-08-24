@@ -6,7 +6,13 @@ const archiver = require( 'archiver' )
 const PLUGIN_NAME = 'cimo'
 const BUILD_DIR = 'build-plugin'
 const DIST_DIR = 'dist'
-const PLUGIN_VERSION = require( '../package.json' ).version
+// Get version from cimo.php plugin header
+const cimoPhp = fs.readFileSync( 'cimo.php', 'utf8' )
+const versionMatch = cimoPhp.match( /^\s*\*\s*Version:\s*([^\r\n]+)/m )
+if ( ! versionMatch ) {
+	throw new Error( 'Could not find Version in cimo.php' )
+}
+const PLUGIN_VERSION = versionMatch[ 1 ].trim()
 
 // Files and directories to include in the package
 const INCLUDED_FILES = [
