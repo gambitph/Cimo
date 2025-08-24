@@ -1,10 +1,11 @@
 <?php
 /**
- * Plugin Name: Cimo
+ * Plugin Name: Cimo - Image Optimizer
  * Plugin URI: https://wpcimo.com/
  * Description: Convert images to WebP on upload.
  * Version: 1.0.0
  * Author: Gambit Technologies, Inc
+ * License: GPLv2 or later
  * Author URI: http://gambit.ph
  * Requires at least: 6.5
  * Requires PHP: 7.4

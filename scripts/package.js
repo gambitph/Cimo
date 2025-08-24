@@ -18,12 +18,15 @@ const PLUGIN_VERSION = versionMatch[ 1 ].trim()
 const INCLUDED_FILES = [
 	'cimo.php',
 	'composer.json',
+	'index.php',
+	'readme.txt',
 ]
 
 // Create security index.php content
 const INDEX_PHP_CONTENT = `<?php
 	// Silence is golden.
 	// Hide file structure from users on unprotected servers.
+
 `
 
 // Ensure directories exist

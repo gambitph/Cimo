@@ -27,9 +27,6 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 					if ( isset( $metadata['cimo'] ) ) {
 						// Recreate the sidebar HTML from js/media-manager/sidebar-info.js here
 
-						// SVG icon as in the JS
-						$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20"><path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5zM465.5 273.9C477.6 264.2 479.5 246.6 469.9 234.5C460.3 222.4 442.6 220.5 430.5 230.1C378 272.1 330.3 341.9 306.7 379.4C291.4 359.3 267.2 331.1 239.5 312.6C226.6 304 209.2 307.5 200.7 320.4C192.2 333.3 195.6 350.7 208.5 359.2C237.4 378.5 264.1 415.1 274.1 429.9C281.5 440.9 294 447.9 307.9 447.9C322.3 447.9 335.5 440.3 342.8 428C357.2 403.5 410 318.3 465.6 273.8z"/></svg>';
-
 						// Helper to format bytes as human readable
 						function cimo_format_filesize( $bytes, $decimals = 2 ) {
 							if ( ! is_numeric( $bytes ) || $bytes == 0 ) {
@@ -83,7 +80,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 
 						// echo '<div class="cimo-media-manager-metadata">';
 						echo '<div class="cimo-media-manager-metadata-title-container">';
-						echo $svg;
+						echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20"><path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5zM465.5 273.9C477.6 264.2 479.5 246.6 469.9 234.5C460.3 222.4 442.6 220.5 430.5 230.1C378 272.1 330.3 341.9 306.7 379.4C291.4 359.3 267.2 331.1 239.5 312.6C226.6 304 209.2 307.5 200.7 320.4C192.2 333.3 195.6 350.7 208.5 359.2C237.4 378.5 264.1 415.1 274.1 429.9C281.5 440.9 294 447.9 307.9 447.9C322.3 447.9 335.5 440.3 342.8 428C357.2 403.5 410 318.3 465.6 273.8z"/></svg>';
 						echo '<h3 class="cimo-media-manager-metadata-title">Image Optimized by Cimo</h3>';
 						echo '</div>';
 						echo '<ul>';

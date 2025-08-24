@@ -23,7 +23,10 @@ This repository contains the Cimo WordPress plugin, which automatically converts
 - `src/frontend/index.js` – Frontend scripts
 - `build/` – Compiled output
 
+## License
+
+This plugin is licensed under the GPL v2 or later.
+
 ## Notes
 
 - AVIF support requires Imagick with AVIF enabled. Not all local PHP environments (e.g., Local by Flywheel with PHP 8.2) support AVIF. PHP 8.3+ is recommended for full compatibility.
-- The plugin is licensed under GPL-2.0-or-later.

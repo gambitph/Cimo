@@ -37,6 +37,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 						// Validate this as a string
 						'validate_callback' => function( $value, $request, $param ) {
 							if ( ! is_string( $value ) ) {
+								// translators: The %s is the parameter name.
 								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'cimo' ), $param ) );
 							}
 							return true;
@@ -48,6 +49,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 						// Validate this as an object of strings.
 						'validate_callback' => function( $value, $request, $param ) {
 							if ( ! is_array( $value ) ) {
+								// translators: The %s is the parameter name.
 								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object of strings.', 'cimo' ), $param ) );
 							}
 							return true;
