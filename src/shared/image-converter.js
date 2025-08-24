@@ -200,11 +200,11 @@ async function convertImageClientSide( file, options ) {
 	const format = options.format !== null ? options.format : 'webp'
 
 	if ( ! ( file instanceof File ) ) {
-		throw new Error( 'convertImageClientSide: input must be a File' )
+		return file
 	}
 
+	// Not an image; return original file unchanged.
 	if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
-		// Not an image; return original file unchanged.
 		return file
 	}
 
@@ -212,6 +212,39 @@ async function convertImageClientSide( file, options ) {
 	const formatInfo = supportedFormats.find( f => f.value === format )
 	if ( formatInfo && file.type === formatInfo.mimeType ) {
 		return file
+	}
+
+	// Check if the browser supports the desired output format
+	const testCanvas = document.createElement( 'canvas' )
+	if ( formatInfo && ! testCanvas.toDataURL( formatInfo.mimeType ).startsWith( `data:${ formatInfo.mimeType }` ) ) {
+		// If not supported, skip conversion and return the original file
+		// eslint-disable-next-line no-console
+		console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )
+		return file
+	}
+
+	// Detect if the image is an animated GIF, if so just return the file unchanged
+	if ( file.type === 'image/gif' ) {
+		// Read the first few bytes to check for animation
+		const buffer = await file.slice( 0, 50 * 1024 ).arrayBuffer()
+		const bytes = new Uint8Array( buffer )
+
+		// Look for multiple Graphic Control Extension blocks (0x21, 0xF9, 0x04)
+		let gceCount = 0
+		for ( let i = 0; i < bytes.length - 2; i++ ) {
+			if (
+				bytes[ i ] === 0x21 &&
+				bytes[ i + 1 ] === 0xF9 &&
+				bytes[ i + 2 ] === 0x04
+			) {
+				gceCount++
+				// If more than one GCE block, it's animated
+				if ( gceCount > 1 ) {
+					return file
+				}
+			}
+		}
+		// If not animated, continue to convert
 	}
 
 	// Create a fileItem object for the convertImage function
