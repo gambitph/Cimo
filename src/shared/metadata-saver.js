@@ -88,10 +88,10 @@ export const setCachedMetadata = ( filename, metadata ) => {
 		window.cimoMetadataCache = {}
 	}
 
-	window.cimoMetadataCache[ filename.replace( / /g, '-' ) ] = { ...metadata }
+	window.cimoMetadataCache[ filename.replaceAll( /\s+/g, '-' ) ] = { ...metadata }
 }
 
 export const getCachedMetadata = filename => {
-	return window.cimoMetadataCache?.[ filename?.replace( / /g, '-' ) ] || // Replace spaces with dashes
+	return window.cimoMetadataCache?.[ filename?.replaceAll( /\s+/g, '-' ) ] || // Replace spaces with dashes
 		null
 }
