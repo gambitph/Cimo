@@ -29,8 +29,7 @@ Bugs:
 - [x] There are random times when you open the Media Manager and we somehow do not override the drop function
 - [x] Opening the media manager, then selecing a file to uplaod doesn't show the compression stats
 - [ ] Dropping directly on an image block doesn't work (maybe because it's in an iframe?)
-- [ ] Comporession info doesn't appear if you open the media in the Admin > Media while in grid view
+- [ ] Comporession info doesn't appear if you open the media in the Admin > Media while in grid view (shows in next open anyway, low prio)
 
 Good to haves, premium?:
 - [ ] Convert button in the Media Manager (browser will download the image, convert, then reupload in the same attachment ID)
-- [ ] 
