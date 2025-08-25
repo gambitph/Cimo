@@ -3,11 +3,12 @@ import { getCachedMetadata } from '../../../shared/metadata-saver'
 
 /**
  * Format bytes into human readable format (KB, MB, etc.)
- * @param {number} bytes    - The number of bytes
- * @param {number} decimals - Number of decimal places (default: 2)
+ * @param {number}  bytes      - The number of bytes
+ * @param {number}  decimals   - Number of decimal places (default: 2)
+ * @param {boolean} invertSign - Invert the sign of the filesize (default: true)
  * @return {string} Formatted filesize
  */
-function formatFilesize( bytes, decimals = 2 ) {
+function formatFilesize( bytes, decimals = 2, invertSign = false ) {
 	if ( bytes === 0 ) {
 		return '0 Bytes'
 	}
@@ -16,9 +17,15 @@ function formatFilesize( bytes, decimals = 2 ) {
 	const dm = decimals < 0 ? 0 : decimals
 	const sizes = [ 'Bytes', 'KB', 'MB', 'GB' ]
 
-	const i = Math.floor( Math.log( bytes ) / Math.log( k ) )
+	const absBytes = Math.abs( bytes )
+	const i = Math.floor( Math.log( absBytes ) / Math.log( k ) )
+	const value = parseFloat( ( absBytes / Math.pow( k, i ) ).toFixed( dm ) )
+	let sign = bytes < 0 ? '-' : ''
+	if ( invertSign ) {
+		sign = sign === '-' ? '' : '-'
+	}
 
-	return parseFloat( ( bytes / Math.pow( k, i ) ).toFixed( dm ) ) + ' ' + sizes[ i ]
+	return sign + value + ' ' + sizes[ i ]
 }
 
 function convertMimetypeToFormat( mimetype ) {
@@ -63,10 +70,10 @@ domReady( () => {
 				const optimizationSavings = customMetadata.compressionSavings
 					? ( 100 - ( customMetadata.compressionSavings * 100 ) ).toFixed( 2 )
 					: null
-				const kbSaved = formatFilesize( customMetadata.originalFilesize - customMetadata.convertedFilesize )
+				const kbSaved = formatFilesize( customMetadata.originalFilesize - customMetadata.convertedFilesize, 1, true )
 				const optimizationSavingsClass = optimizationSavings > 0 ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down'
 
-				html += `<li class="cimo-compression-savings ${ optimizationSavingsClass }">Saved ${ optimizationSavings }% <span class="cimo-compression-savings-bytes">(-${ kbSaved })</span></li>`
+				html += `<li class="cimo-compression-savings ${ optimizationSavingsClass }">Saved ${ optimizationSavings }% <span class="cimo-compression-savings-bytes">(${ kbSaved })</span></li>`
 
 				/**
 				 * Filesize

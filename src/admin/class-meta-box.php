@@ -28,14 +28,24 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						// Recreate the sidebar HTML from js/media-manager/sidebar-info.js here
 
 						// Helper to format bytes as human readable
-						function cimo_format_filesize( $bytes, $decimals = 2 ) {
+						function cimo_format_filesize( $bytes, $decimals = 2, $invertSign = false ) {
 							if ( ! is_numeric( $bytes ) || $bytes == 0 ) {
 								return '0 Bytes';
 							}
 							$k = 1024;
+							$dm = $decimals < 0 ? 0 : $decimals;
 							$sizes = [ 'Bytes', 'KB', 'MB', 'GB' ];
-							$i = floor( log( $bytes ) / log( $k ) );
-							return round( $bytes / pow( $k, $i ), $decimals ) . ' ' . $sizes[ $i ];
+
+							$abs_bytes = abs( $bytes );
+							$i = floor( log( $abs_bytes ) / log( $k ) );
+							$value = round( $abs_bytes / pow( $k, $i ), $dm );
+
+							$sign = $bytes < 0 ? '-' : '';
+							if ( $invertSign ) {
+								$sign = $sign === '-' ? '' : '-';
+							}
+
+							return $sign . $value . ' ' . $sizes[ $i ];
 						}
 
 						// Helper to convert mimetype to format
@@ -58,7 +68,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						$optimization_savings = $compression_savings !== null ? number_format( 100 - ( $compression_savings * 100 ), 2 ) : null;
 						$original_filesize = isset( $cimo['originalFilesize'] ) ? floatval( $cimo['originalFilesize'] ) : 0;
 						$converted_filesize = isset( $cimo['convertedFilesize'] ) ? floatval( $cimo['convertedFilesize'] ) : 0;
-						$kb_saved = cimo_format_filesize( $original_filesize - $converted_filesize );
+						$kb_saved = cimo_format_filesize( $original_filesize - $converted_filesize, 1, true );
 						$optimization_savings_class = ( $optimization_savings > 0 ) ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down';
 
 						$original_size = cimo_format_filesize( $original_filesize );
@@ -87,7 +97,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 
 						// Optimization savings
 						echo '<li class="cimo-compression-savings ' . esc_attr( $optimization_savings_class ) . '">';
-						echo 'Saved ' . esc_html( $optimization_savings ) . '% <span class="cimo-compression-savings-bytes">(-' . esc_html( $kb_saved ) . ')</span>';
+						echo 'Saved ' . esc_html( $optimization_savings ) . '% <span class="cimo-compression-savings-bytes">(' . esc_html( $kb_saved ) . ')</span>';
 						echo '</li>';
 
 						// Filesize original
