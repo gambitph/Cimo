@@ -14,9 +14,15 @@ Unlimited free image compression and WebP conversion, done instantly as you uplo
 
 **Optimize all your images instantly and for free.**
 
-Cimo is a game-changer for image optimization. It optimizes and converts your images instantly as you upload — before they even hit your Media Library.
+Cimo is a game-changer for image optimization. It optimizes and converts your images instantly as you upload — even before the files are added to your Media Library.
 
-That means there's no limits, faster uploads, smaller media files, no extra server load, no extra bandwidth, and no external image-processing services.
+Cimo works like magic, drag your large image file, and an optimized image will automatically appear in your Media Library. This ensures your website load speed is perfectly optimized by keeping image sizes minimal, without compromising quality.
+
+* Unlimited usage - upload as many images as you want
+* Instant optimization - virtually no waiting time
+* No extra server load
+* No extra bandwidth
+* No external image-processing services
 
 > **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). This currently doesn't work in Safari, please use any of the browsers listed.
 
