@@ -5,6 +5,7 @@
  * Description: Unlimited free image compression and WebP conversion, done instantly as you upload them. No quotas, no external servers, no limits.
  * Author: Gambit Technologies, Inc
  * Author URI: http://gambit.ph
+ * License: GPLv2 or later
  * Text Domain: cimo
  * Version: 1.0.0
  * 

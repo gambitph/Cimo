@@ -1,6 +1,6 @@
 === Cimo - Free Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
-Tags: image, optimization, compress, convert, webp, resize
+Tags: image, optimization, compress, convert, webp
 Requires at least: 6.8
 Tested up to: 6.8
 Requires PHP: 8.0
