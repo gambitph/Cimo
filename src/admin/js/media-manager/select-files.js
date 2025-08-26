@@ -5,8 +5,8 @@
  * Clicking the "Upload" button from the Image Block
  * Clicking "Select Files" from the Media > Add Media File
  */
-const domReady = require( '@wordpress/dom-ready' )
-const converter = require( '../../../shared/image-converter' )
+import { domReady } from '~cimo/shared/dom-ready'
+import { convertImageClientSide } from '~cimo/shared/image-converter'
 
 /**
  * Wrap a file with conversion if it's an image; otherwise return unchanged.
@@ -16,7 +16,7 @@ const converter = require( '../../../shared/image-converter' )
 async function maybeConvertFile( file ) {
 	try {
 		// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
-		return await converter.convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
+		return await convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
 	} catch ( e ) {
 		// On failure, fallback to original file to avoid breaking uploads
 		// TODO: add a notice here so the user will know that it didn't work.

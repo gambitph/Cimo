@@ -5,8 +5,8 @@
  * Dropping files from the Media > Add Media File
  */
 
-const domReady = require( '@wordpress/dom-ready' )
-const converter = require( '../../../shared/image-converter' )
+import { domReady } from '~cimo/shared/dom-ready'
+import { convertImageClientSide } from '~cimo/shared/image-converter'
 
 /**
  * Intercept editor media uploads and convert images to WebP on the client
@@ -21,7 +21,7 @@ const converter = require( '../../../shared/image-converter' )
 async function maybeConvertFile( file ) {
 	try {
 	// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
-		const convertedFile = await converter.convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
+		const convertedFile = await convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
 		return convertedFile
 	} catch ( e ) {
 	// On failure, fallback to original file to avoid breaking uploads

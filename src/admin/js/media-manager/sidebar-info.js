@@ -1,5 +1,5 @@
-import domReady from '@wordpress/dom-ready'
-import { getCachedMetadata } from '../../../shared/metadata-saver'
+import { domReady } from '~cimo/shared/dom-ready'
+import { getCachedMetadata } from '~cimo/shared/metadata-saver'
 
 /**
  * Format bytes into human readable format (KB, MB, etc.)
