@@ -19,6 +19,8 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			if ( class_exists( 'FLBuilderModel' ) ) {
 				add_action( 'wp_head', [ $this, 'maybe_enqueue_for_beaver_builder' ], 999 );
 			}
+			// Enqueue for Bricks Builder
+			add_action( 'bricks_before_site_wrapper', [ $this, 'enqueue_media_assets' ] );
 			// Enqueue for the admin area in general.
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_media_assets' ] );
 		}
@@ -32,7 +34,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				$this->enqueue_media_assets();
 			}
 		}
-		
+
 		public function enqueue_media_assets() {
 			// If cimo-editor is already enqueued, don't enqueue again.
 			if ( wp_script_is( 'cimo-editor', 'enqueued' ) ) {

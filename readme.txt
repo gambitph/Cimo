@@ -58,8 +58,8 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 		* Elementor
 		* Breakdance
 		* Beaver Builder
+		* Bricks Builder
 		* Divi (working on it)
-		* Bricks Builder (working on it)
 		* Oxygen (working on it)
 	* Popular Block Editor Builders
 		* Stackable
