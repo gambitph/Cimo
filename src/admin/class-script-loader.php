@@ -21,6 +21,8 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			}
 			// Enqueue for Bricks Builder
 			add_action( 'bricks_before_site_wrapper', [ $this, 'enqueue_media_assets' ] );
+			// Enqueue for Oxygen Builder
+			add_action( 'oxygen_enqueue_ui_scripts', [ $this, 'enqueue_media_assets' ] );
 			// Enqueue for the admin area in general.
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_media_assets' ] );
 		}
