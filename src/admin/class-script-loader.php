@@ -20,7 +20,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				add_action( 'wp_head', [ $this, 'maybe_enqueue_for_beaver_builder' ], 999 );
 			}
 			// Enqueue for Bricks Builder
-			add_action( 'bricks_before_site_wrapper', [ $this, 'enqueue_media_assets' ] );
+			add_action( 'bricks_before_site_wrapper', [ $this, 'maybe_enqueue_for_bricks_builder' ] );
 			// Enqueue for Oxygen Builder
 			add_action( 'oxygen_enqueue_ui_scripts', [ $this, 'enqueue_media_assets' ] );
 			// Enqueue for the admin area in general.
@@ -33,6 +33,15 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 		public function maybe_enqueue_for_beaver_builder() {
 			// Check if we're in the Beaver Builder editor context.
 			if ( class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active() ) {
+				$this->enqueue_media_assets();
+			}
+		}
+
+		/**
+		 * Enqueue for Bricks Builder, but only when the builder is active.
+		 */
+		public function maybe_enqueue_for_bricks_builder() {
+			if ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) {
 				$this->enqueue_media_assets();
 			}
 		}
