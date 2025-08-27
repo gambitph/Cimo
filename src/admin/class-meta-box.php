@@ -21,7 +21,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 		public function add_meta_box() {
 			add_meta_box(
 				'cimo-data-meta-box',
-				__( 'Cimo Optimization', 'cimo' ),
+				__( 'Cimo Optimization', 'cimo-image-optimizer' ),
 				function( $post ) {
 					$metadata = get_post_meta( $post->ID, '_wp_attachment_metadata', true );
 					if ( isset( $metadata['cimo'] ) ) {
