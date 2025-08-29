@@ -12,7 +12,9 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 	class Cimo_Meta_Box {
 		public function __construct() {
 			// Add a meta box to display Cimo Data in the Edit Media screen
-			add_action( 'add_meta_boxes', [ $this, 'add_meta_box' ] );
+			if ( is_admin() ) {
+				add_action( 'add_meta_boxes', [ $this, 'add_meta_box' ] );
+			}
 
 			// Move the Cimo Data meta box before "Attachment Attributes" and after "Save"
 			// add_action( 'do_meta_boxes', [ $this, 'move_meta_box' ], 20, 3 );

@@ -25,9 +25,12 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 			register_rest_route( 'cimo/v1', '/metadata', [
 				'methods' => 'POST',
 				'callback' => [ $this, 'save_metadata' ],
-				// Only allow people who can edit posts
-				'permission_callback' => function() {
-					return current_user_can( 'edit_posts' );
+				// Only allow people who can edit posts and have a valid nonce
+				// The REST API core already handles X-WP-Nonce (and _wpnonce) for authentication
+				// if the route uses 'permission_callback' and the user is logged in.
+				// We only need to check user capabilities here.
+				'permission_callback' => function( $request ) {
+					return current_user_can( 'upload_files' ) && current_user_can( 'edit_posts' );
 				},
 				// The arguments are 1. The filename, 2. The metadata (and object)
 				'args' => [
@@ -42,17 +45,65 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 							}
 							return true;
 						},
+						'sanitize_callback' => function( $value, $request, $param ) {
+							return sanitize_file_name( $value );
+						},
 					],
 					'metadata' => [
 						'type' => 'object',
 						'required' => true,
-						// Validate this as an object of strings.
+						// Only allow the exact keys we currently use.
 						'validate_callback' => function( $value, $request, $param ) {
+							$allowed_keys = [
+								'originalFormat',
+								'originalFilesize',
+								'convertedFormat',
+								'convertedFilesize',
+								'conversionTime',
+								'compressionSavings',
+							];
 							if ( ! is_array( $value ) ) {
-								// translators: The %s is the parameter name.
-								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object of strings.', 'cimo-image-optimizer' ), $param ) );
+								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'cimo-image-optimizer' ), $param ) );
+							}
+							$keys = array_keys( $value );
+							sort( $keys );
+							$expected = $allowed_keys;
+							sort( $expected );
+							if ( $keys !== $expected ) {
+								return new WP_Error(
+									'invalid_param',
+									sprintf(
+										esc_html__( '%s must contain only the following keys: %s', 'cimo-image-optimizer' ),
+										$param,
+										implode( ', ', $allowed_keys )
+									)
+								);
 							}
 							return true;
+						},
+						'sanitize_callback' => function( $value, $request, $param ) {
+							$allowed_keys = [
+								'originalFormat',
+								'originalFilesize',
+								'convertedFormat',
+								'convertedFilesize',
+								'conversionTime',
+								'compressionSavings',
+							];
+							$sanitized = [];
+							if ( is_array( $value ) ) {
+								foreach ( $allowed_keys as $key ) {
+									// Sanitize according to expected type
+									if ( in_array( $key, [ 'originalFilesize', 'convertedFilesize' ], true ) ) {
+										$sanitized[ $key ] = isset( $value[ $key ] ) ? intval( $value[ $key ] ) : 0;
+									} elseif ( in_array( $key, [ 'conversionTime', 'compressionSavings' ], true ) ) {
+										$sanitized[ $key ] = isset( $value[ $key ] ) ? floatval( $value[ $key ] ) : 0.0;
+									} else {
+										$sanitized[ $key ] = isset( $value[ $key ] ) ? sanitize_text_field( $value[ $key ] ) : '';
+									}
+								}
+							}
+							return $sanitized;
 						},
 					],
 				],

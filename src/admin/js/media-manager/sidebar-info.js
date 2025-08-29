@@ -1,5 +1,6 @@
 import { domReady } from '~cimo/shared/dom-ready'
 import { getCachedMetadata } from '~cimo/shared/metadata-saver'
+import { escape } from '~cimo/shared/util'
 
 /**
  * Format bytes into human readable format (KB, MB, etc.)
@@ -73,20 +74,20 @@ domReady( () => {
 				const kbSaved = formatFilesize( customMetadata.originalFilesize - customMetadata.convertedFilesize, 1, true )
 				const optimizationSavingsClass = optimizationSavings > 0 ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down'
 
-				html += `<li class="cimo-compression-savings ${ optimizationSavingsClass }">Saved ${ optimizationSavings }% <span class="cimo-compression-savings-bytes">(${ kbSaved })</span></li>`
+				html += `<li class="cimo-compression-savings ${ escape( optimizationSavingsClass ) }">Saved ${ escape( optimizationSavings ) }% <span class="cimo-compression-savings-bytes">(${ escape( kbSaved ) })</span></li>`
 
 				/**
 				 * Filesize
 				 */
 				const originalSize = formatFilesize( parseInt( customMetadata.originalFilesize ) || 0 )
 				const convertedSize = formatFilesize( parseInt( customMetadata.convertedFilesize ) || 0 )
-				html += `<li class="cimo-filesize-original">Original: <span class="cimo-value">${ originalSize }</span></li>`
-				html += `<li class="cimo-filesize-optimized">Optimized: <span class="cimo-value">${ convertedSize }</span></li>`
+				html += `<li class="cimo-filesize-original">Original: <span class="cimo-value">${ escape( originalSize ) }</span></li>`
+				html += `<li class="cimo-filesize-optimized">Optimized: <span class="cimo-value">${ escape( convertedSize ) }</span></li>`
 
 				/**
 				 * Original format
 				 */
-				html += `<li class="cimo-converted">🏞️ Converted to <span class="cimo-value">${ convertMimetypeToFormat( customMetadata.convertedFormat ) }</span></li>`
+				html += `<li class="cimo-converted">🏞️ Converted to <span class="cimo-value">${ escape( convertMimetypeToFormat( customMetadata.convertedFormat ) ) }</span></li>`
 
 				/**
 				 * Conversion time
@@ -103,7 +104,7 @@ domReady( () => {
 						conversionTimeDisplay = `${ ( timeMs / 60000 ).toFixed( 1 ) } min`
 					}
 				}
-				html += `<li class="cimo-time">⚡️ Done in <span class="cimo-value">${ conversionTimeDisplay }</span></li>`
+				html += `<li class="cimo-time">⚡️ Done in <span class="cimo-value">${ escape( conversionTimeDisplay ) }</span></li>`
 
 				customContent.innerHTML = html
 				details.appendChild( customContent )

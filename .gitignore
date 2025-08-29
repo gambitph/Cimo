@@ -8,8 +8,6 @@ node_modules/
 vendor/
 
 # WordPress build files
-src/**/*.js
-src/**/*.css
 src/**/*.map
 
 # Environment files
