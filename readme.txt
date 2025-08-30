@@ -1,10 +1,10 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 6.8
-Tested up to: 6.8
+Requires at least: 6.6.3
+Tested up to: 6.8.2
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 * Privacy-first approach
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+
+* Fixed: Minor string translation tweaks
 
 = 1.0.0 =
 Initial release of Cimo - bringing free, unlimited image optimization and compression to WordPress.
