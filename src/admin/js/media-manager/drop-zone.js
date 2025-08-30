@@ -147,6 +147,23 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 				changeEvent.__cimo_converted = true // eslint-disable-line camelcase
 
 				fileInput.dispatchEvent( changeEvent )
+
+			// The image was dropped on the editor itself (body element), or on/adjacent to another block.
+			} else {
+				const dropEvent = new Event( 'drop', { bubbles: true } )
+
+				// Define the dataTransfer property, DropZoneComponent's onDrop will
+				// check this. This is the way to add a property to an Event object.
+				Object.defineProperty( dropEvent, 'dataTransfer', {
+					value: dataTransfer,
+					writable: false,
+				} )
+
+				// Mark this event so we know conversion is already done
+				dropEvent.__cimo_converted = true // eslint-disable-line camelcase
+
+				// Target the current dropzone
+				event.target.dispatchEvent( dropEvent )
 			}
 		}
 	}
