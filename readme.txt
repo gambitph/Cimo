@@ -1,4 +1,4 @@
-=== Cimo - Free Image Optimizer & WebP Converter ===
+=== Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
 Requires at least: 6.8
