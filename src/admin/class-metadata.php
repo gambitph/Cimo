@@ -63,6 +63,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 								'compressionSavings',
 							];
 							if ( ! is_array( $value ) ) {
+								// translators: The %s is the parameter name.
 								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'cimo-image-optimizer' ), $param ) );
 							}
 							$keys = array_keys( $value );
@@ -73,7 +74,8 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 								return new WP_Error(
 									'invalid_param',
 									sprintf(
-										esc_html__( '%s must contain only the following keys: %s', 'cimo-image-optimizer' ),
+										// translators: 1: parameter name, 2: allowed keys.
+										esc_html__( '%1$s must contain only the following keys: %2$s', 'cimo-image-optimizer' ),
 										$param,
 										implode( ', ', $allowed_keys )
 									)
