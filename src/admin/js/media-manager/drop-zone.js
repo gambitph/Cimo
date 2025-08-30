@@ -7,6 +7,7 @@
 
 import { domReady } from '~cimo/shared/dom-ready'
 import { convertImageClientSide } from '~cimo/shared/image-converter'
+import { watchForEditorIframe } from '~cimo/shared/util'
 
 /**
  * Intercept editor media uploads and convert images to WebP on the client
@@ -35,7 +36,16 @@ async function maybeConvertFile( file ) {
 const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png', 'image/gif' ]
 
 // Add event listener to the Media Manager's drop zone
-function addDropZoneListenerToMediaManager() {
+function addDropZoneListenerToMediaManager( targetDocument ) {
+	if ( ! targetDocument ) {
+		return
+	}
+
+	// Check if the target document has a body element available
+	if ( ! targetDocument.body ) {
+		return
+	}
+
 	const customDropHandler = async event => {
 		// If this is a synthetic change event dispatched by us after conversion, skip conversion.
 		if ( event.__cimo_converted ) {
@@ -97,8 +107,10 @@ function addDropZoneListenerToMediaManager() {
 		//
 		// @see https://github.com/WordPress/gutenberg/blob/f8140c4fcc8db2d6078ad76fd433c79df3543860/packages/components/src/drop-zone/index.tsx#L59
 		if ( event.target?.classList.contains( 'components-drop-zone' ) ) {
-			// Create a drop event
-			const dropEvent = new Event( 'drop', { bubbles: true } )
+			// Create a drop event with conditional bubbling
+			// Use bubbles: false when in iframe to prevent doubling, but true for main document
+			const isInIframe = targetDocument !== document
+			const dropEvent = new Event( 'drop', { bubbles: ! isInIframe } )
 
 			// Define the dataTransfer property, DropZoneComponent's onDrop will
 			// check this. This is the way to add a property to an Event object.
@@ -111,8 +123,8 @@ function addDropZoneListenerToMediaManager() {
 			dropEvent.__cimo_converted = true // eslint-disable-line camelcase
 
 			// Target the current dropzone
-		   event.target.dispatchEvent( dropEvent )
-	   } else {
+			event.target.dispatchEvent( dropEvent )
+		} else {
 			// Find the file input inside the Media Manager modal
 			// TODO: There might be a better way to do this.
 			const fileInput = document.querySelector( '.media-modal input[type="file"]' ) ||
@@ -126,7 +138,9 @@ function addDropZoneListenerToMediaManager() {
 				fileInput.files = dataTransfer.files
 
 				// Dispatch a change event to trigger the native upload flow
-				const changeEvent = new Event( 'change', { bubbles: true } )
+				// Use bubbles: false when in iframe to prevent doubling
+				const isInIframe = targetDocument !== document
+				const changeEvent = new Event( 'change', { bubbles: ! isInIframe } )
 
 				// Mark this event so we know conversion is already done
 				changeEvent.__cimo_converted = true // eslint-disable-line camelcase
@@ -137,11 +151,19 @@ function addDropZoneListenerToMediaManager() {
 	}
 
 	// Add our custom drop listener
-	document.body.addEventListener( 'drop', customDropHandler, true ) // This needs to be true or else we cannot stop the default dropping behavior
+	if ( ! targetDocument.body.__cimo_dropzone_listener_attached ) {
+		targetDocument.body.addEventListener( 'drop', customDropHandler, true ) // This needs to be true or else we cannot stop the default dropping behavior
+		targetDocument.body.__cimo_dropzone_listener_attached = true // eslint-disable-line camelcase
+	}
 
 	// console.log( 'Drop zone listener added to Media Manager' )
 }
 
 domReady( () => {
-	addDropZoneListenerToMediaManager()
+	addDropZoneListenerToMediaManager( document )
+
+	// Watch for the editor iframe to attach drop listeners there too
+	watchForEditorIframe( iframeDocument => {
+		addDropZoneListenerToMediaManager( iframeDocument )
+	} )
 } )

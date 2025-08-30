@@ -199,7 +199,16 @@ async function convertImageClientSide( file, options ) {
 	options = options || {}
 	const format = options.format !== null ? options.format : 'webp'
 
-	if ( ! ( file instanceof File ) ) {
+	// In some cases (e.g., when called from an iframe), the File object may come from a different window context,
+	// so instanceof File can fail even if it's a valid File. Instead, check for file-like shape.
+	if (
+		! file ||
+		typeof file !== 'object' ||
+		typeof file.name !== 'string' ||
+		typeof file.size !== 'number' ||
+		typeof file.type !== 'string' ||
+		typeof file.slice !== 'function'
+	) {
 		return file
 	}
 
@@ -273,7 +282,10 @@ async function convertImageClientSide( file, options ) {
 		// Dispatch the metadata to the server.
 		saveMetadata( newName, conversionMetadata )
 
-		const outFile = new File( [ convertedBlob ], newName, {
+		// Create the new File object in the same context as the input file
+		// This ensures cross-context compatibility (iframe vs main window)
+		const fileConstructor = file.constructor
+		const outFile = new fileConstructor( [ convertedBlob ], newName, {
 			type: formatInfo.mimeType,
 			lastModified: Date.now(),
 		} )

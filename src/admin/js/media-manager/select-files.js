@@ -7,6 +7,7 @@
  */
 import { domReady } from '~cimo/shared/dom-ready'
 import { convertImageClientSide } from '~cimo/shared/image-converter'
+import { watchForEditorIframe } from '~cimo/shared/util'
 
 /**
  * Wrap a file with conversion if it's an image; otherwise return unchanged.
@@ -29,12 +30,17 @@ async function maybeConvertFile( file ) {
 const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png', 'image/gif' ]
 
 // Add event listener to the Media Manager's drop zone
-function addSelectFilesListenerToFileUploads() {
-	if ( ! window.wp ) {
+function addSelectFilesListenerToFileUploads( targetDocument ) {
+	if ( ! window.wp && ! targetDocument ) {
 		return
 	}
 
-	document.body.addEventListener( 'change', async event => {
+	// Check if the target document has a body element available
+	if ( ! targetDocument.body ) {
+		return
+	}
+
+	const selectFilesListener = async event => {
 		// Check if it's a file select.
 		if ( event.target.type !== 'file' ) {
 			return
@@ -89,9 +95,20 @@ function addSelectFilesListenerToFileUploads() {
 		// Mark this event so we know conversion is already done
 		changeEvent.__cimo_converted = true // eslint-disable-line camelcase
 		event.target.dispatchEvent( changeEvent )
-	}, true )
+	}
+
+	if ( ! targetDocument.body.__cimo_selectfiles_listener_attached ) {
+		targetDocument.body.addEventListener( 'change', selectFilesListener, true )
+		targetDocument.body.__cimo_selectfiles_listener_attached = true // eslint-disable-line camelcase
+	}
 }
 
 domReady( () => {
-	addSelectFilesListenerToFileUploads()
+	// Add listeners to the main document
+	addSelectFilesListenerToFileUploads( document )
+
+	// Watch for the editor iframe
+	watchForEditorIframe( iframeDocument => {
+		addSelectFilesListenerToFileUploads( iframeDocument )
+	} )
 } )
