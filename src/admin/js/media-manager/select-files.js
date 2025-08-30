@@ -63,7 +63,8 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		// Allow these locations to be able to select files.
 		if ( ! event.target.closest( '.components-form-file-upload' ) && // Allow uploads to the image block
 			! event.target.closest( '.media-frame' ) && // Allow uploads from the Media Manager
-			! event.target.closest( '.media-upload-form' ) ) { // Allow uploads from the admin Media > Add Media File
+			! event.target.closest( '.media-upload-form' ) && // Allow uploads from the admin Media > Add Media File
+			! event.target.closest( '.moxie-shim' ) ) { // Allow uploads from the admin Media > Library grid view
 			return
 		}
 

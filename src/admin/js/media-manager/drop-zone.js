@@ -64,7 +64,8 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		if ( ! event.target.closest( '.media-frame-uploader' ) && // Allowed to drop in the Media Manager
 			! event.target.closest( '.media-upload-form' ) && // Allowed to drop in the admin Media > Add Media File.
 			! event.target.closest( '.editor-post-featured-image' ) && // Allowed to drop in the featured image drop zone.
-			! event.target.closest( '.editor-styles-wrapper' ) ) { // Allowed to drop in the block editor when adding new image blocks
+			! event.target.closest( '.editor-styles-wrapper' ) && // Allowed to drop in the block editor when adding new image blocks
+			! event.target.closest( '.uploader-window' ) ) { // Allowed to drop in the admin Media > Library grid view
 			return
 		}
 
