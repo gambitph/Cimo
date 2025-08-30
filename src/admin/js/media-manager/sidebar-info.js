@@ -39,6 +39,11 @@ function convertMimetypeToFormat( mimetype ) {
 }
 
 domReady( () => {
+	// Only proceed if wp.media is available (media library is loaded)
+	if ( typeof wp === 'undefined' || ! wp.media || ! wp.media.view || ! wp.media.view.Attachment || ! wp.media.view.Attachment.Details ) {
+		return
+	}
+
 	wp.media.view.Attachment.Details = wp.media.view.Attachment.Details.extend( {
 		template: function template( view ) {
 			const html = wp.media.template( 'attachment-details' )( view )
