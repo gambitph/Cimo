@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 6.6.3
 Tested up to: 6.8.2
 Requires PHP: 8.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,15 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 * Privacy-first approach
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+
+* Fixed: Dragging images on a blank editor or on top of other blocks now converts images
+* Fixed: Dragging images into the block editor now converts images
+* Fixed: Clicking on the Upload button on an image block directly now converts images
+* Fixed: Uploading images from Media > Library and in grid view now converts images
+* Fixed: Minor console JS error in some admin pages
+* Change: Added admin notice to let user know what to expect
 
 = 1.0.1 =
 
