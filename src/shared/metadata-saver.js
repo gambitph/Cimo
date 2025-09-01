@@ -6,79 +6,77 @@
  */
 
 /**
- * Saves metadata to the server via REST API with retry logic
- * @param {string} filename   - The filename of the attachment
- * @param {Object} metadata   - The metadata object to save
- * @param {number} delay      - Delay in milliseconds before first attempt (default: 1000)
- * @param {number} maxRetries - Maximum number of retry attempts (default: 30)
- * @param {number} retryDelay - Delay between retries in milliseconds (default: 3000)
+ * Saves metadata to the server via REST API.
+ * Each metadata object must include a 'filename' key.
+ * @param {Array<Object>} metadataArray - Array of metadata objects (each must have a filename key)
  */
-export const saveMetadata = ( filename, metadata, delay = 1000, maxRetries = 30, retryDelay = 3000 ) => {
-	// Track if we've already succeeded for this filename/metadata combination
-	if ( getCachedMetadata( filename ) ) {
-		// eslint-disable-next-line no-console
-		console.log( 'Metadata already saved successfully for:', filename )
+export const saveMetadata = metadataArray => {
+	if ( ! Array.isArray( metadataArray ) || metadataArray.length === 0 ) {
 		return Promise.resolve()
 	}
 
-	// Mark as successful in cache, keep a local copy of the metadata
-	setCachedMetadata( filename, metadata )
+	// Check if all metadata entries are already cached (by filename)
+	const allCached = metadataArray.every( entry => getCachedMetadata( entry.filename ) )
+	if ( allCached ) {
+		// eslint-disable-next-line no-console
+		// console.log( 'Metadata already saved successfully for all filenames:', metadataArray.map( m => m.filename ) )
+		return Promise.resolve()
+	}
+
+	// Mark all as successful in cache, keep a local copy of the metadata
+	metadataArray.forEach( entry => {
+		if ( entry.filename ) {
+			setCachedMetadata( entry.filename, entry )
+		}
+	} )
 
 	return new Promise( ( resolve, reject ) => {
-		setTimeout( () => {
-			let attempts = 0
+		// eslint-disable-next-line no-console
+		// console.log(
+		// 	`Attempting to save metadata for filenames: [${ metadataArray.map( m => m.filename ).join( ', ' ) }]`
+		// )
 
-			const attemptSave = () => {
-				attempts++
+		fetch( '/wp-json/cimo/v1/metadata', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+				'X-WP-Nonce': window.wpApiSettings?.nonce,
+			},
+			body: JSON.stringify( {
+				metadata: metadataArray,
+			} ),
+			credentials: 'same-origin',
+		} )
+			.then( response => {
+				if ( ! response.ok ) {
+					return response.json().then( err => {
+						throw new Error( err.message || response.statusText )
+					} )
+				}
+				return response.json()
+			} )
+			.then( data => {
 				// eslint-disable-next-line no-console
-				console.log( `Attempting to save metadata for ${ filename } (attempt ${ attempts }/${ maxRetries })` )
-
-				// Use normal fetch here because apiFetch is not available sometimes, like in Elementor.
-				fetch( '/wp-json/cimo/v1/metadata', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Accept: 'application/json',
-						// If you need nonce for authentication, add it here:
-						'X-WP-Nonce': window.wpApiSettings?.nonce,
-					},
-					body: JSON.stringify( {
-						filename,
-						metadata,
-					} ),
-					credentials: 'same-origin',
-				} )
-					.then( response => {
-						if ( ! response.ok ) {
-							return response.json().then( err => {
-								throw new Error( err.message || response.statusText )
-							} )
-						}
-						return response.json()
-					} )
-					.then( data => {
-						// eslint-disable-next-line no-console
-						console.log( 'Metadata saved successfully for:', filename, data )
-						resolve( data )
-					} )
-					.catch( error => {
-						// eslint-disable-next-line no-console
-						console.error( `Failed to save metadata for ${ filename } (attempt ${ attempts }):`, error )
-
-						if ( attempts < maxRetries ) {
-							// eslint-disable-next-line no-console
-							console.log( `Retrying in ${ retryDelay }ms...` )
-							setTimeout( attemptSave, retryDelay )
-						} else {
-							// eslint-disable-next-line no-console
-							console.error( `Failed to save metadata for ${ filename } after ${ maxRetries } attempts` )
-							reject( new Error( `Failed to save metadata after ${ maxRetries } attempts: ${ error.message }` ) )
-						}
-					} )
-			}
-
-			attemptSave()
-		}, delay )
+				// console.log(
+				// 	'Metadata saved successfully for filenames:',
+				// 	metadataArray.map( m => m.filename ),
+				// 	data
+				// )
+				resolve( data )
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-console
+				console.error(
+					`Failed to save metadata for filenames: [${ metadataArray.map( m => m.filename ).join( ', ' ) }]:`,
+					error
+				)
+				reject(
+					new Error(
+						`Failed to save metadata: ${ error.message }`
+					)
+				)
+			} )
 	} )
 }
 

@@ -8,21 +8,23 @@
 import { domReady } from '~cimo/shared/dom-ready'
 import { convertImageClientSide } from '~cimo/shared/image-converter'
 import { watchForEditorIframe } from '~cimo/shared/util'
+import { saveMetadata } from '~cimo/shared/metadata-saver'
 
 /**
  * Wrap a file with conversion if it's an image; otherwise return unchanged.
  * @param {File} file
- * @return {Promise<File>} Promise resolving to the converted file, or the original on failure.
+ * @return {Promise<{file: File, metadata: Object|null}>} Promise resolving to the converted file and metadata, or the original on failure.
  */
 async function maybeConvertFile( file ) {
 	try {
 		// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
-		return await convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
+		const result = await convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
+		return result
 	} catch ( e ) {
 		// On failure, fallback to original file to avoid breaking uploads
 		// TODO: add a notice here so the user will know that it didn't work.
 		console.error( e ) // eslint-disable-line no-console
-		return file
+		return { file, metadata: null }
 	}
 }
 
@@ -78,15 +80,22 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 
 		// Process and optimize each image file here,
 		// e.g. resizing or compressing
-		const optimizedFiles = await Promise.all(
+		const optimizedResults = await Promise.all(
 			files.map( maybeConvertFile )
 		)
+
+		// Extract files from results
+		const optimizedFiles = optimizedResults.map( result => result.file )
+		const conversionMetadata = optimizedResults.map( result => result.metadata )
 
 		// Create a DataTransfer to hold the optimized file
 		const dataTransfer = new DataTransfer()
 		optimizedFiles.forEach( file => {
 			dataTransfer.items.add( file )
 		} )
+
+		// Save the metadata to the server.
+		await saveMetadata( conversionMetadata )
 
 		// Assign the files to the input element
 		event.target.files = dataTransfer.files

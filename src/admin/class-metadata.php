@@ -19,6 +19,9 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 			// For big files (sizes or filesize), our metadata might get overwritten because our saving goes first.
 			// Preserve Cimo metadata when attachment metadata is updated.
 			add_filter( 'wp_update_attachment_metadata', [ $this, 'preserve_cimo_metadata' ], 10, 2 );
+
+			// Listen for new media attachments being created and add our metadata to them.
+			add_action( 'add_attachment', [ $this, 'add_attachment_metadata' ], 10, 1 );
 		}
 
 		public function register_rest_route() {
@@ -26,35 +29,17 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 				'methods' => 'POST',
 				'callback' => [ $this, 'save_metadata' ],
 				// Only allow people who can edit posts and have a valid nonce
-				// The REST API core already handles X-WP-Nonce (and _wpnonce) for authentication
-				// if the route uses 'permission_callback' and the user is logged in.
-				// We only need to check user capabilities here.
 				'permission_callback' => function( $request ) {
 					return current_user_can( 'upload_files' ) && current_user_can( 'edit_posts' );
 				},
-				// The arguments are 1. The filename, 2. The metadata (and object)
+				// The arguments: only 'metadata', which is now an array of objects
 				'args' => [
-					'filename' => [
-						'type' => 'string',
-						'required' => true,
-						// Validate this as a string
-						'validate_callback' => function( $value, $request, $param ) {
-							if ( ! is_string( $value ) ) {
-								// translators: The %s is the parameter name.
-								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'cimo-image-optimizer' ), $param ) );
-							}
-							return true;
-						},
-						'sanitize_callback' => function( $value, $request, $param ) {
-							return sanitize_file_name( $value );
-						},
-					],
 					'metadata' => [
-						'type' => 'object',
+						'type' => 'array',
 						'required' => true,
-						// Only allow the exact keys we currently use.
 						'validate_callback' => function( $value, $request, $param ) {
 							$allowed_keys = [
+								'filename',
 								'originalFormat',
 								'originalFilesize',
 								'convertedFormat',
@@ -64,27 +49,36 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 							];
 							if ( ! is_array( $value ) ) {
 								// translators: The %s is the parameter name.
-								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'cimo-image-optimizer' ), $param ) );
+								return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an array.', 'cimo-image-optimizer' ), $param ) );
 							}
-							$keys = array_keys( $value );
-							sort( $keys );
-							$expected = $allowed_keys;
-							sort( $expected );
-							if ( $keys !== $expected ) {
-								return new WP_Error(
-									'invalid_param',
-									sprintf(
-										// translators: 1: parameter name, 2: allowed keys.
-										esc_html__( '%1$s must contain only the following keys: %2$s', 'cimo-image-optimizer' ),
-										$param,
-										implode( ', ', $allowed_keys )
-									)
-								);
+							foreach ( $value as $item ) {
+								if ( ! is_array( $item ) ) {
+									return new WP_Error( 'invalid_param', esc_html__( 'Each metadata entry must be an object.', 'cimo-image-optimizer' ) );
+								}
+								// filename is now required in each item
+								if ( empty( $item['filename'] ) || ! is_string( $item['filename'] ) ) {
+									return new WP_Error( 'invalid_param', esc_html__( 'Each metadata entry must have a valid filename.', 'cimo-image-optimizer' ) );
+								}
+								// Only allow the allowed keys, but not all are required
+								foreach ( array_keys( $item ) as $key ) {
+									if ( ! in_array( $key, $allowed_keys, true ) ) {
+										return new WP_Error(
+											'invalid_param',
+											sprintf(
+												// translators: 1: parameter name, 2: allowed keys.
+												esc_html__( 'Invalid key "%1$s" in metadata entry. Allowed keys: %2$s', 'cimo-image-optimizer' ),
+												$key,
+												implode( ', ', $allowed_keys )
+											)
+										);
+									}
+								}
 							}
 							return true;
 						},
 						'sanitize_callback' => function( $value, $request, $param ) {
 							$allowed_keys = [
+								'filename',
 								'originalFormat',
 								'originalFilesize',
 								'convertedFormat',
@@ -94,15 +88,22 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 							];
 							$sanitized = [];
 							if ( is_array( $value ) ) {
-								foreach ( $allowed_keys as $key ) {
-									// Sanitize according to expected type
-									if ( in_array( $key, [ 'originalFilesize', 'convertedFilesize' ], true ) ) {
-										$sanitized[ $key ] = isset( $value[ $key ] ) ? intval( $value[ $key ] ) : 0;
-									} elseif ( in_array( $key, [ 'conversionTime', 'compressionSavings' ], true ) ) {
-										$sanitized[ $key ] = isset( $value[ $key ] ) ? floatval( $value[ $key ] ) : 0.0;
-									} else {
-										$sanitized[ $key ] = isset( $value[ $key ] ) ? sanitize_text_field( $value[ $key ] ) : '';
+								foreach ( $value as $item ) {
+									$entry = [];
+									foreach ( $allowed_keys as $key ) {
+										if ( isset( $item[ $key ] ) ) {
+											if ( $key === 'filename' ) {
+												$entry[ $key ] = sanitize_file_name( $item[ $key ] );
+											} elseif ( in_array( $key, [ 'originalFilesize', 'convertedFilesize' ], true ) ) {
+												$entry[ $key ] = intval( $item[ $key ] );
+											} elseif ( in_array( $key, [ 'conversionTime', 'compressionSavings' ], true ) ) {
+												$entry[ $key ] = floatval( $item[ $key ] );
+											} else {
+												$entry[ $key ] = sanitize_text_field( $item[ $key ] );
+											}
+										}
 									}
+									$sanitized[] = $entry;
 								}
 							}
 							return $sanitized;
@@ -113,50 +114,148 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 		}
 
 		/**
-		 * Save the metadata for the media compression.
+		 * This method is called when the metadata is generated in the frontend,
+		 * but the media attachment is not yet created. So we need to gather all
+		 * these metadata first and then wait for the attachment to be created,
+		 * then add the metadata to them.
 		 *
 		 * @param WP_REST_Request $request The request object.
 		 * @return WP_REST_Response The response object.
 		 */
 		public function save_metadata( $request ) {
 			$data = $request->get_json_params();
-			$filename = isset( $data['filename'] ) ? sanitize_file_name( $data['filename'] ) : '';
-			$cimo_metadata = isset( $data['metadata'] ) && is_array( $data['metadata'] ) ? array_map( 'sanitize_text_field', $data['metadata'] ) : [];
 
-			// Get the attachment ID from the filename.
-			$attachment_id = $this->get_attachment_id_from_filename( $filename );
+			// The new method: metadata is now an array of metadata (each containing filename, etc)
+			$metadata_array = isset( $data['metadata'] ) && is_array( $data['metadata'] ) ? $data['metadata'] : [];
 
-			// If the attachment ID is not found, return an error.
-			if ( ! $attachment_id ) {
-				return new WP_Error( 'attachment_not_found', 'Attachment not found', [ 'status' => 404 ] );
+			// Sanitize each metadata entry
+			$allowed_keys = [
+				'filename',
+				'originalFormat',
+				'originalFilesize',
+				'convertedFormat',
+				'convertedFilesize',
+				'conversionTime',
+				'compressionSavings',
+			];
+			$sanitized_metadata = [];
+			foreach ( $metadata_array as $item ) {
+				$entry = [];
+				foreach ( $allowed_keys as $key ) {
+					if ( isset( $item[ $key ] ) ) {
+						if ( $key === 'filename' ) {
+							$entry[ $key ] = sanitize_file_name( $item[ $key ] );
+						} elseif ( in_array( $key, [ 'originalFilesize', 'convertedFilesize' ], true ) ) {
+							$entry[ $key ] = intval( $item[ $key ] );
+						} elseif ( in_array( $key, [ 'conversionTime', 'compressionSavings' ], true ) ) {
+							$entry[ $key ] = floatval( $item[ $key ] );
+						} else {
+							$entry[ $key ] = sanitize_text_field( $item[ $key ] );
+						}
+					}
+				}
+				if ( ! empty( $entry ) ) {
+					$sanitized_metadata[] = $entry;
+				}
 			}
 
-			// Add the cimo metadata to the attachment metadata.
-			$metadata = wp_get_attachment_metadata( $attachment_id );
-			if ( ! $metadata ) {
+			// Save to a transient queue for metadata waiting for attachment creation
+			$transient_key = 'cimo_metadata_queue';
+			$queue = get_transient( $transient_key );
+			if ( ! is_array( $queue ) ) {
+				$queue = [];
+			}
+
+			// Append new metadata to the queue
+			$queue = array_merge( $queue, $sanitized_metadata );
+
+			// Save back to transient (let's keep for an hour)
+			set_transient( $transient_key, $queue, HOUR_IN_SECONDS );
+
+			// Return success and the number of items in the queue
+			return rest_ensure_response( [
+				'success' => true,
+				'queued_count' => count( $queue ),
+			] );
+		}
+
+		public function add_attachment_metadata( $attachment_id ) {
+			// Get the metadata from the transient queue.
+			$transient_key = 'cimo_metadata_queue';
+			$queue = get_transient( $transient_key );
+			if ( ! is_array( $queue ) ) {
+				return;
+			}
+
+			// Check if the attachment is in our metadata queue by matching filename.
+			$attachment = get_post( $attachment_id );
+			if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
+				return;
+			}
+
+			$attachment_url = wp_get_attachment_url( $attachment_id );
+			if ( ! $attachment_url ) {
+				return;
+			}
+
+			$attachment_filename = wp_basename( $attachment_url );
+
+			// Try to match the metadata entry in the queue, allowing for possible -1, -2, etc. suffixes in the filename.
+			$matched_index = null;
+			$matched_metadata = null;
+
+			// Extract the base name and extension from the attachment filename.
+			$attachment_pathinfo = pathinfo( $attachment_filename );
+			$attachment_base = isset( $attachment_pathinfo['filename'] ) ? $attachment_pathinfo['filename'] : '';
+			$attachment_ext  = isset( $attachment_pathinfo['extension'] ) ? $attachment_pathinfo['extension'] : '';
+
+			foreach ( $queue as $index => $item ) {
+				if ( ! isset( $item['filename'] ) ) {
+					continue;
+				}
+
+				$item_pathinfo = pathinfo( $item['filename'] );
+				$item_base = isset( $item_pathinfo['filename'] ) ? $item_pathinfo['filename'] : '';
+				$item_ext  = isset( $item_pathinfo['extension'] ) ? $item_pathinfo['extension'] : '';
+
+				// Only match if the extension is the same.
+				if ( strtolower( $attachment_ext ) !== strtolower( $item_ext ) ) {
+					continue;
+				}
+
+				// Check if the attachment base filename starts with the original base filename,
+				// and is either an exact match or has a -number suffix (e.g., image-1.jpg).
+				if (
+					$attachment_base === $item_base ||
+					preg_match( '/^' . preg_quote( $item_base, '/' ) . '-\d+$/', $attachment_base )
+				) {
+					$matched_index = $index;
+					$matched_metadata = $item;
+					break;
+				}
+			}
+
+			if ( null === $matched_index ) {
+				// No matching metadata for this attachment.
+				return;
+			}
+
+			// Remove the matched metadata from the queue and update the transient.
+			array_splice( $queue, $matched_index, 1 );
+			set_transient( $transient_key, $queue, HOUR_IN_SECONDS );
+
+			// Save the metadata under the "cimo" key in the attachment metadata, excluding the 'filename' key.
+			$metadata = get_post_meta( $attachment_id, '_wp_attachment_metadata', true );
+			if ( ! is_array( $metadata ) ) {
 				$metadata = [];
 			}
+			// Remove 'filename' from the matched metadata before saving.
+			$cimo_metadata = $matched_metadata;
+			unset( $cimo_metadata['filename'] );
 			$metadata['cimo'] = $cimo_metadata;
 
 			// Update the attachment metadata.
 			update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
-			
-			// Return the attachment ID.
-			return rest_ensure_response( [ 'attachment_id' => $attachment_id ] );
-		}
-
-		private function get_attachment_id_from_filename( $filename ) {
-			// The filename is converted into a `post_name` entry in the wp_posts table by removing the extension, then running it in sanitize_title.
-			$filename_no_ext = preg_replace( '/\.[^.]+$/', '', $filename );
-			$post_name = sanitize_title( $filename_no_ext );
-			$query = new WP_Query( [
-				'post_type'   => 'attachment',
-				'name'        => $post_name,
-				'post_status' => 'inherit',
-				'posts_per_page' => 1,
-				'fields'      => 'ids',
-			] );
-			return ! empty( $query->posts ) ? (int) $query->posts[0] : 0;
 		}
 
 		/**

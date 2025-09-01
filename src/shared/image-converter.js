@@ -5,8 +5,6 @@
  * Supports optional resizing, scaling, and aspect ratio cropping.
  */
 
-import { saveMetadata } from './metadata-saver'
-
 // Supported output formats
 const supportedFormats = [
 	{ value: 'webp', mimeType: 'image/webp' },
@@ -193,7 +191,7 @@ const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
  *
  * @param {File}           file      - Input image file.
  * @param {ConvertOptions} [options]
- * @return {Promise<File>} - Converted File in the specified format.
+ * @return {Promise<{file: File, metadata: Object}>} - Converted File and conversion metadata.
  */
 async function convertImageClientSide( file, options ) {
 	options = options || {}
@@ -209,18 +207,18 @@ async function convertImageClientSide( file, options ) {
 		typeof file.type !== 'string' ||
 		typeof file.slice !== 'function'
 	) {
-		return file
+		return { file, metadata: null }
 	}
 
 	// Not an image; return original file unchanged.
 	if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
-		return file
+		return { file, metadata: null }
 	}
 
 	// Skip if already the desired format
 	const formatInfo = supportedFormats.find( f => f.value === format )
 	if ( formatInfo && file.type === formatInfo.mimeType ) {
-		return file
+		return { file, metadata: null }
 	}
 
 	// Check if the browser supports the desired output format
@@ -229,7 +227,7 @@ async function convertImageClientSide( file, options ) {
 		// If not supported, skip conversion and return the original file
 		// eslint-disable-next-line no-console
 		console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )
-		return file
+		return { file, metadata: null }
 	}
 
 	// Detect if the image is an animated GIF, if so just return the file unchanged
@@ -249,7 +247,7 @@ async function convertImageClientSide( file, options ) {
 				gceCount++
 				// If more than one GCE block, it's animated
 				if ( gceCount > 1 ) {
-					return file
+					return { file, metadata: null }
 				}
 			}
 		}
@@ -267,10 +265,11 @@ async function convertImageClientSide( file, options ) {
 		// Get the file extension for the new format
 		const extension = format === 'jpeg' ? 'jpg' : format
 		// Prepend a unique identified to the filename
-		const prefix = Math.random().toString( 36 ).substring( 2, 10 )
-		const newName = prefix + '-' + file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
+		// const prefix = Math.random().toString( 36 ).substring( 2, 10 )
+		const newName = file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
 
 		const conversionMetadata = {
+			filename: newName,
 			originalFormat: file.type,
 			originalFilesize: file.size,
 			convertedFormat: formatInfo.mimeType,
@@ -279,9 +278,6 @@ async function convertImageClientSide( file, options ) {
 			compressionSavings: file.size > 0 ? convertedBlob.size / file.size : null,
 		}
 
-		// Dispatch the metadata to the server.
-		saveMetadata( newName, conversionMetadata )
-
 		// Create the new File object in the same context as the input file
 		// This ensures cross-context compatibility (iframe vs main window)
 		const fileConstructor = file.constructor
@@ -289,7 +285,8 @@ async function convertImageClientSide( file, options ) {
 			type: formatInfo.mimeType,
 			lastModified: Date.now(),
 		} )
-		return outFile
+
+		return { file: outFile, metadata: conversionMetadata }
 	} catch ( error ) {
 		throw new Error( `Failed to convert image: ${ error.message }` )
 	}
