@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 6.6.3
 Tested up to: 6.8.2
 Requires PHP: 8.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -145,16 +145,13 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 
 1. Automatic WebP conversion on image upload
 
+== Upgrade Notice ==
+
 == Changelog ==
 
-= 1.0.0 =
-* Initial release
-* Client-side image optimization
-* WebP conversion support
-* Unlimited compression
-* Privacy-first approach
+= 1.0.3 =
 
-== Upgrade Notice ==
+* Fixed: File prefixes are no longer used during the optimization process. The original file names are now retained.
 
 = 1.0.2 =
 
@@ -171,3 +168,9 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 
 = 1.0.0 =
 Initial release of Cimo - bringing free, unlimited image optimization and compression to WordPress.
+
+* Initial release
+* Client-side image optimization
+* WebP conversion support
+* Unlimited compression
+* Privacy-first approach
