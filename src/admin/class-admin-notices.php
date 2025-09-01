@@ -92,13 +92,14 @@ if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 		 */
 		public function dismiss_activation_notice() {
 			// Check if user wants to dismiss the notice
-			if ( ! isset( $_GET['cimo_dismiss_activation'] ) || $_GET['cimo_dismiss_activation'] !== '1' ) {
+			if ( ! isset( $_GET['cimo_dismiss_activation'] ) || sanitize_text_field( wp_unslash( $_GET['cimo_dismiss_activation'] ) ) !== '1' ) {
 				return;
 			}
 
 			// Verify nonce
 			$user_id = get_current_user_id();
-			if ( ! wp_verify_nonce( $_GET['cimo_nonce'], 'cimo_dismiss_activation_' . $user_id ) ) {
+			$nonce   = isset( $_GET['cimo_nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['cimo_nonce'] ) ) : '';
+			if ( ! $nonce || ! wp_verify_nonce( $nonce, 'cimo_dismiss_activation_' . $user_id ) ) {
 				wp_die( esc_html__( 'Security check failed.', 'cimo-image-optimizer' ) );
 			}
 
@@ -115,7 +116,8 @@ if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 		 */
 		public function ajax_dismiss_activation_notice() {
 			// Verify nonce
-			if ( ! wp_verify_nonce( $_POST['nonce'], 'cimo_dismiss_activation_ajax' ) ) {
+			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+			if ( ! $nonce || ! wp_verify_nonce( $nonce, 'cimo_dismiss_activation_ajax' ) ) {
 				wp_die( esc_html__( 'Security check failed.', 'cimo-image-optimizer' ) );
 			}
 
