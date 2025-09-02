@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 6.6.3
 Tested up to: 6.8.2
 Requires PHP: 8.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,11 +56,11 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 * Should work with any plugin, but we made sure it works with these:
 	* Popular Page Builders
 		* Elementor
+		* Divi (partial: dropping files is not yet supported)
 		* Breakdance
 		* Bricks Builder
 		* Oxygen
 		* Beaver Builder
-		* Divi (working on it)
 	* Popular Block Editor Builders
 		* Stackable
 		* Spectra
@@ -148,6 +148,10 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.0.4 =
+
+* New: Added partial support for Divi
 
 = 1.0.3 =
 
