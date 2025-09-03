@@ -68,6 +68,16 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				true
 			);
 
+			// Localize script with REST API URL and nonce
+			wp_localize_script(
+				'cimo-editor',
+				'cimoSettings',
+				[
+					'restUrl' => rest_url( 'cimo/v1/' ),
+					'nonce'   => wp_create_nonce( 'wp_rest' ),
+				]
+			);
+
 			// Enqueue the admin CSS file
 			$style_asset = include $build_dir . 'admin.asset.php';
 			wp_enqueue_style(

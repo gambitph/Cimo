@@ -36,12 +36,12 @@ export const saveMetadata = metadataArray => {
 		// 	`Attempting to save metadata for filenames: [${ metadataArray.map( m => m.filename ).join( ', ' ) }]`
 		// )
 
-		fetch( '/wp-json/cimo/v1/metadata', {
+		fetch( `${ window.cimoSettings?.restUrl || '/wp-json/cimo/v1/' }metadata`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Accept: 'application/json',
-				'X-WP-Nonce': window.wpApiSettings?.nonce,
+				'X-WP-Nonce': window.cimoSettings?.nonce || window.wpApiSettings?.nonce,
 			},
 			body: JSON.stringify( {
 				metadata: metadataArray,
