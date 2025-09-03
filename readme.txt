@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 6.6.3
 Tested up to: 6.8.2
 Requires PHP: 8.0
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -123,7 +123,11 @@ No! Cimo processes everything locally in your browser. Your media assets never l
 
 = How does Cimo's client-side processing work? =
 
-Cimo processes your images in the browser before they're uploaded to WordPress. This means faster uploads, no server load, and complete privacy.
+Our browsers right now are quite powerful and already have the capabilities for converting images to different formats.
+
+At the very core, the conversion is done via a clever use of JavaScript's Canvas API to process your images in the browser right before they're uploaded to WordPress. 
+
+This means faster uploads, no server load, and complete privacy.
 
 = What image formats does Cimo support? =
 
@@ -148,6 +152,10 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.0.5 =
+
+* Fixed: Metadata saving fails if WP is installed in a subdirectory
 
 = 1.0.4 =
 
