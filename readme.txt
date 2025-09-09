@@ -61,6 +61,7 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 		* Bricks Builder
 		* Oxygen
 		* Beaver Builder
+		* WP Bakery
 	* Popular Block Editor Builders
 		* Stackable
 		* Spectra
