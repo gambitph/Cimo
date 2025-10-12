@@ -84,7 +84,7 @@ const AdminSettings = () => {
 		setSettings( {
 			webpQuality: 80,
 			maxImageDimension: 1920,
-			disableWpScaling: 0,
+			disableWpScaling: 1,
 			disableThumbnailGeneration: 1,
 			thumbnailSizes: [],
 		} )
