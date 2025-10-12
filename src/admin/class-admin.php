@@ -91,26 +91,28 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			}
 
 			// Get the build files
-			$admin_page_asset = require dirname( CIMO_FILE ) . '/build/admin/admin-page.asset.php';
-			$admin_settings_asset = require dirname( CIMO_FILE ) . '/build/admin/admin-settings.asset.php';
+			$build_dir = plugin_dir_path( CIMO_FILE ) . 'build/admin/';
+			$build_url = plugin_dir_url( CIMO_FILE ) . 'build/admin/';
 			
 			// Enqueue WordPress component styles
 			wp_enqueue_style( 'wp-components' );
 			
 			// Enqueue CSS
+			$script_asset = include $build_dir . 'admin-settings.asset.php';
 			wp_enqueue_style(
 				'cimo-admin-settings',
-				plugins_url( 'build/admin/admin-settings.css', CIMO_FILE ),
+				$build_url . 'admin-settings.css',
 				[ 'wp-components' ],
-				$admin_settings_asset['version']
+				$script_asset['version']
 			);
 			
 			// Enqueue JavaScript
+			$script_asset = include $build_dir . 'admin-page.asset.php';
 			wp_enqueue_script(
 				'cimo-admin-page',
-				plugins_url( 'build/admin/admin-page.js', CIMO_FILE ),
-				$admin_page_asset['dependencies'],
-				$admin_page_asset['version'],
+				$build_url . 'admin-page.js',
+				$script_asset['dependencies'],
+				$script_asset['version'],
 				true
 			);
 
