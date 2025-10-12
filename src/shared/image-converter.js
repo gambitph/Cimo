@@ -21,7 +21,7 @@ const config = {
 		quality: 0.8, width: 'auto', height: 'auto',
 	},
 	png: {
-		quality: 1.0, width: 'auto', height: 'auto',
+		quality: 0.8, width: 'auto', height: 'auto',
 	},
 }
 
@@ -32,6 +32,7 @@ const config = {
  * @property {number|"auto"}                                  [width="auto"]       - Target width in pixels or 'auto'
  * @property {number|"auto"}                                  [height="auto"]      - Target height in pixels or 'auto'
  * @property {"auto"|"custom"|"1:1"|"4:3"|"16:9"|"3:2"|"5:4"} [aspectRatio="auto"] - Target aspect ratio
+ * @property {number}                                         [maxDimension]       - Maximum dimension (largest side) in pixels
  * @property {"webp"|"jpg"|"png"}                             [format="webp"]      - Output format
  */
 
@@ -50,10 +51,21 @@ function calculateDimensions( originalWidth, originalHeight, options ) {
 	const width = !! options.width ? options.width : 'auto'
 	const height = !! options.height ? options.height : 'auto'
 	const aspectRatio = !! options.aspectRatio ? options.aspectRatio : 'auto'
+	const maxDimension = !! options.maxDimension ? options.maxDimension : 0
 
 	// Apply scale
 	let newWidth = originalWidth * scale
 	let newHeight = originalHeight * scale
+
+	// Apply maxDimension if specified (resize based on largest side)
+	if ( maxDimension && typeof maxDimension === 'number' && maxDimension > 0 ) {
+		const largestSide = Math.max( newWidth, newHeight )
+		if ( largestSide > maxDimension ) {
+			const scaleFactor = maxDimension / largestSide
+			newWidth = newWidth * scaleFactor
+			newHeight = newHeight * scaleFactor
+		}
+	}
 
 	// Apply custom width/height if specified
 	if ( width !== 'auto' && typeof width === 'number' ) {
@@ -105,11 +117,27 @@ function calculateDimensions( originalWidth, originalHeight, options ) {
 
 /**
  * Convert single image
- * @param {Object} fileItem              - Object containing the file to convert
- * @param {string} [outputFormat="webp"] - Output format for the converted image
+ * @param {Object}         fileItem              - Object containing the file to convert
+ * @param {string}         [outputFormat="webp"] - Output format for the converted ima	ge
+ * @param {ConvertOptions} [options]             - Options for the conversion
  * @return {Promise<Blob>} - Promise that resolves to the converted image blob
  */
-const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
+const convertImage = async ( fileItem, outputFormat = 'webp', options = {} ) => {
+	options = options || {}
+	let quality = !! options.quality ? options.quality : 0.8
+	let maxDimension = !! options.maxDimension ? options.maxDimension : 0
+
+	// Fix quality and maxDimension if they are strings
+	if ( typeof quality === 'string' ) {
+		quality = parseFloat( quality ) / 100
+		if ( ! quality ) {
+			quality = 0.8
+		}
+	}
+	if ( typeof maxDimension === 'string' ) {
+		maxDimension = parseFloat( maxDimension )
+	}
+
 	return new Promise( ( resolve, reject ) => {
 		const img = new Image()
 		let objectUrl = null
@@ -119,7 +147,10 @@ const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
 
 			// Calculate new dimensions based on configuration
 			const formatConfig = config[ outputFormat ]
-			const { width, height } = calculateDimensions( img.width, img.height, formatConfig )
+			const { width, height } = calculateDimensions( img.width, img.height, {
+				...formatConfig,
+				maxDimension,
+			} )
 
 			canvas.width = width
 			canvas.height = height
@@ -152,7 +183,7 @@ const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
 
 			const format = supportedFormats.find( f => f.value === outputFormat )
 			// Only use quality for lossy formats
-			const quality = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? formatConfig.quality : undefined
+			const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
 
 			canvas.toBlob( function( blob ) {
 				// Clean up resources
@@ -169,7 +200,7 @@ const convertImage = async ( fileItem, outputFormat = 'webp' ) => {
 				} else {
 					reject( new Error( 'Failed to convert image' ) )
 				}
-			}, format.mimeType, quality )
+			}, format.mimeType, q )
 		}
 
 		img.onerror = () => {
@@ -259,7 +290,10 @@ async function convertImageClientSide( file, options ) {
 
 	try {
 		const start = performance.now()
-		const convertedBlob = await convertImage( fileItem, format )
+		const convertedBlob = await convertImage( fileItem, format, {
+			quality: options.quality,
+			maxDimension: options.maxDimension,
+		} )
 		const end = performance.now()
 
 		// Get the file extension for the new format

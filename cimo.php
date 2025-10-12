@@ -23,6 +23,8 @@ require_once __DIR__ . '/src/admin/class-script-loader.php';
 require_once __DIR__ . '/src/admin/class-meta-box.php';
 require_once __DIR__ . '/src/admin/class-metadata.php';
 require_once __DIR__ . '/src/admin/class-admin-notices.php';
+require_once __DIR__ . '/src/admin/class-stats.php';
+require_once __DIR__ . '/src/admin/class-admin.php';
 
 /**
  * Plugin activation hook.

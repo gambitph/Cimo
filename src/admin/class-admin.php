@@ -1,0 +1,247 @@
+<?php
+/**
+ * Admin page settings
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! class_exists( 'Cimo_Admin' ) ) {
+	class Cimo_Admin {
+		public function __construct() {
+			// Our settings.
+			add_action( 'admin_init', [ $this, 'register_settings' ] );
+			add_action( 'rest_api_init', [ $this, 'register_settings' ] );
+
+			if ( is_admin() ) {
+				// Our admin page.
+				add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
+				add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+			}
+
+			// Disable thumbnail generation
+			add_filter( 'intermediate_image_sizes', [ $this, 'disable_thumbnail_generation' ] );
+
+			// Handle WordPress automatic image scaling
+			add_filter( 'big_image_size_threshold', [ $this, 'maybe_disable_wp_scaling' ] );
+		}
+
+		/**
+		 * Add admin menu under Settings
+		 */
+		public function add_admin_menu() {
+			add_options_page(
+				__( 'Cimo Settings', 'cimo-image-optimizer' ),
+				__( 'Cimo', 'cimo-image-optimizer' ),
+				'manage_options',
+				'cimo-settings',
+				[ $this, 'admin_page_callback' ]
+			);
+		}
+
+		/**
+		 * Register settings for REST API access
+		 */
+		public function register_settings() {
+			register_setting(
+				'cimo_options',
+				'cimo_options',
+				[
+					'type'              => 'object',
+					'description'       => __( 'Cimo Image Optimizer Settings', 'cimo-image-optimizer' ),
+					'sanitize_callback' => [ $this, 'sanitize_options' ],
+					'show_in_rest'      => [
+						'schema' => [
+							'type' => 'object',
+							'properties' => [
+								'webp_quality' => [
+									'type' => 'integer',
+								],
+								'max_image_dimension' => [
+									'type' => 'integer',
+								],
+								'disable_wp_scaling' => [
+									'type' => 'integer',
+								],
+								'disable_thumbnail_generation' => [
+									'type' => 'integer',
+								],
+								'thumbnail_sizes' => [
+									'type'  => 'array',
+									'items' => [
+										'type' => 'string',
+									],
+								],
+							],
+						],
+					],
+				]
+			);
+		}
+
+		/**
+		 * Enqueue admin scripts for the settings page
+		 */
+		public function enqueue_admin_scripts( $hook ) {
+			// Only load on our admin page
+			if ( 'settings_page_cimo-settings' !== $hook ) {
+				return;
+			}
+
+			// Get the build files
+			$admin_page_asset = require dirname( CIMO_FILE ) . '/build/admin/admin-page.asset.php';
+			$admin_settings_asset = require dirname( CIMO_FILE ) . '/build/admin/admin-settings.asset.php';
+			
+			// Enqueue WordPress component styles
+			wp_enqueue_style( 'wp-components' );
+			
+			// Enqueue CSS
+			wp_enqueue_style(
+				'cimo-admin-settings',
+				plugins_url( 'build/admin/admin-settings.css', CIMO_FILE ),
+				[ 'wp-components' ],
+				$admin_settings_asset['version']
+			);
+			
+			// Enqueue JavaScript
+			wp_enqueue_script(
+				'cimo-admin-page',
+				plugins_url( 'build/admin/admin-page.js', CIMO_FILE ),
+				$admin_page_asset['dependencies'],
+				$admin_page_asset['version'],
+				true
+			);
+
+			// Get statistics data
+			$stats = Cimo_Stats::get_formatted_stats();
+
+			// Get image sizes
+			$image_sizes = $this->get_all_image_sizes();
+			$formatted_sizes = [];
+			foreach ( $image_sizes as $name => $data ) {
+				$formatted_sizes[] = [
+					'name' => $name,
+					'width' => $data['width'],
+					'height' => $data['height'],
+				];
+			}
+
+			// Localize script with admin data
+			wp_localize_script( 'cimo-admin-page', 'cimoAdmin', [
+				'stats' => $stats,
+				'imageSizes' => $formatted_sizes,
+			] );
+		}
+
+		/**
+		 * Admin page callback
+		 */
+		public function admin_page_callback() {
+			// Check user capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'cimo-image-optimizer' ) );
+			}
+
+			?>
+			<div id="cimo-admin-settings"></div>
+			<?php
+		}
+
+
+
+		/**
+		 * Sanitize options
+		 */
+		public function sanitize_options( $options ) {
+			$sanitized = [];
+
+			// Sanitize webp quality
+			if ( isset( $options['webp_quality'] ) ) {
+				$quality = absint( $options['webp_quality'] );
+				// 0 means disabled/not set
+				$sanitized['webp_quality'] = $quality > 0 ? max( 1, min( 100, $quality ) ) : 0;
+			}
+
+			// Sanitize max image dimension
+			if ( isset( $options['max_image_dimension'] ) ) {
+				$dimension = absint( $options['max_image_dimension'] );
+				// 0 means disabled/not set
+				$sanitized['max_image_dimension'] = $dimension;
+			}
+
+			// Sanitize disable_wp_scaling
+			if ( isset( $options['disable_wp_scaling'] ) ) {
+				$sanitized['disable_wp_scaling'] = $options['disable_wp_scaling'] ? 1 : 0;
+			}
+
+			// Sanitize disable_thumbnail_generation
+			if ( isset( $options['disable_thumbnail_generation'] ) ) {
+				$sanitized['disable_thumbnail_generation'] = $options['disable_thumbnail_generation'] ? 1 : 0;
+			}
+
+			// Sanitize thumbnail sizes
+			if ( isset( $options['thumbnail_sizes'] ) && is_array( $options['thumbnail_sizes'] ) ) {
+				$sanitized['thumbnail_sizes'] = array_map( 'sanitize_text_field', $options['thumbnail_sizes'] );
+			}
+
+			return $sanitized;
+		}
+
+		/**
+		 * Get all registered image sizes
+		 */
+		private function get_all_image_sizes() {
+			// Use WordPress core function to get all registered image subsizes
+			$registered_sizes = wp_get_registered_image_subsizes();
+			
+			$sizes = [];
+
+			foreach ( $registered_sizes as $size_name => $size_data ) {
+				$sizes[ $size_name ] = [
+					'width'  => $size_data['width'],
+					'height' => $size_data['height'],
+				];
+			}
+
+			return $sizes;
+		}
+
+		/**
+		 * Disable WordPress automatic image scaling if setting is disabled
+		 */
+		public function maybe_disable_wp_scaling( $threshold ) {
+			$settings = get_option( 'cimo_options', [] );
+
+			// If disable_wp_scaling is NOT enabled (0 or not set), disable the threshold
+			if ( isset( $settings['disable_wp_scaling'] ) && $settings['disable_wp_scaling'] === 0 ) {
+				return false;
+			}
+
+			// Otherwise, keep default WordPress behavior.
+			return $threshold;
+		}
+
+		/**
+		 * Disable thumbnail generation
+		 */
+		public function disable_thumbnail_generation( $sizes ) {
+			// If disable_thumbnail_generation if set, then disable all thumbnails.
+			$settings = get_option( 'cimo_options', [] );
+			if ( ! empty( $settings['disable_thumbnail_generation'] ) && $settings['disable_thumbnail_generation'] === 1 ) {
+				return [];
+			}
+
+			// Else, disable individual sizes.
+			if ( ! empty( $settings['thumbnail_sizes'] ) && is_array( $settings['thumbnail_sizes'] ) ) {
+				// Filter out all sizes that are present in $settings['thumbnail_sizes']
+				$sizes = array_values( array_diff( $sizes, $settings['thumbnail_sizes'] ) );
+			}
+
+			return $sizes;
+		}
+	}
+
+	new Cimo_Admin();
+}

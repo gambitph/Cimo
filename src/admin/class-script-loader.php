@@ -68,13 +68,18 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				true
 			);
 
-			// Localize script with REST API URL and nonce
+			// Get current settings
+			$settings = get_option( 'cimo_options', [] );
+
+			// Localize script with REST API URL, nonce, and settings
 			wp_localize_script(
 				'cimo-editor',
 				'cimoSettings',
 				[
 					'restUrl' => rest_url( 'cimo/v1/' ),
 					'nonce'   => wp_create_nonce( 'wp_rest' ),
+					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
+					'maxImageDimension' => ! empty( $settings['max_image_dimension'] ) ? (int) $settings['max_image_dimension'] : 0,
 				]
 			);
 

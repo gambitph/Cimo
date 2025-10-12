@@ -18,7 +18,11 @@ import { saveMetadata } from '~cimo/shared/metadata-saver'
 async function maybeConvertFile( file ) {
 	try {
 		// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
-		const result = await convertImageClientSide( file, { quality: 0.8, format: 'webp' } )
+		const result = await convertImageClientSide( file, {
+			format: 'webp',
+			quality: window.cimoSettings?.webpQuality || 0.8,
+			maxDimension: window.cimoSettings?.maxImageDimension || 0,
+		} )
 		return result
 	} catch ( e ) {
 		// On failure, fallback to original file to avoid breaking uploads
