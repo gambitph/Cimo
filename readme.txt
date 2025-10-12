@@ -26,6 +26,16 @@ Cimo works like magic, drag your large image file, and an optimized image will a
 
 > **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). This currently doesn't work in Safari, please use any of the browsers listed.
 
+Image Optimization options:
+
+* **WebP quality** – set the quality level for WebP conversion (1-100), defaults at 80%
+* **Max image dimension** – automatically resize images to a maximum dimension while preserving aspect ratio
+* **WordPress automatic scaling** – disable WordPress's built-in 2560px image scaling
+* **Thumbnail generation** – disable all WordPress thumbnail generation to save disk space
+* **Individual thumbnail sizes** – selectively enable/disable specific thumbnail sizes
+* **Preset configurations** – one-click "Recommended" settings for optimal performance
+* **Statistics dashboard** – view total storage saved, compression ratio, and optimization metrics
+
 = How to use =
 
 Just upload images to your Media Manager as you normally would, then Cimo instantly optimizes the images to the next-gen format WebP on your browser during the upload process, the resulting optimized file is the one saved to your WordPress site. It's amazing!
@@ -49,6 +59,9 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 * **Client‑side processing** – faster uploads, no server load
 * **Privacy‑first** – nothing sent to third‑party servers
 * **Lightweight** – no API keys, no background jobs, no server processing
+* **Advanced settings** – full control over quality, dimensions, and thumbnail generation
+* **Statistics dashboard** – track storage savings and optimization performance
+* **Smart presets** – one-click recommended or default configurations
 
 = Works with =
 
@@ -146,6 +159,27 @@ Not currently, but we're working on expanding our optimization capabilities.
 
 Actually, it speeds them up! Since images are compressed before upload, they transfer faster and take up less storage space.
 
+= How do I access the settings page? =
+
+Go to Settings > Cimo in your WordPress admin. There you can configure options such as WebP quality, set maximum image dimensions, control thumbnail generation, and view optimization statistics.
+
+= What are the recommended settings? =
+
+Click the "Recommended" button in the settings page to apply optimal settings:
+- WebP Quality: 80% (best balance of quality and file size)
+- Max Image Dimension: 1920px (perfect for modern web)
+- Thumbnail Generation: Disabled (saves disk space)
+
+These settings work great for most websites and provide excellent performance.
+
+= Can I see how much storage I've saved? =
+
+Yes! The settings page includes a statistics dashboard showing:
+- Total storage saved
+- Percentage reduction
+- Number of media files optimized
+- Original vs optimized file sizes
+
 == Screenshots ==
 
 1. Automatic WebP conversion on image upload
@@ -153,6 +187,16 @@ Actually, it speeds them up! Since images are compressed before upload, they tra
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.1.0 =
+
+* New: Statistics dashboard showing total storage saved, compression ratio, and media optimized
+* New: Admin settings page under Settings > Cimo
+* New: WebP quality control slider (1-100%) for custom compression levels
+* New: Maximum image dimension setting to automatically resize large uploads
+* New: WordPress automatic scaling control (disable the 2560px scaling threshold)
+* New: Granular thumbnail generation control - disable all or select specific thumbnail sizes
+* New: "Recommended" preset for one-click optimal settings
 
 = 1.0.5 =
 
