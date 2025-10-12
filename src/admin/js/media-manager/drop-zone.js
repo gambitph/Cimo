@@ -74,10 +74,6 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			return
 		}
 
-		// Prevent default browser behavior
-		event.preventDefault()
-		event.stopPropagation()
-
 		// Hide the drop files to upload note. Sometimes, like in Elementor, if
 		// there are multiple media managers opened, this can be many, hide them
 		// all.
@@ -97,6 +93,15 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		const optimizedResults = await Promise.all(
 			files.map( maybeConvertFile )
 		)
+
+		// If any of the files are not supported, return
+		if ( optimizedResults.some( result => result.metadata === null ) ) {
+			return
+		}
+
+		// Prevent default browser behavior
+		event.preventDefault()
+		event.stopPropagation()
 
 		// Extract files and metadata from results
 		const optimizedFiles = optimizedResults.map( result => result.file )

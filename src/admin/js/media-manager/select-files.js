@@ -74,11 +74,6 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 			return
 		}
 
-		// Prevent the default file handling
-		event.preventDefault()
-		event.stopPropagation()
-		event.stopImmediatePropagation()
-
 		// Get the files.
 		const files = Array.from( event.target.files )
 
@@ -87,6 +82,16 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		const optimizedResults = await Promise.all(
 			files.map( maybeConvertFile )
 		)
+
+		// If any of the files are not supported, return
+		if ( optimizedResults.some( result => result.metadata === null ) ) {
+			return
+		}
+
+		// Prevent the default file handling
+		event.preventDefault()
+		event.stopPropagation()
+		event.stopImmediatePropagation()
 
 		// Extract files from results
 		const optimizedFiles = optimizedResults.map( result => result.file )
