@@ -6,7 +6,7 @@
  */
 
 import { domReady } from '~cimo/shared/dom-ready'
-import { convertImageClientSide } from '~cimo/shared/image-converter'
+import { convertImageClientSide, isFormatSupported } from '~cimo/shared/image-converter'
 import { watchForEditorIframe } from '~cimo/shared/util'
 import { saveMetadata } from '~cimo/shared/metadata-saver'
 
@@ -74,6 +74,15 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			return
 		}
 
+		// If the format is not supported, return
+		if ( ! isFormatSupported( 'webp' ) ) {
+			return
+		}
+
+		// Prevent default browser behavior
+		event.preventDefault()
+		event.stopPropagation()
+
 		// Hide the drop files to upload note. Sometimes, like in Elementor, if
 		// there are multiple media managers opened, this can be many, hide them
 		// all.
@@ -93,15 +102,6 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		const optimizedResults = await Promise.all(
 			files.map( maybeConvertFile )
 		)
-
-		// If any of the files are not supported, return
-		if ( optimizedResults.some( result => result.metadata === null ) ) {
-			return
-		}
-
-		// Prevent default browser behavior
-		event.preventDefault()
-		event.stopPropagation()
 
 		// Extract files and metadata from results
 		const optimizedFiles = optimizedResults.map( result => result.file )

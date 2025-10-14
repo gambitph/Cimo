@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 6.6.4
 Tested up to: 6.8.3
 Requires PHP: 8.0
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Cimo works like magic, drag your large image file, and an optimized image will a
 * No extra bandwidth
 * No external image-processing services
 
-> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). This currently doesn't work in Safari, please use any of the browsers listed.
+> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). This currently doesn't work in Safari, images would just upload as they normally would, please use any of the browsers listed.
 
 Image Optimization options:
 
@@ -187,6 +187,10 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.1.2 =
+
+* Fixed: When uploading images, the original image is also uplaoded.
 
 = 1.1.1 =
 

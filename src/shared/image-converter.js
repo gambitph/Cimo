@@ -26,6 +26,44 @@ const config = {
 }
 
 /**
+ * Check if a specific image format is supported by the browser
+ * @param {string} format - Format name ('webp', 'jpg', 'png', 'avif') or MIME type ('image/webp')
+ * @return {boolean} - True if format is supported, false otherwise
+ */
+function isFormatSupported( format ) {
+	if ( ! format || typeof format !== 'string' ) {
+		return false
+	}
+
+	// Map format names to MIME types
+	const formatMap = {
+		webp: 'image/webp',
+		avif: 'image/avif',
+	}
+
+	// Get MIME type (either from map or use as-is if already a MIME type)
+	const mimeType = formatMap[ format.toLowerCase() ] || ( format.startsWith( 'image/' ) ? format : null )
+
+	if ( ! mimeType ) {
+		return false
+	}
+
+	// Create a test canvas and check if toDataURL supports the format
+	const canvas = document.createElement( 'canvas' )
+	canvas.width = 1
+	canvas.height = 1
+
+	try {
+		const dataUrl = canvas.toDataURL( mimeType )
+		// If the browser doesn't support the format, it falls back to image/png
+		// Check if the data URL starts with the requested mime type
+		return dataUrl.startsWith( `data:${ mimeType }` )
+	} catch ( e ) {
+		return false
+	}
+}
+
+/**
  * @typedef {Object} ConvertOptions
  * @property {number}                                         [quality=0.8]        - For lossy formats in range [0,1]
  * @property {number}                                         [scale=1]            - Uniform scaling factor
@@ -329,4 +367,5 @@ async function convertImageClientSide( file, options ) {
 export {
 	convertImageClientSide,
 	convertImage,
+	isFormatSupported,
 }
