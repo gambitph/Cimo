@@ -8,10 +8,17 @@
 /**
  * Saves metadata to the server via REST API.
  * Each metadata object must include a 'filename' key.
- * @param {Array<Object>} metadataArray - Array of metadata objects (each must have a filename key)
+ * @param {Array<Object>} _metadataArray - Array of metadata objects (each must have a filename key)
  */
-export const saveMetadata = metadataArray => {
-	if ( ! Array.isArray( metadataArray ) || metadataArray.length === 0 ) {
+export const saveMetadata = _metadataArray => {
+	if ( ! Array.isArray( _metadataArray ) ) {
+		return Promise.resolve()
+	}
+
+	// Filter out all the null values. If we have a null value that means it didn't have any metadata to save.
+	const metadataArray = _metadataArray.filter( entry => entry !== null )
+
+	if ( metadataArray.length === 0 ) {
 		return Promise.resolve()
 	}
 
