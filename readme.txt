@@ -16,6 +16,8 @@ Unlimited free image compression and WebP conversion, done instantly as you uplo
 
 Cimo is a game-changer for image optimization. It optimizes and converts your images instantly as you upload — even before the files are added to your Media Library.
 
+From WordPress' point of view, it's as if you optimized your image BEFORE your uploaded it. Now, this is next-next-gen image optimization.
+
 Cimo works like magic, drag your large image file, and an optimized image will automatically appear in your Media Library. This ensures your website load speed is perfectly optimized by keeping image sizes minimal, without compromising quality.
 
 * Unlimited usage - upload as many images as you want
