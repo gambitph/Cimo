@@ -6,6 +6,8 @@ const archiver = require( 'archiver' )
 const PLUGIN_NAME = 'cimo'
 const BUILD_DIR = 'build-plugin'
 const DIST_DIR = 'dist'
+const IS_PREMIUM_BUILD = process.env.BUILD_TYPE === 'premium'
+
 // Get version from cimo.php plugin header
 const cimoPhp = fs.readFileSync( 'cimo.php', 'utf8' )
 const versionMatch = cimoPhp.match( /^\s*\*\s*Version:\s*([^\r\n]+)/m )
@@ -20,6 +22,7 @@ const INCLUDED_FILES = [
 	'composer.json',
 	'index.php',
 	'readme.txt',
+	...( IS_PREMIUM_BUILD ? [ 'freemius', 'pro__premium_only' ] : [] ),
 ]
 
 // Create security index.php content
@@ -91,6 +94,8 @@ function copyDir( src, dest ) {
 			const fileName = path.basename( srcPath )
 			const fileExt = path.extname( srcPath )
 
+			const isInNodeModules = srcPath.split( path.sep ).includes( 'node_modules' )
+
 			// Exclude JavaScript, CSS, markdown, and other development files
 			const shouldExclude =
 				fileExt === '.js' ||
@@ -101,7 +106,8 @@ function copyDir( src, dest ) {
 				fileName === 'package-lock.json' ||
 				fileName === 'webpack.config.js' ||
 				fileName === 'index.js' ||
-				fileName === 'index.css'
+				fileName === 'index.css' ||
+				isInNodeModules
 
 			if ( ! shouldExclude ) {
 				copyFile( srcPath, destPath )
@@ -196,6 +202,8 @@ function addSecurityFiles( dir ) {
 async function packagePlugin() {
 	// eslint-disable-next-line no-console
 	console.log( '🚀 Starting plugin packaging...' )
+	// eslint-disable-next-line no-console
+	console.log( `📦 Build type: ${ IS_PREMIUM_BUILD ? 'Premium' : 'Free' }` )
 
 	// Clean and create build directory
 	if ( fs.existsSync( BUILD_DIR ) ) {
@@ -208,7 +216,12 @@ async function packagePlugin() {
 	console.log( '📁 Copying main plugin files...' )
 	for ( const file of INCLUDED_FILES ) {
 		if ( fs.existsSync( file ) ) {
-			copyFile( file, path.join( BUILD_DIR, file ) )
+			const stat = fs.statSync( file )
+			if ( stat.isDirectory() ) {
+				copyDir( file, path.join( BUILD_DIR, file ) )
+			} else {
+				copyFile( file, path.join( BUILD_DIR, file ) )
+			}
 		}
 	}
 

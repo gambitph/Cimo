@@ -9,8 +9,10 @@
 	},
 	"scripts": {
 		"prebuild": "npm run lint",
-		"build": "npm run sync-version && wp-scripts build && npm run package",
-		"start": "wp-scripts start",
+		"build": "node scripts/update-build-type.js free && npm run sync-version && wp-scripts build && npm run package",
+		"start": "node scripts/update-build-type.js free && wp-scripts start",
+		"build:premium": "cd pro__premium_only && npm run build",
+		"start:premium": "cd pro__premium_only && npm run start",
 		"lint:js": "wp-scripts lint-js",
 		"lint:js:fix": "wp-scripts lint-js --fix",
 		"lint:css": "wp-scripts lint-style",

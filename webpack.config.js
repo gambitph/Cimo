@@ -1,14 +1,15 @@
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config' )
+const path = require( 'path' )
 
 module.exports = {
 	...defaultConfig,
 	entry: {
-		'editor/index': './src/editor/index.js',
-		'admin/index': './src/admin/js/index.js',
-		'admin/admin-page': './src/admin/js/admin-page.js',
-		'admin/admin': './src/admin/css/admin.css',
-		'admin/admin-settings': './src/admin/css/admin-settings.css',
-		'frontend/index': './src/frontend/index.js',
+		'editor/index': path.resolve( __dirname, './src/editor/index.js' ),
+		'admin/index': path.resolve( __dirname, './src/admin/js/index.js' ),
+		'admin/admin-page': path.resolve( __dirname, './src/admin/js/admin-page.js' ),
+		'admin/admin': path.resolve( __dirname, './src/admin/css/admin.css' ),
+		'admin/admin-settings': path.resolve( __dirname, './src/admin/css/admin-settings.css' ),
+		'frontend/index': path.resolve( __dirname, './src/frontend/index.js' ),
 	},
 	resolve: {
 		...defaultConfig.resolve,
