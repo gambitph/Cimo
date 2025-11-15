@@ -5,6 +5,10 @@
 .cimo-admin-settings-wrap {
 	margin-top: 20px;
 	margin-inline-end: 20px;
+	display: grid;
+    grid-template-columns: minmax(0, 700px) 300px 1fr;
+    gap: 24px;
+	align-items: flex-start;
 }
 
 .cimo-loading {
@@ -14,6 +18,10 @@
 	font-size: 16px;
 }
 
+.cimo-header {
+	grid-column: 1 / 4;
+}
+
 .cimo-header, .cimo-settings-section, .cimo-settings-sidebar {
 	padding: 30px;
     background: #fff;
@@ -21,7 +29,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 38px;
-	margin-bottom: 20px;
 }
 
 .cimo-logo {
@@ -34,7 +41,6 @@
 }
 
 .cimo-settings-section {
-	margin-bottom: 30px;
 	gap: 0;
 
 	.notice {
@@ -115,7 +121,8 @@
 	gap: 16px;
 }
 
-.cimo-stat-percentage {
+.cimo-stat-percentage,
+.cimo-premium-feature-label {
 	color: #16a249;
     background: #16a24933;
     padding: 8px 12px;
@@ -126,11 +133,10 @@
 
 .cimo-settings-section-wrapper {
     display: grid;
-    grid-template-columns: minmax(0, 700px) 300px;
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 24px;
 	align-items: start;
 }
-
 
 .cimo-settings-header {
 	display: flex;
@@ -161,7 +167,6 @@
 }
 
 .cimo-settings-sidebar {
-	display: none;
 	background: #faf6ff;
     border: 1px solid #d4bbf1;
 
@@ -170,6 +175,13 @@
 		justify-content: center;
 		border-radius: 6px;
 	}
+}
+
+.cimo-settings-form {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 24px;
+	align-items: start;
 }
 
 .cimo-sidebar-heading {
@@ -226,6 +238,8 @@
 .cimo-premium-cta {
 	margin-top: 24px;
 	text-align: center;
+	--wp-components-color-accent: #31bf43;
+	--wp-components-color-accent-darker-10: #29a739;
 }
 
 .cimo-premium-guarantee {
@@ -243,6 +257,7 @@
 }
 
 .cimo-save-button {
+	border-radius: 6px;
 	--wp-components-color-accent: #31BF43;
     --wp-components-color-accent-darker-10: #249433;
     --wp-components-color-accent-darker-20: #196a24;
@@ -250,10 +265,16 @@
 
 .cimo-reset-button {
 	--wp-components-color-accent: #555;
+	align-self: flex-end;
 }
 
 .cimo-submit-section {
 	margin-bottom: 0 !important;
+	position: sticky;
+    bottom: 0;
+    padding: 16px;
+    background: #fff;
+    border-radius: 16px;
 }
 
 /* Settings use WordPress components - minimal custom styling */
@@ -305,6 +326,26 @@
 /* Responsive Design */
 @media (max-width: 782px) {
 
+	.cimo-admin-settings-wrap {
+		display: flex;
+        flex-direction: column;
+        align-items: stretch;
+	}
+
+	.cimo-settings-form {
+		order: 2;
+	}
+
+	.cimo-stats-section {
+		grid-template-columns: 1fr 1fr;
+		row-gap: 40px;
+	}
+
+	.cimo-stats-column,
+	.cimo-stats-main {
+		align-items: center !important;
+	}
+
 	.cimo-admin-settings {
 		max-width: 100%;
 	}
@@ -333,4 +374,32 @@
 		padding: 16px;
 	}
 
+}
+
+.cimo-premium-feature-label {
+	gap: 4px;
+    display: flex;
+
+	svg {
+		width: 14px;
+		height: 14px;
+	}
+}
+
+.cimo-settings-premium-placeholder {
+	display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+	margin-block: 20px;
+	
+	.components-button {
+		margin-top: 12px;
+		--wp-components-color-accent: #555 !important;
+		--wp-admin-theme-color-darker-20: #333 !important;
+	}
+}
+
+.cimo-settings-section:has(.cimo-settings-premium-placeholder) {
+	opacity: 0.65;
 }

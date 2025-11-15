@@ -2,9 +2,12 @@ import { useState, useEffect } from '@wordpress/element'
 import {
 	Button, RangeControl, ToggleControl, TextControl,
 } from '@wordpress/components'
+import { applyFilters } from '@wordpress/hooks'
 import apiFetch from '@wordpress/api-fetch'
 import { __ } from '@wordpress/i18n'
 import cimoLogo from './assets/logo-long.webp'
+
+const buildType = applyFilters( 'cimo.admin.settings.buildType', 'free' )
 
 const AdminSettings = () => {
 	const [ settings, setSettings ] = useState( {
@@ -181,24 +184,24 @@ const AdminSettings = () => {
 				</div>
 			</div>
 
-			<div className="cimo-settings-section-wrapper">
-				<div className="cimo-settings-section">
-					<div className="cimo-settings-header">
-						<h2>
-							<span aria-hidden="true">
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings w-5 h-5 text-primary" data-lov-id="src/components/SettingsSection.tsx:19:8" data-lov-name="Settings" data-component-path="src/components/SettingsSection.tsx" data-component-line="19" data-component-file="SettingsSection.tsx" data-component-name="Settings" data-component-content="%7B%22className%22%3A%22w-5%20h-5%20text-primary%22%7D"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-							</span>
-							{ __( 'Image Optimization Settings', 'cimo-image-optimizer' ) }
-						</h2>
-						<Button
-							variant="secondary"
-							onClick={ applyRecommendedSettings }
-						>
-							{ __( 'Recommended', 'cimo-image-optimizer' ) }
-						</Button>
-					</div>
+			<form onSubmit={ handleSubmit } className="cimo-settings-form">
+				<div className="cimo-settings-section-wrapper">
+					<div className="cimo-settings-section">
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+								</span>
+								{ __( 'Image Optimization Settings', 'cimo-image-optimizer' ) }
+							</h2>
+							<Button
+								variant="secondary"
+								onClick={ applyRecommendedSettings }
+							>
+								{ __( 'Recommended', 'cimo-image-optimizer' ) }
+							</Button>
+						</div>
 
-					<form onSubmit={ handleSubmit }>
 						<div className="cimo-setting-field">
 							<RangeControl
 								id="webpQuality"
@@ -279,41 +282,115 @@ const AdminSettings = () => {
 							) }
 						</div>
 
-						{ /* Submit Button */ }
-						<div className="cimo-setting-field cimo-submit-section">
-							<div className="cimo-submit-buttons">
-								<Button
-									variant="primary"
-									className="cimo-save-button"
-									disabled={ isSaving }
-									__next40pxDefaultSize
-									onClick={ e => {
-										e.preventDefault()
-										if ( ! isSaving ) {
-											document.querySelector( 'form' ).dispatchEvent( new Event( 'submit', { cancelable: true, bubbles: true } ) )
-										}
-									} }
+						<Button
+							variant="tertiary"
+							className="cimo-reset-button"
+							onClick={ applyDefaultSettings }
+						>
+							{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+						</Button>
+					</div>
+
+					{ /* Low Quality Image Placeholder */ }
+
+					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+								</span>
+								{ __( 'Low Quality Image Placeholder Settings', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
 								>
-									{ isSaving ? __( 'Saving…', 'cimo-image-optimizer' ) : __( 'Save Changes', 'cimo-image-optimizer' ) }
-								</Button>
-								<Button
-									variant="tertiary"
-									className="cimo-reset-button"
-									onClick={ applyDefaultSettings }
-								>
-									{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
-								</Button>
-							</div>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
 						</div>
 
-						{ saveMessage && (
-							<div className={ `notice notice-${ saveMessage.includes( 'success' ) ? 'success' : 'error' } is-dismissible` }>
-								<p>{ saveMessage }</p>
-							</div>
-						) }
-					</form>
+						<LQIPSettings
+							label={ __( 'Show a low-quality preview while the image loads, then fade in the final image.', 'cimo-image-optimizer' ) }
+						/>
+					</div>
+
+					{ /* Video Optimization Settings */ }
+
+					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-video-icon lucide-video"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" /><rect x="2" y="6" width="14" height="12" rx="2" /></svg>
+								</span>
+								{ __( 'Video Optimization Settings', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+						<VideoSettings
+							label={ __( 'Upgrade to Premium to compress and optimize video files on upload', 'cimo-image-optimizer' ) }
+						/>
+					</div>
+
+					{ /* Audio Optimization Settings */ }
+
+					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-music-icon lucide-music"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+								</span>
+								{ __( 'Audio Optimization Settings', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+						<AudioSettings
+							label={ __( 'Upgrade to Premium to compress and optimize audio files on upload', 'cimo-image-optimizer' ) }
+						/>
+					</div>
 				</div>
 
+				{ /* Submit Button */ }
+				<div className="cimo-setting-field cimo-submit-section">
+					<div className="cimo-submit-buttons">
+						<Button
+							variant="primary"
+							className="cimo-save-button"
+							disabled={ isSaving }
+							__next40pxDefaultSize
+							onClick={ e => {
+								e.preventDefault()
+								if ( ! isSaving ) {
+									document.querySelector( 'form' ).dispatchEvent( new Event( 'submit', { cancelable: true, bubbles: true } ) )
+								}
+							} }
+						>
+							{ isSaving ? __( 'Saving…', 'cimo-image-optimizer' ) : __( 'Save Changes', 'cimo-image-optimizer' ) }
+						</Button>
+						{ saveMessage && (
+							<p>{ saveMessage }</p>
+						) }
+					</div>
+				</div>
+
+			</form>
+
+			{ buildType === 'free' && (
 				<div className="cimo-settings-section cimo-settings-sidebar">
 					<div className="cimo-sidebar-heading">
 						<div className="cimo-sidebar-heading-icon">
@@ -346,10 +423,10 @@ const AdminSettings = () => {
 						<li>
 							<span className="cimo-premium-icon">
 								{ /* Lightning Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap h-3 w-3 text-purple-600" data-lov-id="src/components/WordPressAdmin.tsx:328:20" data-lov-name="Zap" data-component-path="src/components/WordPressAdmin.tsx" data-component-line="328" data-component-file="WordPressAdmin.tsx" data-component-name="Zap" data-component-content="%7B%22className%22%3A%22h-3%20w-3%20text-purple-600%22%7D"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
 							</span>
 							<span>
-								{ __( 'Next-gen .avif image format', 'cimo-image-optimizer' ) }
+								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
 						<li>
@@ -361,15 +438,15 @@ const AdminSettings = () => {
 								{ __( 'Still without limits', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* White label Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-							</span>
-							<span>
-								{ __( 'White label', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
+						{ /* <li>
+						<span className="cimo-premium-icon"> */ }
+						{ /* White label Icon */ }
+						{ /* <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+						</span>
+						<span>
+							{ __( 'White label', 'cimo-image-optimizer' ) }
+						</span>
+					</li> */ }
 					</ul>
 
 					<div className="cimo-premium-cta">
@@ -387,9 +464,30 @@ const AdminSettings = () => {
 						</div>
 					</div>
 				</div>
-			</div>
+			) }
 		</div>
 	)
 }
 
 export default AdminSettings
+
+const PremiumPlaceholder = props => {
+	return (
+		<div className="cimo-settings-premium-placeholder">
+			{ props.label }
+			<Button
+				variant="secondary"
+				className="cimo-premium-cta"
+				href="https://wpcimo.com/pricing"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				{ __( 'Upgrade to Premium', 'cimo-image-optimizer' ) }
+			</Button>
+		</div>
+	)
+}
+
+const LQIPSettings = applyFilters( 'cimo.admin.settings.lowQualityImageSettings', PremiumPlaceholder )
+const VideoSettings = applyFilters( 'cimo.admin.settings.videoSettings', PremiumPlaceholder )
+const AudioSettings = applyFilters( 'cimo.admin.settings.audioSettings', PremiumPlaceholder )
