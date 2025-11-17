@@ -157,7 +157,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 		 * Sanitize options
 		 */
 		public function sanitize_options( $options ) {
-			$sanitized = [];
+			// Load up the complete options so we don't lose any existing settings.
+			$current = get_option( 'cimo_options', [] );
+			$sanitized = is_array( $current ) ? $current : [];
 
 			// Sanitize webp quality
 			if ( isset( $options['webp_quality'] ) ) {
