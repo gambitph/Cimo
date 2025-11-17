@@ -275,6 +275,7 @@
     padding: 16px;
     background: #fff;
     border-radius: 16px;
+	z-index: 9;
 }
 
 /* Settings use WordPress components - minimal custom styling */

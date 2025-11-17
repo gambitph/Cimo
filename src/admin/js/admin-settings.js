@@ -1,4 +1,6 @@
-import { useState, useEffect } from '@wordpress/element'
+import {
+	useState, useEffect, useCallback,
+} from '@wordpress/element'
 import {
 	Button, RangeControl, ToggleControl, TextControl,
 } from '@wordpress/components'
@@ -16,11 +18,18 @@ const AdminSettings = () => {
 		disableWpScaling: 1,
 		disableThumbnailGeneration: 0,
 		thumbnailSizes: [], // Stores DISABLED thumbnail sizes
+
+		// LQIP settings
+		lqipEnabled: 0,
+		lqipPulseSpeed: '',
+		lqipBrightness: '',
+		lqipFadeDuration: '',
 	} )
 	const [ imageSizes, setImageSizes ] = useState( [] )
 	const [ isSaving, setIsSaving ] = useState( false )
 	const [ saveMessage, setSaveMessage ] = useState( '' )
 	const [ isLoading, setIsLoading ] = useState( true )
+	const [ hasUnsavedChanges, setHasUnsavedChanges ] = useState( false )
 
 	// Load settings and image sizes on component mount
 	useEffect( () => {
@@ -43,24 +52,34 @@ const AdminSettings = () => {
 			} )
 
 			const cimoOptions = data.cimo_options || {}
-			setSettings( {
+			const fetchedSettings = {
+				// Image Optimization settings
 				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
 				maxImageDimension: cimoOptions.max_image_dimension || '',
 				disableWpScaling: cimoOptions.disable_wp_scaling !== undefined ? cimoOptions.disable_wp_scaling : 1,
 				disableThumbnailGeneration: cimoOptions.disable_thumbnail_generation !== undefined ? cimoOptions.disable_thumbnail_generation : 0,
 				thumbnailSizes: cimoOptions.thumbnail_sizes || [],
-			} )
+
+				// LQIP settings
+				lqipEnabled: cimoOptions.lqip_enabled !== undefined ? cimoOptions.lqip_enabled : 0,
+				lqipPulseSpeed: cimoOptions.lqip_pulse_speed !== undefined ? cimoOptions.lqip_pulse_speed : '',
+				lqipBrightness: cimoOptions.lqip_brightness !== undefined ? cimoOptions.lqip_brightness : '',
+				lqipFadeDuration: cimoOptions.lqip_fade_duration !== undefined ? cimoOptions.lqip_fade_duration : '',
+			}
+			setSettings( fetchedSettings )
+			setHasUnsavedChanges( false )
 		} catch ( error ) {
 			// Error loading settings
 		}
 	}
 
-	const handleInputChange = ( field, value ) => {
+	const handleInputChange = useCallback( ( field, value ) => {
 		setSettings( prev => ( {
 			...prev,
 			[ field ]: value,
 		} ) )
-	}
+		setHasUnsavedChanges( true )
+	}, [] )
 
 	const handleThumbnailSizeChange = ( sizeName, isChecked ) => {
 		setSettings( prev => {
@@ -83,23 +102,41 @@ const AdminSettings = () => {
 		} )
 	}
 
-	const applyRecommendedSettings = () => {
-		setSettings( {
-			webpQuality: 80,
-			maxImageDimension: 1920,
-			disableWpScaling: 1,
-			disableThumbnailGeneration: 1,
-			thumbnailSizes: [],
+	const applyImageRecommendedSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				webpQuality: 80,
+				maxImageDimension: 1920,
+				disableWpScaling: 1,
+				disableThumbnailGeneration: 1,
+				thumbnailSizes: [],
+			}
 		} )
 	}
 
-	const applyDefaultSettings = () => {
-		setSettings( {
-			webpQuality: '',
-			maxImageDimension: '',
-			disableWpScaling: 1,
-			disableThumbnailGeneration: 0,
-			thumbnailSizes: [],
+	const applyImageDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				webpQuality: '',
+				maxImageDimension: '',
+				disableWpScaling: 1,
+				disableThumbnailGeneration: 0,
+				thumbnailSizes: [],
+			}
+		} )
+	}
+
+	const applyLQIPDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				// lqipEnabled: 0,
+				lqipPulseSpeed: '',
+				lqipBrightness: '',
+				lqipFadeDuration: '',
+			}
 		} )
 	}
 
@@ -107,6 +144,7 @@ const AdminSettings = () => {
 		e.preventDefault()
 		setIsSaving( true )
 		setSaveMessage( '' )
+		setHasUnsavedChanges( false )
 
 		try {
 			/* eslint-disable camelcase */
@@ -115,11 +153,18 @@ const AdminSettings = () => {
 				method: 'POST',
 				data: {
 					cimo_options: {
+						// Image Optimization settings
 						webp_quality: parseInt( settings.webpQuality ) || 0,
 						max_image_dimension: parseInt( settings.maxImageDimension ) || 0,
 						disable_wp_scaling: settings.disableWpScaling,
 						disable_thumbnail_generation: settings.disableThumbnailGeneration,
 						thumbnail_sizes: settings.thumbnailSizes,
+
+						// LQIP settings
+						lqip_enabled: settings.lqipEnabled,
+						lqip_pulse_speed: parseFloat( settings.lqipPulseSpeed ) || 0,
+						lqip_brightness: parseFloat( settings.lqipBrightness ) || 0,
+						lqip_fade_duration: parseFloat( settings.lqipFadeDuration ) || 0,
 					},
 				},
 			} )
@@ -196,7 +241,7 @@ const AdminSettings = () => {
 							</h2>
 							<Button
 								variant="secondary"
-								onClick={ applyRecommendedSettings }
+								onClick={ applyImageRecommendedSettings }
 							>
 								{ __( 'Recommended', 'cimo-image-optimizer' ) }
 							</Button>
@@ -285,7 +330,7 @@ const AdminSettings = () => {
 						<Button
 							variant="tertiary"
 							className="cimo-reset-button"
-							onClick={ applyDefaultSettings }
+							onClick={ applyImageDefaultSettings }
 						>
 							{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
 						</Button>
@@ -311,9 +356,77 @@ const AdminSettings = () => {
 							) }
 						</div>
 
-						<LQIPSettings
-							label={ __( 'Show a low-quality preview while the image loads, then fade in the final image.', 'cimo-image-optimizer' ) }
-						/>
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Show a low-quality preview while the image loads, then fade in the final image.', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={ __( 'Enable LQIP', 'cimo-image-optimizer' ) }
+									checked={ settings.lqipEnabled === 1 }
+									onChange={ checked => handleInputChange( 'lqipEnabled', checked ? 1 : 0 ) }
+									help={ __( 'Turn this option on to enable LQIP for all images.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+							{ settings.lqipEnabled === 1 && <>
+								<div className="cimo-setting-field">
+									<RangeControl
+										id="lqipPulseSpeed"
+										label={ __( 'Placeholder Pulse Speed (seconds)', 'cimo-image-optimizer' ) }
+										value={ settings.lqipPulseSpeed || '' }
+										onChange={ value => handleInputChange( 'lqipPulseSpeed', value || '' ) }
+										min="0.1"
+										max="5"
+										step="0.1"
+										__next40pxDefaultSize
+										allowReset
+										initialPosition={ 2.5 }
+										help={ __( 'Set the speed of the pulse animation when the image is loading. Default is 2.5s.', 'cimo-image-optimizer' ) }
+									/>
+								</div>
+								<div className="cimo-setting-field">
+									<RangeControl
+										id="lqipBrightness"
+										label={ __( 'Placeholder Pulse Brightness', 'cimo-image-optimizer' ) }
+										value={ settings.lqipBrightness || '' }
+										onChange={ value => handleInputChange( 'lqipBrightness', value || '' ) }
+										min="0.5"
+										max="1.5"
+										step="0.05"
+										__next40pxDefaultSize
+										allowReset
+										initialPosition={ 1.3 }
+										help={ __( 'Set the brightness of the pulse animation when the image is loading. Default is 1.3x brightness.', 'cimo-image-optimizer' ) }
+									/>
+								</div>
+								<div className="cimo-setting-field">
+									<RangeControl
+										id="lqipFadeDuration"
+										label={ __( 'Image Fade In Duration (seconds)', 'cimo-image-optimizer' ) }
+										value={ settings.lqipFadeDuration || '' }
+										onChange={ value => handleInputChange( 'lqipFadeDuration', value || '' ) }
+										min="0.1"
+										max="3"
+										step="0.1"
+										__next40pxDefaultSize
+										allowReset
+										initialPosition={ 0.5 }
+										help={ __( 'Set the duration of the fade in animation when the image is loaded. Default is 0.5s.', 'cimo-image-optimizer' ) }
+									/>
+								</div>
+
+								<Button
+									variant="tertiary"
+									className="cimo-reset-button"
+									onClick={ applyLQIPDefaultSettings }
+								>
+									{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+								</Button>
+							</> }
+						</> }
 					</div>
 
 					{ /* Video Optimization Settings */ }
@@ -382,6 +495,11 @@ const AdminSettings = () => {
 						>
 							{ isSaving ? __( 'Saving…', 'cimo-image-optimizer' ) : __( 'Save Changes', 'cimo-image-optimizer' ) }
 						</Button>
+						{ hasUnsavedChanges && (
+							<span className="cimo-unsaved-note">
+								{ __( 'You have unsaved changes', 'cimo-image-optimizer' ) }
+							</span>
+						) }
 						{ saveMessage && (
 							<p>{ saveMessage }</p>
 						) }
@@ -488,6 +606,6 @@ const PremiumPlaceholder = props => {
 	)
 }
 
-const LQIPSettings = applyFilters( 'cimo.admin.settings.lowQualityImageSettings', PremiumPlaceholder )
+// TODO: Remove these
 const VideoSettings = applyFilters( 'cimo.admin.settings.videoSettings', PremiumPlaceholder )
 const AudioSettings = applyFilters( 'cimo.admin.settings.audioSettings', PremiumPlaceholder )

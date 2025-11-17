@@ -74,6 +74,23 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 										'type' => 'string',
 									],
 								],
+
+								// LQIP settings
+								'lqip_enabled' => [
+									'type' => 'integer',
+								],
+								'lqip_pulse_speed' => [
+									'type' => 'number',
+									'format' => 'float',
+								],
+								'lqip_brightness' => [
+									'type' => 'number',
+									'format' => 'float',
+								],
+								'lqip_fade_duration' => [
+									'type' => 'number',
+									'format' => 'float',
+								],
 							],
 						],
 					],
@@ -89,20 +106,23 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			if ( 'settings_page_cimo-settings' !== $hook ) {
 				return;
 			}
+			
+			// Enqueue WordPress component styles
+			wp_enqueue_style( 'wp-components' );
+
+			// This should return the dependencies for both css and js, these will be merged with the default dependencies.
+			$dependencies = apply_filters( 'cimo/admin/enqueue_admin_scripts', ['css' => [], 'js' => []] );
 
 			// Get the build files
 			$build_dir = plugin_dir_path( CIMO_FILE ) . 'build/admin/';
 			$build_url = plugin_dir_url( CIMO_FILE ) . 'build/admin/';
-			
-			// Enqueue WordPress component styles
-			wp_enqueue_style( 'wp-components' );
 			
 			// Enqueue CSS
 			$script_asset = include $build_dir . 'admin-settings.asset.php';
 			wp_enqueue_style(
 				'cimo-admin-settings',
 				$build_url . 'admin-settings.css',
-				[ 'wp-components' ],
+				array_merge( [ 'wp-components' ], $dependencies['css'] ),
 				$script_asset['version']
 			);
 			
@@ -111,7 +131,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			wp_enqueue_script(
 				'cimo-admin-page',
 				$build_url . 'admin-page.js',
-				$script_asset['dependencies'],
+				array_merge( $script_asset['dependencies'], $dependencies['js'] ),
 				$script_asset['version'],
 				true
 			);
@@ -188,6 +208,20 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			// Sanitize thumbnail sizes
 			if ( isset( $options['thumbnail_sizes'] ) && is_array( $options['thumbnail_sizes'] ) ) {
 				$sanitized['thumbnail_sizes'] = array_map( 'sanitize_text_field', $options['thumbnail_sizes'] );
+			}
+
+			// Sanitize lqip_enabled
+			if ( isset( $options['lqip_enabled'] ) ) {
+				$sanitized['lqip_enabled'] = $options['lqip_enabled'] ? 1 : 0;
+			}
+			if ( isset( $options['lqip_pulse_speed'] ) ) {
+				$sanitized['lqip_pulse_speed'] = floatval( $options['lqip_pulse_speed'] );
+			}
+			if ( isset( $options['lqip_brightness'] ) ) {
+				$sanitized['lqip_brightness'] = floatval( $options['lqip_brightness'] );
+			}
+			if ( isset( $options['lqip_fade_duration'] ) ) {
+				$sanitized['lqip_fade_duration'] = floatval( $options['lqip_fade_duration'] );
 			}
 
 			return $sanitized;
