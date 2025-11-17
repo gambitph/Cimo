@@ -202,11 +202,11 @@ const AdminSettings = () => {
 						lqip_fade_duration: parseFloat( settings.lqipFadeDuration ) || 0,
 
 						// Video Optimization settings
-						video_quality: settings.videoQuality,
-						video_max_resolution: settings.videoMaxResolution,
+						video_quality: settings.videoQuality || 0,
+						video_max_resolution: settings.videoMaxResolution || '',
 
 						// Audio Optimization settings
-						audio_quality: settings.audioQuality,
+						audio_quality: settings.audioQuality || 0,
 					},
 				},
 			} )
