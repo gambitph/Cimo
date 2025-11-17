@@ -6,7 +6,7 @@
 	margin-top: 20px;
 	margin-inline-end: 20px;
 	display: grid;
-    grid-template-columns: minmax(0, 700px) 300px 1fr;
+    grid-template-columns: minmax(0, 750px) 300px 1fr;
     gap: 24px;
 	align-items: flex-start;
 }
@@ -403,4 +403,21 @@
 
 .cimo-settings-section:has(.cimo-settings-premium-placeholder) {
 	opacity: 0.65;
+}
+
+.components-toggle-group-control {
+	--wp-components-color-foreground: var(--wp-admin-theme-color, #3858e9);
+}
+
+.cimo-settings-section-info {
+	background: rgba(255, 255, 255, .5);
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+	box-shadow: 0 0 30px #35bd4738;
+
+	svg {
+		color: #259f35;
+	}
 }

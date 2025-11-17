@@ -91,6 +91,19 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 									'type' => 'number',
 									'format' => 'float',
 								],
+
+								// Video Optimization settings
+								'video_quality' => [
+									'type' => 'integer',
+								],
+								'video_max_resolution' => [
+									'type' => 'string',
+								],
+
+								// Audio Optimization settings
+								'audio_quality' => [
+									'type' => 'integer',
+								],
 							],
 						],
 					],
@@ -222,6 +235,19 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			}
 			if ( isset( $options['lqip_fade_duration'] ) ) {
 				$sanitized['lqip_fade_duration'] = floatval( $options['lqip_fade_duration'] );
+			}
+
+			// Sanitize video quality
+			if ( isset( $options['video_quality'] ) ) {
+				$sanitized['video_quality'] = intval( $options['video_quality'] );
+			}
+			if ( isset( $options['video_max_resolution'] ) ) {
+				$sanitized['video_max_resolution'] = sanitize_text_field( $options['video_max_resolution'] );
+			}
+
+			// Sanitize audio quality
+			if ( isset( $options['audio_quality'] ) ) {
+				$sanitized['audio_quality'] = intval( $options['audio_quality'] );
 			}
 
 			return $sanitized;

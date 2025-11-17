@@ -3,6 +3,8 @@ import {
 } from '@wordpress/element'
 import {
 	Button, RangeControl, ToggleControl, TextControl,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components'
 import { applyFilters } from '@wordpress/hooks'
 import apiFetch from '@wordpress/api-fetch'
@@ -24,6 +26,13 @@ const AdminSettings = () => {
 		lqipPulseSpeed: '',
 		lqipBrightness: '',
 		lqipFadeDuration: '',
+
+		// Video Optimization settings
+		videoQuality: 3,
+		videoMaxResolution: '',
+
+		// Audio Optimization settings
+		audioQuality: 128,
 	} )
 	const [ imageSizes, setImageSizes ] = useState( [] )
 	const [ isSaving, setIsSaving ] = useState( false )
@@ -65,6 +74,13 @@ const AdminSettings = () => {
 				lqipPulseSpeed: cimoOptions.lqip_pulse_speed !== undefined ? cimoOptions.lqip_pulse_speed : '',
 				lqipBrightness: cimoOptions.lqip_brightness !== undefined ? cimoOptions.lqip_brightness : '',
 				lqipFadeDuration: cimoOptions.lqip_fade_duration !== undefined ? cimoOptions.lqip_fade_duration : '',
+
+				// Video Optimization settings
+				videoQuality: cimoOptions.video_quality !== undefined ? cimoOptions.video_quality : 3,
+				videoMaxResolution: cimoOptions.video_max_resolution || '',
+
+				// Audio Optimization settings
+				audioQuality: cimoOptions.audio_quality !== undefined ? cimoOptions.audio_quality : 128,
 			}
 			setSettings( fetchedSettings )
 			setHasUnsavedChanges( false )
@@ -140,6 +156,25 @@ const AdminSettings = () => {
 		} )
 	}
 
+	const applyVideoDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				videoQuality: '',
+				videoMaxResolution: '',
+			}
+		} )
+	}
+
+	const applyAudioDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				audioQuality: '',
+			}
+		} )
+	}
+
 	const handleSubmit = async e => {
 		e.preventDefault()
 		setIsSaving( true )
@@ -165,6 +200,13 @@ const AdminSettings = () => {
 						lqip_pulse_speed: parseFloat( settings.lqipPulseSpeed ) || 0,
 						lqip_brightness: parseFloat( settings.lqipBrightness ) || 0,
 						lqip_fade_duration: parseFloat( settings.lqipFadeDuration ) || 0,
+
+						// Video Optimization settings
+						video_quality: settings.videoQuality,
+						video_max_resolution: settings.videoMaxResolution,
+
+						// Audio Optimization settings
+						audio_quality: settings.audioQuality,
 					},
 				},
 			} )
@@ -231,6 +273,16 @@ const AdminSettings = () => {
 
 			<form onSubmit={ handleSubmit } className="cimo-settings-form">
 				<div className="cimo-settings-section-wrapper">
+					<div className="cimo-settings-section cimo-settings-section-info">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+						{ buildType === 'free' && (
+							<span>{ __( 'Your images are instantly optimized within your browser as you upload — only the optimized versions ever touch your site!', 'cimo-image-optimizer' ) }</span>
+						) }
+						{ buildType === 'premium' && (
+							<span>{ __( 'Your images, videos and audio files are instantly optimized within your browser as you upload — only the optimized versions ever touch your site!', 'cimo-image-optimizer' ) }</span>
+						) }
+					</div>
+
 					<div className="cimo-settings-section">
 						<div className="cimo-settings-header">
 							<h2>
@@ -448,9 +500,91 @@ const AdminSettings = () => {
 								</span>
 							) }
 						</div>
-						<VideoSettings
-							label={ __( 'Upgrade to Premium to compress and optimize video files on upload', 'cimo-image-optimizer' ) }
-						/>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Upgrade to Premium to compress and optimize video files on upload', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<div className="cimo-setting-field">
+								<ToggleGroupControl
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									label={ __( 'Video Quality', 'cimo-image-optimizer' ) }
+									value={ settings.videoQuality || 3 }
+									onChange={ value => handleInputChange( 'videoQuality', value ) }
+									isBlock
+									help={ __( 'Set the quality / compression level for optimized .MP4 video uploads. Default is Medium (Balanced). Lower quality means a smaller file size and lower quality, higher quality means a higher quality but larger file size.', 'cimo-image-optimizer' ) }
+								>
+									<ToggleGroupControlOption
+										value={ 1 }
+										label={ __( 'Very Low Quality', 'cimo-image-optimizer' ) }
+									/>
+									<ToggleGroupControlOption
+										value={ 2 }
+										label={ __( 'Low Quality', 'cimo-image-optimizer' ) }
+									/>
+									<ToggleGroupControlOption
+										value={ 3 }
+										label={ __( 'Medium', 'cimo-image-optimizer' ) }
+									/>
+									<ToggleGroupControlOption
+										value={ 4 }
+										label={ __( 'High Quality', 'cimo-image-optimizer' ) }
+									/>
+									<ToggleGroupControlOption
+										value={ 5 }
+										label={ __( 'Very High Quality', 'cimo-image-optimizer' ) }
+									/>
+								</ToggleGroupControl>
+							</div>
+
+							<div className="cimo-setting-field">
+								<ToggleGroupControl
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									label={ __( 'Video Maximum Resolution', 'cimo-image-optimizer' ) }
+									value={ settings.videoMaxResolution || '' }
+									onChange={ value => handleInputChange( 'videoMaxResolution', value ) }
+									isBlock
+									help={ __( 'Set the maximum resolution for optimized video uploads. If the video uploaded is bigger than this, the video will not be resized down to this maximum resolution. Default is the video will not be resized.', 'cimo-image-optimizer' ) }
+								>
+									<ToggleGroupControlOption
+										value=""
+										label={ __( 'Keep original', 'cimo-image-optimizer' ) }
+									/>
+									<ToggleGroupControlOption
+										value="480"
+										label="480p"
+									/>
+									<ToggleGroupControlOption
+										value="720"
+										label="720p"
+									/>
+									<ToggleGroupControlOption
+										value="1080"
+										label="1080p"
+									/>
+									<ToggleGroupControlOption
+										value="1440"
+										label="1440p (2K)"
+									/>
+									<ToggleGroupControlOption
+										value="2160"
+										label="2160p (4K)"
+									/>
+								</ToggleGroupControl>
+							</div>
+
+							<Button
+								variant="tertiary"
+								className="cimo-reset-button"
+								onClick={ applyVideoDefaultSettings }
+							>
+								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+							</Button>
+						</> }
 					</div>
 
 					{ /* Audio Optimization Settings */ }
@@ -472,9 +606,35 @@ const AdminSettings = () => {
 								</span>
 							) }
 						</div>
-						<AudioSettings
-							label={ __( 'Upgrade to Premium to compress and optimize audio files on upload', 'cimo-image-optimizer' ) }
-						/>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Upgrade to Premium to compress and optimize audio files on upload', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<div className="cimo-setting-field">
+								<RangeControl
+									label={ __( 'Audio Quality (kbps)', 'cimo-image-optimizer' ) }
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									value={ settings.audioQuality || 128 }
+									onChange={ value => handleInputChange( 'audioQuality', value ) }
+									min="32"
+									max="320"
+									step="32"
+									help={ __( 'Set the quality / compression level for optimized .MP3 audio uploads. Default is 128kbps. Lower quality means a smaller file size and lower quality, higher quality means a higher quality but larger file size.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+
+							<Button
+								variant="tertiary"
+								className="cimo-reset-button"
+								onClick={ applyAudioDefaultSettings }
+							>
+								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+							</Button>
+						</> }
 					</div>
 				</div>
 
@@ -605,7 +765,3 @@ const PremiumPlaceholder = props => {
 		</div>
 	)
 }
-
-// TODO: Remove these
-const VideoSettings = applyFilters( 'cimo.admin.settings.videoSettings', PremiumPlaceholder )
-const AudioSettings = applyFilters( 'cimo.admin.settings.audioSettings', PremiumPlaceholder )
