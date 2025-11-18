@@ -131,10 +131,10 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			$build_url = plugin_dir_url( CIMO_FILE ) . 'build/admin/';
 			
 			// Enqueue CSS
-			$script_asset = include $build_dir . 'admin-settings.asset.php';
+			$script_asset = include $build_dir . 'admin-page-styles.asset.php';
 			wp_enqueue_style(
-				'cimo-admin-settings',
-				$build_url . 'admin-settings.css',
+				'cimo-admin-page-styles',
+				$build_url . 'admin-page-styles.css',
 				array_merge( [ 'wp-components' ], $dependencies['css'] ),
 				$script_asset['version']
 			);
