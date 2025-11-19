@@ -16,6 +16,11 @@ import { saveMetadata } from '~cimo/shared/metadata-saver'
  * @return {Promise<{file: File, metadata: Object|null}>} Promise resolving to the converted file and metadata, or the original on failure.
  */
 async function maybeConvertFile( file ) {
+	// If webp isn't supported we just return the original file.
+	if ( ! isFormatSupported( 'webp' ) ) {
+		return { file, metadata: null }
+	}
+
 	try {
 		// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
 		const result = await convertImageClientSide( file, {
@@ -74,10 +79,12 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 			return
 		}
 
-		// If the format is not supported, return
-		if ( ! isFormatSupported( 'webp' ) ) {
-			return
-		}
+		// DEV NOTE: Previously, we did a return here if the browser didn't
+		// support webp (this worked for Safari), this makes it so that the
+		// normal processing happens instead of our "interceptor". But since we
+		// want to support a mix of video/audio/image files, we can't just stop
+		// the entire handling of the drop event. We now just return the
+		// original file but still proceed with our conversion logic.
 
 		// Prevent the default file handling
 		event.preventDefault()
