@@ -25,4 +25,8 @@ module.exports = {
 			'~cimo': require( 'path' ).resolve( __dirname, 'src' ),
 		},
 	},
+	output: {
+		...defaultConfig.output,
+		chunkFilename: 'chunks/[name]-[chunkhash:8].js',
+	},
 }
