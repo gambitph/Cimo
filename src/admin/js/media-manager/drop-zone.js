@@ -6,44 +6,15 @@
  */
 
 import { domReady } from '~cimo/shared/dom-ready'
-import { convertImageClientSide, isFormatSupported } from '~cimo/shared/image-converter'
+import { getFileConverter, requiresFileConversion } from '~cimo/shared/converters'
 import { watchForEditorIframe } from '~cimo/shared/util'
 import { saveMetadata } from '~cimo/shared/metadata-saver'
+import { ProgressModal } from './progress-modal'
 
 /**
  * Intercept editor media uploads and convert images to WebP on the client
  * before uploading to WordPress. This affects the block editor only.
  */
-
-/**
- * Wrap a file with conversion if it's an image; otherwise return unchanged.
- * @param {File} file
- * @return {Promise<{file: File, metadata: Object|null}>} Promise resolving to the converted file and metadata, or the original on failure.
- */
-async function maybeConvertFile( file ) {
-	// If webp isn't supported we just return the original file.
-	if ( ! isFormatSupported( 'webp' ) ) {
-		return { file, metadata: null }
-	}
-
-	try {
-	// TODO: This should decide on how to convert the asset depending on the type (e.g. image).
-		const result = await convertImageClientSide( file, {
-			format: 'webp',
-			quality: window.cimoSettings?.webpQuality || 0.8,
-			maxDimension: window.cimoSettings?.maxImageDimension || 0,
-		} )
-		return result
-	} catch ( e ) {
-	// On failure, fallback to original file to avoid breaking uploads
-	// TODO: add a notice here so the user will know that it didn't work.
-		console.error( e ) // eslint-disable-line no-console
-		return { file, metadata: null }
-	}
-}
-
-// TODO: Make this configurable.
-const FILES_TO_CONVERT = [ 'image/jpg', 'image/jpeg', 'image/png', 'image/gif' ]
 
 // Add event listener to the Media Manager's drop zone
 function addDropZoneListenerToMediaManager( targetDocument ) {
@@ -62,9 +33,12 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			return
 		}
 
-		// If we do not have any dropped files to convert that are included in FILES_TO_CONVERT, return
-		const hasFilesToConvert = Array.from( event.dataTransfer.files ).some( file => FILES_TO_CONVERT.includes( file.type ) )
-		if ( ! hasFilesToConvert ) {
+		// Get the file converters for the incoming files.
+		const fileConverters = Array.from( event.dataTransfer.files )
+			.map( file => getFileConverter( file ) )
+
+		// Do not continue if we do not need to convert any files.
+		if ( ! requiresFileConversion( fileConverters ) ) {
 			return
 		}
 
@@ -98,16 +72,16 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			uploaderWindow.style.display = 'none'
 		}
 
-		// Handle the drop event ourselves.
-		const files = Array.from( event.dataTransfer.files )
-		if ( ! files.length ) {
-			return
-		}
+		// Show the progress modal
+		const progressModal = new ProgressModal( fileConverters )
+		progressModal.open()
 
-		// Process and optimize each image file here,
-		// e.g. resizing or compressing
+		// Process and optimize each media file here,
+		// e.g. converting to webp, resizing, compressing, etc.
 		const optimizedResults = await Promise.all(
-			files.map( maybeConvertFile )
+			fileConverters.map( async converter => {
+				return await converter.convert()
+			} )
 		)
 
 		// Extract files and metadata from results
@@ -190,6 +164,8 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 				event.target.dispatchEvent( dropEvent )
 			}
 		}
+
+		progressModal.close()
 	}
 
 	// Add our custom drop listener

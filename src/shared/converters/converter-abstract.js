@@ -1,0 +1,90 @@
+/**
+ * Abstract Converter class for file conversion/optimization.
+ * Extend this class to implement custom converters (e.g., image, video).
+ */
+class Converter {
+	/**
+	 * @param {File|Blob} file         - The file to be converted.
+	 * @param {Object}    [options={}] - Optional conversion options.
+	 */
+	constructor( file, options = {} ) {
+		this.file = file
+		this.options = options
+		this.onProgress = null // Optional progress callback: function(percent)
+	}
+
+	/**
+	 * Get the list of MIME types accepted by the converter.
+	 * Subclasses must override.
+	 */
+	static get mimeTypes() {
+		throw new Error( 'mimeTypes getter must be implemented by subclass' )
+	}
+
+	/**
+	 * Determines if this converter should appear inside the progress modal.
+	 * Subclasses can override to hide themselves.
+	 *
+	 * @return {boolean} True if this converter should show progress, false otherwise.
+	 */
+	static get showProgress() {
+		return true
+	}
+
+	/**
+	 * Instance alias for the showProgress flag so consumers don't need to reach
+	 * into the constructor directly.
+	 *
+	 * @return {boolean} True if this instance should show progress, false otherwise.
+	 */
+	get showProgress() {
+		return this.constructor.showProgress
+	}
+
+	/**
+	 * Check if the converter supports a given MIME type.
+	 * Can be used without instantiating a Converter.
+	 * @param {string} mimeType
+	 * @return {boolean} - True if the converter supports the MIME type, false otherwise.
+	 */
+	static supportsMimeType( mimeType ) {
+		if ( ! mimeType || typeof mimeType !== 'string' ) {
+			return false
+		}
+		const types = this.mimeTypes
+		if ( Array.isArray( types ) ) {
+			return types.includes( mimeType )
+		}
+		return false
+	}
+
+	/**
+	 * Set a progress callback to allow UI to show conversion progress.
+	 * @param {Function} callback - Receives percent (0-100)
+	 */
+	setProgressCallback( callback ) {
+		this.onProgress = callback
+	}
+
+	/**
+	 * Optionally update progress.
+	 * Subclasses should call this during conversion if progress is known.
+	 * @param {number} percent - A number from 0 to 100.
+	 */
+	_updateProgress( percent ) {
+		if ( typeof this.onProgress === 'function' ) {
+			this.onProgress( percent )
+		}
+	}
+
+	/**
+	 * Perform conversion/optimization.
+	 * Subclasses must implement this method.
+	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving with the converted file and optional metadata.
+	 */
+	async convert() {
+		throw new Error( 'convert() must be implemented by subclass' )
+	}
+}
+
+export { Converter }
