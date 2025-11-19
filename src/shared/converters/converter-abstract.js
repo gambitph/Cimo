@@ -10,7 +10,7 @@ class Converter {
 	constructor( file, options = {} ) {
 		this.file = file
 		this.options = options
-		this.onProgress = null // Optional progress callback: function(percent)
+		this._progress = 0
 	}
 
 	/**
@@ -19,26 +19,6 @@ class Converter {
 	 */
 	static get mimeTypes() {
 		throw new Error( 'mimeTypes getter must be implemented by subclass' )
-	}
-
-	/**
-	 * Determines if this converter should appear inside the progress modal.
-	 * Subclasses can override to hide themselves.
-	 *
-	 * @return {boolean} True if this converter should show progress, false otherwise.
-	 */
-	static get showProgress() {
-		return true
-	}
-
-	/**
-	 * Instance alias for the showProgress flag so consumers don't need to reach
-	 * into the constructor directly.
-	 *
-	 * @return {boolean} True if this instance should show progress, false otherwise.
-	 */
-	get showProgress() {
-		return this.constructor.showProgress
 	}
 
 	/**
@@ -59,22 +39,32 @@ class Converter {
 	}
 
 	/**
-	 * Set a progress callback to allow UI to show conversion progress.
-	 * @param {Function} callback - Receives percent (0-100)
+	 * Current progress value for this converter. Consumers can read this to
+	 * render progress indicators.
+	 *
+	 * @return {number} Value between 0 and 1 inclusive.
 	 */
-	setProgressCallback( callback ) {
-		this.onProgress = callback
+	get progress() {
+		return this._progress
 	}
 
 	/**
-	 * Optionally update progress.
-	 * Subclasses should call this during conversion if progress is known.
-	 * @param {number} percent - A number from 0 to 100.
+	 * Whether to show a progress indicator for this converter.
+	 *
+	 * @return {boolean} - True if a progress indicator should be shown, false otherwise.
 	 */
-	_updateProgress( percent ) {
-		if ( typeof this.onProgress === 'function' ) {
-			this.onProgress( percent )
-		}
+	static get showProgress() {
+		return true
+	}
+
+	/**
+	 * Instance alias for the showProgress flag so consumers don't need to reach
+	 * into the constructor directly.
+	 *
+	 * @return {boolean} True if this instance should show progress, false otherwise.
+	 */
+	get showProgress() {
+		return this.constructor.showProgress
 	}
 
 	/**

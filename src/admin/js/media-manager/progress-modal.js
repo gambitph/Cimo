@@ -148,7 +148,7 @@ class ProgressModal {
 				background: linear-gradient(90deg, #26c6da 0%, #0288d1 100%);
 				width: 0%;
 				height: 100%;
-				transition: width 0.2s;
+				transition: width 0.5s linear;
 				border-radius: 5px 0 0 5px;
 			`
 
@@ -165,7 +165,7 @@ class ProgressModal {
 			return
 		}
 		this._updateProgress() // Do first update immediately
-		this.interval = setInterval( () => this._updateProgress(), 250 )
+		this.interval = setInterval( () => this._updateProgress(), 500 )
 	}
 
 	_stopInterval() {
@@ -179,15 +179,7 @@ class ProgressModal {
 		let allDone = true
 
 		this.converters.forEach( ( converter, i ) => {
-			let percent = typeof converter.onProgress === 'number'
-				? converter.onProgress
-				: ( typeof converter._progress === 'number'
-					? converter._progress
-					: ( typeof converter.progress === 'number'
-						? converter.progress
-						: null
-					)
-				)
+			let percent = converter.progress * 100
 
 			if (
 				typeof percent !== 'number' ||
