@@ -9,6 +9,19 @@ import { applyFilters } from '@wordpress/hooks'
  * @return {Converter} - The file converter.
  */
 export const getFileConverter = file => {
+	// In some cases (e.g., when called from an iframe), the File object may come from a different window context,
+	// so instanceof File can fail even if it's a valid File. Instead, check for file-like shape.
+	if (
+		! file ||
+		typeof file !== 'object' ||
+		typeof file.name !== 'string' ||
+		typeof file.size !== 'number' ||
+		typeof file.type !== 'string' ||
+		typeof file.slice !== 'function'
+	) {
+		return new NullConverter( file )
+	}
+
 	if ( file.type.startsWith( 'image/' ) ) {
 		// If the browser doesn't support webp, then we can't convert it.
 		if ( ! isFormatSupported( 'webp' ) ) {

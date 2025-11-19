@@ -86,6 +86,9 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'nonce'   => wp_create_nonce( 'wp_rest' ),
 					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
 					'maxImageDimension' => ! empty( $settings['max_image_dimension'] ) ? (int) $settings['max_image_dimension'] : 0,
+					'videoQuality' => ! empty( $settings['video_quality'] ) ? (int) $settings['video_quality'] : 3,
+					'videoMaxResolution' => ! empty( $settings['video_max_resolution'] ) ? $settings['video_max_resolution'] : '',
+					'audioQuality' => ! empty( $settings['audio_quality'] ) ? (int) $settings['audio_quality'] : 128,
 				]
 			);
 

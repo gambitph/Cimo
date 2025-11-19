@@ -78,7 +78,7 @@ class ProgressModal {
 
 		const title = document.createElement( 'div' )
 		title.className = 'cimo-progress-title'
-		title.innerText = __( 'Optimizing media before uploading them…', 'cimo-image-optimizer' )
+		title.innerText = __( 'Optimizing your files for upload…', 'cimo-image-optimizer' )
 		title.style.cssText = `
 			font-size: 1.2em;
 			font-weight: 600;

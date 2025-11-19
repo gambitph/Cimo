@@ -213,19 +213,6 @@ class ImageConverter extends Converter {
 		const file = this.file
 		const format = this.options?.format || 'webp'
 
-		// In some cases (e.g., when called from an iframe), the File object may come from a different window context,
-		// so instanceof File can fail even if it's a valid File. Instead, check for file-like shape.
-		if (
-			! file ||
-			typeof file !== 'object' ||
-			typeof file.name !== 'string' ||
-			typeof file.size !== 'number' ||
-			typeof file.type !== 'string' ||
-			typeof file.slice !== 'function'
-		) {
-			return { file, metadata: null }
-		}
-
 		// Not an image; return original file unchanged.
 		if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
 			return { file, metadata: null }
