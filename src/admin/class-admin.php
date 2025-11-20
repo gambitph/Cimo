@@ -115,6 +115,23 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 					],
 				]
 			);
+
+			register_setting(
+				'cimo_rating',
+				'cimo_rating_dismissed',
+				[
+					'type'              => 'string',
+					'description'       => __( 'Tracks if the rating notice has been dismissed.', 'cimo-image-optimizer' ),
+					'sanitize_callback' => [ $this, 'sanitize_rating_dismissed' ],
+					'show_in_rest'      => [
+						'schema' => [
+							'type' => 'string',
+							'enum' => [ '0', '1' ],
+						],
+					],
+					'default'           => '0',
+				]
+			);
 		}
 
 		/**
@@ -173,6 +190,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			wp_localize_script( 'cimo-admin-page', 'cimoAdmin', [
 				'stats' => $stats,
 				'imageSizes' => $formatted_sizes,
+				'ratingDismissed' => '1' === get_option( 'cimo_rating_dismissed', '0' ) ? '1' : '0',
 			] );
 		}
 
@@ -263,6 +281,13 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			}
 
 			return $sanitized;
+		}
+
+		/**
+		 * Sanitize rating dismissed flag
+		 */
+		public function sanitize_rating_dismissed( $value ) {
+			return '1' === (string) $value ? '1' : '0';
 		}
 
 		/**
