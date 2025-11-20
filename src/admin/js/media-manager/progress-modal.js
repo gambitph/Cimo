@@ -97,22 +97,24 @@ class ProgressModal {
 		wrapper.appendChild( subtitle )
 
 		// Add a close button. Hide for now
-		const closeBtn = document.createElement( 'button' )
-		closeBtn.className = 'cimo-progress-close'
-		closeBtn.type = 'button'
-		closeBtn.innerHTML = '&times;'
-		closeBtn.style.cssText = `
-			position: absolute;
-			top: 0.7em;
-			right: 1em;
-			background: transparent;
-			border: none;
-			font-size: 2em;
-			cursor: pointer;
-			color: #888;
-		`
-		closeBtn.addEventListener( 'click', () => this._handleCloseClick() )
-		wrapper.appendChild( closeBtn )
+		if ( this.closeHandler ) {
+			const closeBtn = document.createElement( 'button' )
+			closeBtn.className = 'cimo-progress-close'
+			closeBtn.type = 'button'
+			closeBtn.innerHTML = '&times;'
+			closeBtn.style.cssText = `
+				position: absolute;
+				top: 0.7em;
+				right: 1em;
+				background: transparent;
+				border: none;
+				font-size: 2em;
+				cursor: pointer;
+				color: #888;
+			`
+			closeBtn.addEventListener( 'click', () => this._handleCloseClick() )
+			wrapper.appendChild( closeBtn )
+		}
 
 		// Progress bar(s)
 		this.progressBars = []

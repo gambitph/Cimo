@@ -72,8 +72,14 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			uploaderWindow.style.display = 'none'
 		}
 
+		// Cancel the conversion if the user closes the progress modal.
+		const onCancel = () => {
+			// This is enough to cancel the entire process since the promises below will finish resolving.
+			fileConverters.forEach( converter => converter.cancel() )
+		}
+
 		// Show the progress modal
-		const progressModal = new ProgressModal( fileConverters )
+		const progressModal = new ProgressModal( fileConverters, onCancel )
 		progressModal.open()
 
 		// Process and optimize each media file here,
