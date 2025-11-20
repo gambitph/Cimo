@@ -5,10 +5,11 @@ import { applyFilters } from '@wordpress/hooks'
 /**
  * Get the file converter for the given file.
  *
- * @param {File} file - The file to get the converter for.
+ * @param {File} _file - The file to get the converter for.
  * @return {Converter} - The file converter.
  */
-export const getFileConverter = file => {
+export const getFileConverter = _file => {
+	let file = _file
 	// In some cases (e.g., when called from an iframe), the File object may come from a different window context,
 	// so instanceof File can fail even if it's a valid File. Instead, check for file-like shape.
 	if (
@@ -20,6 +21,20 @@ export const getFileConverter = file => {
 		typeof file.slice !== 'function'
 	) {
 		return new NullConverter( file )
+	}
+
+	// To preserve properties like name, lastModified, and type when the file comes from a different window context,
+	// we reconstruct it as a new File object in the current context, if necessary.
+	if ( ! ( file instanceof File ) ) {
+		const fileLike = file
+		file = new File(
+			fileLike ? [ fileLike ] : [],
+			fileLike?.name || 'unknown',
+			{
+				type: fileLike?.type || 'application/octet-stream',
+				lastModified: typeof fileLike?.lastModified === 'number' ? fileLike.lastModified : Date.now(),
+			}
+		)
 	}
 
 	if ( file.type.startsWith( 'image/' ) ) {
