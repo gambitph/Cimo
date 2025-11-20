@@ -63,7 +63,7 @@ class ProgressModal {
 			display: none;
 			justify-content: center;
 			align-items: center;
-			z-index: 999999;
+			z-index: 9999999;
 		`
 
 		const wrapper = document.createElement( 'div' )
