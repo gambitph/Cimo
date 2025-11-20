@@ -46,6 +46,8 @@ class ProgressModal {
 		setTimeout( () => {
 			this.modal.style.display = 'none'
 			this._stopInterval()
+			this.modal.remove()
+			this.modal = null
 		}, 300 )
 	}
 
