@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 defined( 'CIMO_FILE' ) || define( 'CIMO_FILE', __FILE__ );
-defined( 'CIMO_BUILD' ) || define( 'CIMO_BUILD', 'free' );
+defined( 'CIMO_BUILD' ) || define( 'CIMO_BUILD', 'premium' );
 
 require_once __DIR__ . '/src/admin/class-script-loader.php';
 require_once __DIR__ . '/src/admin/class-meta-box.php';

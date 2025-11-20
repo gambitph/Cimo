@@ -43,8 +43,10 @@ class ProgressModal {
 		if ( this.converters.length === 0 ) {
 			return
 		}
-		this.modal.style.display = 'none'
-		this._stopInterval()
+		setTimeout( () => {
+			this.modal.style.display = 'none'
+			this._stopInterval()
+		}, 300 )
 	}
 
 	_setupModal() {
@@ -76,33 +78,41 @@ class ProgressModal {
 			width: 90%;
 		`
 
-		const title = document.createElement( 'div' )
+		const title = document.createElement( 'h3' )
 		title.className = 'cimo-progress-title'
-		title.innerText = __( 'Optimizing your files for upload…', 'cimo-image-optimizer' )
+		title.innerText = __( 'Optimizing your files', 'cimo-image-optimizer' )
 		title.style.cssText = `
-			font-size: 1.2em;
-			font-weight: 600;
-			margin-bottom: 1.2em;
+			font-size: 1.6em !important;
+			font-weight: 600 !important;
+			margin: 0 0 0.5em !important;
 		`
 		wrapper.appendChild( title )
 
+		const subtitle = document.createElement( 'div' )
+		subtitle.className = 'cimo-progress-subtitle'
+		subtitle.innerText = __( 'Preparing your files for upload…', 'cimo-image-optimizer' )
+		subtitle.style.cssText = `
+			margin-bottom: 2em;
+		`
+		wrapper.appendChild( subtitle )
+
 		// Add a close button. Hide for now
-		// const closeBtn = document.createElement( 'button' )
-		// closeBtn.className = 'cimo-progress-close'
-		// closeBtn.type = 'button'
-		// closeBtn.innerHTML = '&times;'
-		// closeBtn.style.cssText = `
-		// 	position: absolute;
-		// 	top: 0.7em;
-		// 	right: 1em;
-		// 	background: transparent;
-		// 	border: none;
-		// 	font-size: 2em;
-		// 	cursor: pointer;
-		// 	color: #888;
-		// `
-		// closeBtn.addEventListener( 'click', () => this._handleCloseClick() )
-		// wrapper.appendChild( closeBtn )
+		const closeBtn = document.createElement( 'button' )
+		closeBtn.className = 'cimo-progress-close'
+		closeBtn.type = 'button'
+		closeBtn.innerHTML = '&times;'
+		closeBtn.style.cssText = `
+			position: absolute;
+			top: 0.7em;
+			right: 1em;
+			background: transparent;
+			border: none;
+			font-size: 2em;
+			cursor: pointer;
+			color: #888;
+		`
+		closeBtn.addEventListener( 'click', () => this._handleCloseClick() )
+		wrapper.appendChild( closeBtn )
 
 		// Progress bar(s)
 		this.progressBars = []
@@ -123,7 +133,44 @@ class ProgressModal {
 		this.converters.forEach( ( converter, i ) => {
 			const barContainer = document.createElement( 'div' )
 			barContainer.className = 'cimo-progress-bar-container'
-			barContainer.style.cssText = 'margin-bottom: 1.5em;'
+			barContainer.style.cssText = `
+				margin-bottom: 1em;
+				padding: 16px 16px 16px 70px;
+				border: 1px solid #e2e8f0;
+				border-radius: 12px;
+				position: relative;
+			`
+
+			// Affix the icon on the left (using video/audio as appropriate)
+			const icon = document.createElement( 'span' )
+			icon.className = 'cimo-stat-icon'
+			icon.style.cssText = `
+				background: #16a2491a;
+        		color: #16a249;
+				padding: 8px;
+				border-radius: 8px;
+				margin-bottom: 8px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				position: absolute;
+				left: 16px;
+				top: 16px;
+			`
+
+			// Pick icon SVG for video, audio, or default(image)
+			let iconSvg = ''
+			if ( converter.file && converter.file.type && converter.file.type.startsWith( 'video/' ) ) {
+				iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-video-icon lucide-video"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>`
+			} else if ( converter.file && converter.file.type && converter.file.type.startsWith( 'audio/' ) ) {
+				iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music-icon lucide-music"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
+			} else {
+				// default: image icon
+				iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`
+			}
+			icon.innerHTML = iconSvg
+
+			barContainer.appendChild( icon )
 
 			const label = document.createElement( 'div' )
 			label.className = 'cimo-progress-label'
@@ -131,29 +178,79 @@ class ProgressModal {
 			label.style.cssText = `
 				margin-bottom: 0.2em;
 				font-size: 1em;
+				font-weight: 600;
+				max-width: 80%;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
 			`
+
+			const sizeLabel = document.createElement( 'div' )
+			sizeLabel.className = 'cimo-size-label'
+			// Show the filesize in human readable format
+			sizeLabel.innerText = converter.file && converter.file.size
+				? ( ( converter.file.size / 1024 / 1024 ) >= 1
+					? ( converter.file.size / 1024 / 1024 ).toFixed( 2 ) + ' MB'
+					: ( converter.file.size / 1024 ).toFixed( 1 ) + ' KB' )
+				: ''
+			sizeLabel.style.cssText = `
+				margin-bottom: 0.5em;
+				font-size: 1em;
+			`
+
+			const progressStatusFlex = document.createElement( 'div' )
+			progressStatusFlex.style.cssText = `
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 0.5em;
+			`
+
+			const statusLabel = document.createElement( 'div' )
+			statusLabel.className = 'cimo-progress-status-label'
+			statusLabel.innerText = __( 'Optimizing…', 'cimo-image-optimizer' )
+			statusLabel.style.cssText = `
+				font-size: 1em;
+				color: #3b3b3b;
+			`
+
+			const percentageLabel = document.createElement( 'div' )
+			percentageLabel.className = 'cimo-percentage-label'
+			percentageLabel.innerText = `0%`
+			percentageLabel.style.cssText = `
+				font-size: 1em;
+			`
+
+			progressStatusFlex.appendChild( statusLabel )
+			progressStatusFlex.appendChild( percentageLabel )
 
 			const barBg = document.createElement( 'div' )
 			barBg.className = 'cimo-progress-bar-bg'
 			barBg.style.cssText = `
 				background: #e8ecef;
 				border-radius: 5px;
-				height: 19px;
+				height: 8px;
 				width: 100%;
 				overflow: hidden;
 			`
 			const bar = document.createElement( 'div' )
 			bar.className = 'cimo-progress-bar'
 			bar.style.cssText = `
-				background: linear-gradient(90deg, #26c6da 0%, #0288d1 100%);
+				background: linear-gradient(90deg, #00d8f0 0%, #2bc566 100%);
 				width: 0%;
 				height: 100%;
 				transition: width 0.5s linear;
 				border-radius: 5px 0 0 5px;
 			`
 
+			bar.sizeLabelEl = sizeLabel
+			bar.statusLabelEl = statusLabel
+			bar.percentageLabelEl = percentageLabel
+
 			barBg.appendChild( bar )
 			barContainer.appendChild( label )
+			barContainer.appendChild( sizeLabel )
+			barContainer.appendChild( progressStatusFlex )
 			barContainer.appendChild( barBg )
 			this.progressList.appendChild( barContainer )
 			this.progressBars.push( bar )
@@ -188,8 +285,9 @@ class ProgressModal {
 			) {
 				percent = 0
 			}
-			if ( percent > 100 ) {
+			if ( percent >= 100 ) {
 				percent = 100
+				this.progressBars[ i ].statusLabelEl.innerText = __( 'Complete', 'cimo-image-optimizer' )
 			}
 			if ( percent < 100 ) {
 				allDone = false
@@ -197,6 +295,7 @@ class ProgressModal {
 
 			if ( this.progressBars[ i ] ) {
 				this.progressBars[ i ].style.width = percent + '%'
+				this.progressBars[ i ].percentageLabelEl.innerText = parseInt( percent ) + '%'
 			}
 		} )
 
