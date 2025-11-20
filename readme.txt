@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 6.6.4
 Tested up to: 6.8.3
 Requires PHP: 8.0
-Stable tag: 1.1.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -189,6 +189,14 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.2.0 =
+
+* New: Video Optimization (premium)
+* New: Audio Optimization (premium)
+* New: Low Quality Image Placeholders (premium)
+* New: Added rating notice at the right time
+* Fixed: Now intercepts media uploads when performed inside the block editor iframe
 
 = 1.1.2 =
 
