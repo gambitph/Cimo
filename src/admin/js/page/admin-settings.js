@@ -518,7 +518,7 @@ const AdminSettings = () => {
 									label={ __( 'Enable LQIP', 'cimo-image-optimizer' ) }
 									checked={ settings.lqipEnabled === 1 }
 									onChange={ checked => handleInputChange( 'lqipEnabled', checked ? 1 : 0 ) }
-									help={ __( 'Turn this option on to enable LQIP for all images.', 'cimo-image-optimizer' ) }
+									help={ __( 'Turn this option on to enable LQIP for all images. LQIP is only supported by Native Image Blocks.', 'cimo-image-optimizer' ) }
 								/>
 							</div>
 							{ settings.lqipEnabled === 1 && <>
