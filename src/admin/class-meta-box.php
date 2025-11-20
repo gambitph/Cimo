@@ -63,6 +63,26 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 							return ucfirst( $format );
 						}
 
+						// Helper to get media type label from mimetype.
+						function cimo_get_media_type_label( $mimetype ) {
+							if ( ! is_string( $mimetype ) || strpos( $mimetype, '/' ) === false ) {
+								return esc_html__( 'Media', 'cimo-image-optimizer' );
+							}
+							$parts = explode( '/', $mimetype );
+							$category = strtolower( $parts[0] );
+
+							switch ( $category ) {
+								case 'image':
+									return esc_html__( 'Image', 'cimo-image-optimizer' );
+								case 'video':
+									return esc_html__( 'Video', 'cimo-image-optimizer' );
+								case 'audio':
+									return esc_html__( 'Audio', 'cimo-image-optimizer' );
+								default:
+									return esc_html__( 'Media', 'cimo-image-optimizer' );
+							}
+						}
+
 						$cimo = $metadata['cimo'];
 
 						// Calculate optimization savings
@@ -76,7 +96,9 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						$original_size = cimo_format_filesize( $original_filesize );
 						$converted_size = cimo_format_filesize( $converted_filesize );
 
-						$converted_format = isset( $cimo['convertedFormat'] ) ? cimo_convert_mimetype_to_format( $cimo['convertedFormat'] ) : '';
+						$converted_format_raw = isset( $cimo['convertedFormat'] ) ? $cimo['convertedFormat'] : ( isset( $post->post_mime_type ) ? $post->post_mime_type : '' );
+						$converted_format = $converted_format_raw ? cimo_convert_mimetype_to_format( $converted_format_raw ) : '';
+						$media_type_label = cimo_get_media_type_label( $converted_format_raw );
 						$converttime = isset( $cimo['conversionTime'] ) ? floatval( $cimo['conversionTime'] ) : null;
 						if ( $converttime !== null ) {
 							if ( $converttime < 1000 ) {
@@ -93,7 +115,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						// echo '<div class="cimo-media-manager-metadata">';
 						echo '<div class="cimo-media-manager-metadata-title-container">';
 						echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20"><path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5zM465.5 273.9C477.6 264.2 479.5 246.6 469.9 234.5C460.3 222.4 442.6 220.5 430.5 230.1C378 272.1 330.3 341.9 306.7 379.4C291.4 359.3 267.2 331.1 239.5 312.6C226.6 304 209.2 307.5 200.7 320.4C192.2 333.3 195.6 350.7 208.5 359.2C237.4 378.5 264.1 415.1 274.1 429.9C281.5 440.9 294 447.9 307.9 447.9C322.3 447.9 335.5 440.3 342.8 428C357.2 403.5 410 318.3 465.6 273.8z"/></svg>';
-						echo '<h3 class="cimo-media-manager-metadata-title">Image Optimized by Cimo</h3>';
+						echo '<h3 class="cimo-media-manager-metadata-title">' . sprintf( esc_html__( '%s Optimized by Cimo', 'cimo-image-optimizer' ), esc_html( $media_type_label ) ) . '</h3>';
 						echo '</div>';
 						echo '<ul>';
 
