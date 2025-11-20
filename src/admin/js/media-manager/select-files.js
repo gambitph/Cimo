@@ -34,7 +34,7 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		}
 
 		// Get the file converters for the incoming files.
-		const fileConverters = Array.from( event.dataTransfer.files )
+		const fileConverters = Array.from( event.target.files )
 			.map( file => getFileConverter( file ) )
 
 		// Do not continue if we do not need to convert any files.
