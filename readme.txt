@@ -14,7 +14,7 @@ Unlimited free image compression and WebP conversion, done instantly as you uplo
 
 **Optimize all your images instantly and for free.**
 
-Cimo is a game-changer for image optimization. It optimizes and converts your images instantly as you upload — even before the files are added to your Media Library.
+Cimo is a game-changer for media optimization. It optimizes, resizes and converts your images instantly as you upload — even before the files are added to your Media Library.
 
 From WordPress' point of view, it's as if you optimized your image BEFORE your uploaded it. Now, this is next-next-gen image optimization.
 
@@ -26,7 +26,7 @@ Cimo works like magic, drag your large image file, and an optimized image will a
 * No extra bandwidth
 * No external image-processing services
 
-> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). This currently doesn't work in Safari, images would just upload as they normally would, please use any of the browsers listed.
+> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). Image optimization currently doesn't work in Safari, images would just upload as they normally would, please use any of the browsers listed.
 
 Image Optimization options:
 
@@ -85,6 +85,16 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 		* GenerateBlocks
 
 **Since Cimo's optimization works during the upload process, Cimo should be compatible with any plugin that uses images**
+
+= What's in Premium? =
+
+If you upgrade to Cimo Premium, you will get the following:
+
+* **Video Optimization** – automatically optimize and optionally downscale the resolution of videos as you upload them
+* **Audio Optimization** – auotmatically optimize audio files as you upload them
+* **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
+
+Video & Audio optimization are also performed as you upload your files, even before the files are added to your Media Library.
 
 == Technical Details ==
 
