@@ -11,9 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 	class Cimo_Admin_Notices {
 		public function __construct() {
-			add_action( 'admin_notices', [ $this, 'show_activation_notice' ] );
-			add_action( 'admin_init', [ $this, 'dismiss_activation_notice' ] );
-			add_action( 'wp_ajax_cimo_dismiss_activation_ajax', [ $this, 'ajax_dismiss_activation_notice' ] );
+			if ( CIMO_BUILD === 'free' ) {
+				add_action( 'admin_notices', [ $this, 'show_activation_notice' ] );
+				add_action( 'admin_init', [ $this, 'dismiss_activation_notice' ] );
+				add_action( 'wp_ajax_cimo_dismiss_activation_ajax', [ $this, 'ajax_dismiss_activation_notice' ] );
+			}
 		}
 
 		/**
