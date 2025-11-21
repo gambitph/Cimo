@@ -98,6 +98,22 @@ class ProgressModal {
 		`
 		wrapper.appendChild( subtitle )
 
+		// Create an error note for failed optimizations.
+		this.errorNote = document.createElement( 'div' )
+		this.errorNote.className = 'cimo-progress-error-note'
+		this.errorNote.innerText = __( 'Some media files could not be optimized and were uploaded in their original format.', 'cimo-image-optimizer' )
+		this.errorNote.style.cssText = `
+			display: none;
+			background: #fff3cd;
+			color: #856404;
+			border: 1px solid #ffeeba;
+			border-radius: 8px;
+			padding: 1em;
+			margin-bottom: 1.5em;
+			font-size: 1em;
+		`
+		wrapper.appendChild( this.errorNote )
+
 		// Add a close button. Hide for now
 		if ( this.closeHandler ) {
 			const closeBtn = document.createElement( 'button' )
@@ -212,7 +228,7 @@ class ProgressModal {
 
 			const statusLabel = document.createElement( 'div' )
 			statusLabel.className = 'cimo-progress-status-label'
-			statusLabel.innerText = __( 'Optimizing…', 'cimo-image-optimizer' )
+			statusLabel.innerText = ''
 			statusLabel.style.cssText = `
 				font-size: 1em;
 				color: #3b3b3b;
@@ -278,6 +294,7 @@ class ProgressModal {
 
 	_updateProgress() {
 		let allDone = true
+		let hasError = false
 
 		this.converters.forEach( ( converter, i ) => {
 			let percent = converter.progress * 100
@@ -291,13 +308,21 @@ class ProgressModal {
 			}
 			if ( percent >= 100 ) {
 				percent = 100
-				this.progressBars[ i ].statusLabelEl.innerText = __( 'Complete', 'cimo-image-optimizer' )
 			}
 			if ( percent < 100 ) {
 				allDone = false
 			}
 
+			if ( converter.errorMessage ) {
+				hasError = true
+				this.errorNote.style.display = 'block'
+			}
+
 			if ( this.progressBars[ i ] ) {
+				this.progressBars[ i ].statusLabelEl.style.cssText = `
+					color: ${ converter.errorMessage ? '#dc3545' : 'inherit' };
+				`
+				this.progressBars[ i ].statusLabelEl.innerText = converter.errorMessage || converter.status
 				this.progressBars[ i ].style.width = percent + '%'
 				this.progressBars[ i ].percentageLabelEl.innerText = parseInt( percent ) + '%'
 			}
@@ -305,7 +330,9 @@ class ProgressModal {
 
 		// Optional: auto-close when all converters are done (progress 100%)
 		if ( allDone && this.modal.style.display === 'block' ) {
-			setTimeout( () => this.close(), 750 )
+			if ( ! hasError ) {
+				setTimeout( () => this.close(), 750 )
+			}
 		}
 	}
 }

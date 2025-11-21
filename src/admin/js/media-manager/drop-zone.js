@@ -82,11 +82,18 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		const progressModal = new ProgressModal( fileConverters, onCancel )
 		progressModal.open()
 
+		let hasError = false
+
 		// Process and optimize each media file here,
 		// e.g. converting to webp, resizing, compressing, etc.
 		const optimizedResults = await Promise.all(
 			fileConverters.map( async converter => {
-				return await converter.convert()
+				try {
+					return await converter.convert()
+				} catch ( error ) {
+					hasError = true
+					return { file: converter.file, metadata: null }
+				}
 			} )
 		)
 
@@ -171,7 +178,10 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			}
 		}
 
-		progressModal.close()
+		// If there's an error, do not close the progress modal so the user can read the error.
+		if ( ! hasError ) {
+			progressModal.close()
+		}
 	}
 
 	// Add our custom drop listener

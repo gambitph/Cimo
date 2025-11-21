@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n'
+
 /**
  * Abstract Converter class for file conversion/optimization.
  * Extend this class to implement custom converters (e.g., image, video).
@@ -11,6 +13,8 @@ class Converter {
 		this.file = file
 		this.options = options
 		this._progress = 0
+		this._status = __( 'Ready', 'cimo-image-optimizer' )
+		this._errorMessage = null
 	}
 
 	/**
@@ -36,6 +40,22 @@ class Converter {
 			return types.includes( mimeType )
 		}
 		return false
+	}
+
+	/**
+	 * Get the current status of the converter.
+	 * @return {string} The current status of the converter.
+	 */
+	get status() {
+		return this._status
+	}
+
+	/**
+	 * Get the current error message of the converter.
+	 * @return {string} The current error message of the converter.
+	 */
+	get errorMessage() {
+		return this._errorMessage
 	}
 
 	/**
@@ -74,6 +94,13 @@ class Converter {
 	 */
 	async convert() {
 		throw new Error( 'convert() must be implemented by subclass' )
+	}
+
+	/**
+	 * Cancel the current conversion.
+	 * Subclasses should override this to implement actual cancellation logic.
+	 */
+	cancel() {
 	}
 }
 
