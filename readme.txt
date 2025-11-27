@@ -14,11 +14,13 @@ Unlimited free image compression and WebP conversion, done instantly as you uplo
 
 **Optimize all your images instantly and for free.**
 
-Cimo is a game-changer for media optimization. It optimizes, resizes and converts your images instantly as you upload — even before the files are added to your Media Library.
+[Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) is a game-changer for media optimization. It optimizes, resizes, and converts your images instantly as you upload — even before the files are added to your Media Library.
+
+[Visit Cimo's website](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) to learn more about how Cimo does things.
 
 From WordPress' point of view, it's as if you optimized your image BEFORE your uploaded it. Now, this is next-next-gen image optimization.
 
-Cimo works like magic, drag your large image file, and an optimized image will automatically appear in your Media Library. This ensures your website load speed is perfectly optimized by keeping image sizes minimal, without compromising quality.
+[Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) works like magic, drag your large image file, and an optimized image will automatically appear in your Media Library. This ensures your website load speed is perfectly optimized by keeping image sizes minimal, without compromising quality.
 
 * Unlimited usage - upload as many images as you want
 * Instant optimization - virtually no waiting time
@@ -86,13 +88,15 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 
 **Since Cimo's optimization works during the upload process, Cimo should be compatible with any plugin that uses images**
 
-= What's in Premium? =
+= What's in Cimo Premium? =
 
-If you upgrade to Cimo Premium, you will get the following:
+If you upgrade to [Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt), you will get the following:
 
 * **Video Optimization** – automatically optimize and optionally downscale the resolution of videos as you upload them
 * **Audio Optimization** – auotmatically optimize audio files as you upload them
 * **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
+
+[Visit our website](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) to learn more
 
 Video & Audio optimization are also performed as you upload your files, even before the files are added to your Media Library.
 
