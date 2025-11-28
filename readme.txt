@@ -169,7 +169,7 @@ Currently, Cimo optimizes images during the upload process. For existing images,
 
 = Does Cimo convert video and audio files? =
 
-Not currently, but we're working on expanding our optimization capabilities.
+Yes Cimo can convert video and audio files, but that's in our [premium version, check out website](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=faq&utm_campaign=readme-txt) for more information on it.
 
 = Will Cimo slow down my uploads? =
 
