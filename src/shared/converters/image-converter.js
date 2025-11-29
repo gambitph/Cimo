@@ -268,6 +268,11 @@ class ImageConverter extends Converter {
 			} )
 			const end = performance.now()
 
+			// If the resulting image is bigger than the input, return the original file unchanged.
+			if ( convertedBlob.size > file.size ) {
+				throw new Error( `Resulting image is bigger than the input, skipping conversion.` )
+			}
+
 			// Get the file extension for the new format
 			const extension = format === 'jpeg' ? 'jpg' : format
 			// Prepend a unique identified to the filename

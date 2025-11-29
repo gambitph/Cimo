@@ -92,6 +92,8 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 					return await converter.convert()
 				} catch ( error ) {
 					hasError = true
+					// eslint-disable-next-line no-console
+					console.warn( error )
 					return { file: converter.file, metadata: null }
 				}
 			} )
