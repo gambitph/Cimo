@@ -204,6 +204,11 @@ Yes! The settings page includes a statistics dashboard showing:
 
 == Changelog ==
 
+= 1.2.1 =
+
+* New: If the resulting optimized image is bigger than the original image, the image is now skipped and the original image is kept.
+* Fixed: Fixed license activation issue
+
 = 1.2.0 =
 
 * New: Video Optimization (premium)
