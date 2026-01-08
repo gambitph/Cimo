@@ -1,6 +1,13 @@
+/* eslint-disable no-console */
 const fs = require( 'fs' )
 const path = require( 'path' )
 const archiver = require( 'archiver' )
+
+// Allow PR builds to add a version suffix.
+let folderSuffix = ''
+if ( process.argv.length === 3 ) {
+	folderSuffix = process.argv[ process.argv.length - 1 ]
+}
 
 // Configuration
 const PLUGIN_NAME = 'cimo'
@@ -198,6 +205,34 @@ function addSecurityFiles( dir ) {
 	}
 }
 
+function updatePluginHeaderVersion( buildDir, suffix ) {
+	if ( ! suffix ) {
+		return
+	}
+
+	const pluginFileName = 'cimo.php'
+	const pluginFilePath = path.join( buildDir, pluginFileName )
+
+	if ( ! fs.existsSync( pluginFilePath ) ) {
+		return
+	}
+
+	let content = fs.readFileSync( pluginFilePath, 'utf8' )
+	// Append folder suffix to version in plugin header
+	content = content.replace(
+		/^(\s*\*\s*Version:\s*)([^\r\n]+)/m,
+		( match, prefix, version ) => {
+			// Only append if suffix is not already present
+			if ( ! version.includes( suffix ) ) {
+				return prefix + version + '-' + suffix
+			}
+			return match
+		}
+	)
+	fs.writeFileSync( pluginFilePath, content )
+	console.log( `📝 Updated version in ${ pluginFileName } to include suffix: ${ suffix }` )
+}
+
 // Main packaging function
 async function packagePlugin() {
 	// eslint-disable-next-line no-console
@@ -240,6 +275,9 @@ async function packagePlugin() {
 	console.log( '🔒 Adding security index.php files...' )
 	addSecurityFiles( BUILD_DIR )
 
+	console.log( '📝 Updating plugin header version...' )
+	updatePluginHeaderVersion( BUILD_DIR, folderSuffix )
+
 	// Create zip file
 	// eslint-disable-next-line no-console
 	console.log( '📦 Creating zip package...' )
@@ -269,7 +307,7 @@ async function packagePlugin() {
 	} )
 
 	archive.pipe( output )
-	archive.directory( BUILD_DIR, PLUGIN_NAME )
+	archive.directory( BUILD_DIR, PLUGIN_NAME + ( folderSuffix ? `-${ folderSuffix }` : '' ) )
 	await archive.finalize()
 }
 

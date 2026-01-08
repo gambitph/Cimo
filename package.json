@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"prebuild": "npm run lint",
-		"build": "node scripts/update-build-type.js free && npm run sync-version && wp-scripts build && npm run package",
+		"build": "node scripts/update-build-type.js free && npm run sync-version ${npm_config_suffix} && wp-scripts build && npm run package ${npm_config_suffix}",
 		"start": "node scripts/update-build-type.js free && wp-scripts start",
 		"build:premium": "cd pro__premium_only && npm run build",
 		"start:premium": "cd pro__premium_only && npm run start",
@@ -19,7 +19,7 @@
 		"lint:css:fix": "wp-scripts lint-style --fix",
 		"lint": "npm run lint:js && npm run lint:css",
 		"format": "wp-scripts format",
-		"package": "node scripts/package.js",
+		"package": "node scripts/package.js ${npm_config_suffix}",
 		"sync-version": "node scripts/sync-version.js"
 	},
 	"browserslist": [
