@@ -1,6 +1,12 @@
 const fs = require( 'fs' )
 const https = require( 'https' )
 
+// Allow PR builds to add a version suffix.
+let versionSuffix = ''
+if ( process.argv.length === 3 ) {
+	versionSuffix = process.argv[ process.argv.length - 1 ]
+}
+
 // Function to fetch available WordPress versions
 async function getAvailableWordPressVersions() {
 	return new Promise( resolve => {
@@ -82,7 +88,19 @@ async function syncVersions() {
 			throw new Error( 'Could not find Version in cimo.php' )
 		}
 
-		const pluginVersion = versionMatch[ 1 ].trim()
+		const basePluginVersion = versionMatch[ 1 ].trim()
+		const pluginVersion = versionSuffix ? `${ basePluginVersion }-${ versionSuffix }` : basePluginVersion
+
+		// Update interactions.php with version suffix if provided
+		if ( versionSuffix ) {
+			const updatedPluginContent = cimoPhp.replace(
+				/^(\s*\*\s*Version:\s*)([^\r\n]+)/m,
+				`$1${ pluginVersion }`
+			)
+			fs.writeFileSync( 'cimo.php', updatedPluginContent )
+			// eslint-disable-next-line no-console
+			console.log( `✅ ${ 'cimo.php' } version updated to ${ pluginVersion }` )
+		}
 
 		// Read current package.json
 		const packageJson = JSON.parse( fs.readFileSync( 'package.json', 'utf8' ) )
