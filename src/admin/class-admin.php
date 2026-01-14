@@ -26,6 +26,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 
 			// Handle WordPress automatic image scaling
 			add_filter( 'big_image_size_threshold', [ $this, 'maybe_disable_wp_scaling' ] );
+
+			// Handle enabling of WordPress SVG upload
+			add_filter( 'upload_mimes', [ $this, 'maybe_enable_svg_upload'] );
 		}
 
 		/**
@@ -108,6 +111,14 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 									'type' => 'integer',
 								],
 								'audio_quality' => [
+									'type' => 'integer',
+								],
+
+								// SVG Optimization settings
+								'svg_upload' => [
+									'type' => 'integer',
+								],
+								'svg_optimization_enabled' => [
 									'type' => 'integer',
 								],
 							],
@@ -280,6 +291,15 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				$sanitized['audio_quality'] = intval( $options['audio_quality'] );
 			}
 
+			// Sanitize svg_upload
+			if ( isset( $options['svg_upload'] ) ) {
+				$sanitized['svg_upload'] = $options['svg_upload'] ? 1 : 0;
+			}
+			// Sanitize svg_optimization_enabled
+			if ( isset( $options['svg_optimization_enabled'] ) ) {
+				$sanitized['svg_optimization_enabled'] = $options['svg_optimization_enabled'] ? 1 : 0;
+			}
+
 			return $sanitized;
 		}
 
@@ -341,6 +361,20 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			}
 
 			return $sizes;
+		}
+
+		/**
+		 * Enable SVG upload if setting is enabled
+		 */
+		public function maybe_enable_svg_upload( $mimes ) {
+			$settings = get_option( 'cimo_options', [] );
+
+			// If svg_upload is enabled, add svg to allowed mime types
+			if ( isset( $settings['svg_upload'] ) && $settings['svg_upload'] === 1 ) {
+				$mimes['svg'] = 'image/svg+xml';
+			}
+
+			return $mimes;
 		}
 	}
 
