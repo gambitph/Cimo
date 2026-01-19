@@ -1,10 +1,10 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 6.6.4
+Requires at least: 6.7.4
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,14 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.2.2 =
+
+* Fixed: Uploading an image via Media > Add Media File doesn't show stats #4
+* Fixed: Dragging multiple images in quick succession sometimes doesn't optimize the image #3
+* Fixed: LQIP doesn't work correctly when the image has a srcset attribute #11
+* Fixed: Closing the upload button on the block toolbar stops uploading of media #9
+* Fixed: Uploading images with the same name in the same session doesn't add the metadata correctly #8
 
 = 1.2.1 =
 
