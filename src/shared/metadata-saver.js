@@ -22,14 +22,6 @@ export const saveMetadata = _metadataArray => {
 		return Promise.resolve()
 	}
 
-	// Check if all metadata entries are already cached (by filename)
-	const allCached = metadataArray.every( entry => getCachedMetadata( entry.filename ) )
-	if ( allCached ) {
-		// eslint-disable-next-line no-console
-		// console.log( 'Metadata already saved successfully for all filenames:', metadataArray.map( m => m.filename ) )
-		return Promise.resolve()
-	}
-
 	// Mark all as successful in cache, keep a local copy of the metadata
 	metadataArray.forEach( entry => {
 		if ( entry.filename ) {
