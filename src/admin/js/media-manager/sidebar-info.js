@@ -62,87 +62,159 @@ function getMediaTypeLabel( mimetype ) {
 	}
 }
 
-domReady( () => {
-	// Only proceed if wp.media is available (media library is loaded)
-	if ( typeof wp === 'undefined' || ! wp.media || ! wp.media.view || ! wp.media.view.Attachment || ! wp.media.view.Attachment.Details ) {
+function injectCimoMetadata( {
+	model,
+	container,
+} ) {
+	if ( ! model || ! container ) {
 		return
 	}
 
-	wp.media.view.Attachment.Details = wp.media.view.Attachment.Details.extend( {
-		template: function template( view ) {
-			const html = wp.media.template( 'attachment-details' )( view )
-			const dom = document.createElement( 'div' )
-			dom.innerHTML = html
+	// Prevent duplicate inserts
+	if ( container.querySelector( '.cimo-media-manager-metadata' ) ) {
+		return
+	}
 
-			// Get the metadata from the model or the cache
-			let customMetadata = view.model.get( 'cimo' ) || null
+	let customMetadata = model.get( 'cimo' ) || null
 
-			// If the attachment was just uploaded, the model data won't be available, fetch it from the cache
-			if ( ! customMetadata || Object.keys( customMetadata ).length === 0 ) {
-				customMetadata = getCachedMetadata( view.model.get( 'originalImageName' ) || view.model.get( 'filename' ) )
-			}
+	if ( ! customMetadata || Object.keys( customMetadata ).length === 0 ) {
+		customMetadata = getCachedMetadata(
+			model.get( 'originalImageName' ) || model.get( 'filename' )
+		)
+	}
 
-			// TODO: Translate this
-			const details = dom.querySelector( '.attachment-info' )
-			if ( customMetadata && details ) {
-				const customContent = document.createElement( 'div' )
-				customContent.className = 'cimo-media-manager-metadata'
+	if ( ! customMetadata ) {
+		return
+	}
 
-				const convertedFormatRaw = customMetadata.convertedFormat || view.model.get( 'mime' ) || ''
-				const mediaTypeLabel = getMediaTypeLabel( convertedFormatRaw )
+	const customContent = document.createElement( 'div' )
+	customContent.className = 'cimo-media-manager-metadata'
 
-				let html = `<div class="cimo-media-manager-metadata-title-container">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20"><path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5zM465.5 273.9C477.6 264.2 479.5 246.6 469.9 234.5C460.3 222.4 442.6 220.5 430.5 230.1C378 272.1 330.3 341.9 306.7 379.4C291.4 359.3 267.2 331.1 239.5 312.6C226.6 304 209.2 307.5 200.7 320.4C192.2 333.3 195.6 350.7 208.5 359.2C237.4 378.5 264.1 415.1 274.1 429.9C281.5 440.9 294 447.9 307.9 447.9C322.3 447.9 335.5 440.3 342.8 428C357.2 403.5 410 318.3 465.6 273.8z"/></svg>
-				<h3 class="cimo-media-manager-metadata-title">${ escape( sprintf( __( '%s Optimized by Cimo', 'cimo-image-optimizer' ), mediaTypeLabel ) ) }</h3>
-				</div>
-				<ul>`
+	const convertedFormatRaw = customMetadata.convertedFormat || model.get( 'mime' ) || ''
+	const mediaTypeLabel = getMediaTypeLabel( convertedFormatRaw )
 
-				/**
-				 * Format optimization savings, display an arrow up or down and color it green or red.
-				 */
-				const optimizationSavings = customMetadata.compressionSavings
-					? ( 100 - ( customMetadata.compressionSavings * 100 ) ).toFixed( 2 )
-					: null
-				const kbSaved = formatFilesize( customMetadata.originalFilesize - customMetadata.convertedFilesize, 1, true )
-				const optimizationSavingsClass = optimizationSavings > 0 ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down'
+	let html = `
+		<div class="cimo-media-manager-metadata-title-container">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 672" height="20" width="20">
+				<path d="M132.5 132.5C182.4 82.5 253 56 336 56C419 56 489.6 82.5 539.5 132.5C589.4 182.5 616 253 616 336C616 419 589.5 489.6 539.5 539.5C489.5 589.4 419 616 336 616C253 616 182.4 589.5 132.5 539.5C82.6 489.5 56 419 56 336C56 253 82.5 182.4 132.5 132.5z"/>
+			</svg>
+			<h3 class="cimo-media-manager-metadata-title">
+				${ escape( sprintf( __( '%s Optimized by Cimo', 'cimo-image-optimizer' ), mediaTypeLabel ) ) }
+			</h3>
+		</div>
+		<ul>
+	`
 
-				html += `<li class="cimo-compression-savings ${ escape( optimizationSavingsClass ) }">Saved ${ escape( optimizationSavings ) }% <span class="cimo-compression-savings-bytes">(${ escape( kbSaved ) })</span></li>`
+	const optimizationSavings = customMetadata.compressionSavings
+		? ( 100 - ( customMetadata.compressionSavings * 100 ) ).toFixed( 2 )
+		: null
 
-				/**
-				 * Filesize
-				 */
-				const originalSize = formatFilesize( parseInt( customMetadata.originalFilesize ) || 0 )
-				const convertedSize = formatFilesize( parseInt( customMetadata.convertedFilesize ) || 0 )
-				html += `<li class="cimo-filesize-original">Original: <span class="cimo-value">${ escape( originalSize ) }</span></li>`
-				html += `<li class="cimo-filesize-optimized">Optimized: <span class="cimo-value">${ escape( convertedSize ) }</span></li>`
+	const kbSaved = formatFilesize(
+		customMetadata.originalFilesize - customMetadata.convertedFilesize,
+		1,
+		true
+	)
 
-				/**
-				 * Original format
-				 */
-				html += `<li class="cimo-converted">🏞️ Converted to <span class="cimo-value">${ escape( convertMimetypeToFormat( customMetadata.convertedFormat ) ) }</span></li>`
+	const optimizationSavingsClass =
+		optimizationSavings > 0
+			? 'cimo-optimization-savings-up'
+			: 'cimo-optimization-savings-down'
 
-				/**
-				 * Conversion time
-				 */
-				// This is number string.
-				let conversionTimeDisplay = 'N/A'
-				if ( customMetadata.conversionTime ) {
-					const timeMs = parseFloat( customMetadata.conversionTime )
-					if ( timeMs < 1000 ) {
-						conversionTimeDisplay = `${ timeMs.toFixed( 0 ) } ms`
-					} else if ( timeMs < 60000 ) {
-						conversionTimeDisplay = `${ ( timeMs / 1000 ).toFixed( 1 ) } sec`
-					} else {
-						conversionTimeDisplay = `${ ( timeMs / 60000 ).toFixed( 1 ) } min`
-					}
-				}
-				html += `<li class="cimo-time">⚡️ Done in <span class="cimo-value">${ escape( conversionTimeDisplay ) }</span></li>`
+	html += `
+		<li class="cimo-compression-savings ${ escape( optimizationSavingsClass ) }">
+			Saved ${ escape( optimizationSavings ) }%
+			<span class="cimo-compression-savings-bytes">(${ escape( kbSaved ) })</span>
+		</li>
+	`
 
-				customContent.innerHTML = html
-				details.appendChild( customContent )
-			}
+	html += `
+		<li class="cimo-filesize-original">
+			Original: <span class="cimo-value">${ escape( formatFilesize( parseInt( customMetadata.originalFilesize ) || 0 ) ) }</span>
+		</li>
+		<li class="cimo-filesize-optimized">
+			Optimized: <span class="cimo-value">${ escape( formatFilesize( parseInt( customMetadata.convertedFilesize ) || 0 ) ) }</span>
+		</li>
+	`
 
-			return dom.innerHTML
-		},
-	} )
+	html += `
+		<li class="cimo-converted">
+			🏞️ Converted to <span class="cimo-value">${ escape( convertMimetypeToFormat( customMetadata.convertedFormat ) ) }</span>
+		</li>
+	`
+
+	let conversionTimeDisplay = 'N/A'
+	if ( customMetadata.conversionTime ) {
+		const timeMs = parseFloat( customMetadata.conversionTime )
+		conversionTimeDisplay =
+			timeMs < 1000
+				? `${ timeMs.toFixed( 0 ) } ms`
+				: timeMs < 60000
+					? `${ ( timeMs / 1000 ).toFixed( 1 ) } sec`
+					: `${ ( timeMs / 60000 ).toFixed( 1 ) } min`
+	}
+
+	html += `
+		<li class="cimo-time">
+			⚡️ Done in <span class="cimo-value">${ escape( conversionTimeDisplay ) }</span>
+		</li>
+		</ul>
+	`
+
+	customContent.innerHTML = html
+	container.appendChild( customContent )
+}
+
+domReady( () => {
+	// Only proceed if wp.media is available (media library is loaded)
+	if (
+		typeof wp === 'undefined' ||
+		! wp.media ||
+		! wp.media.view ||
+		! wp.media.view.Attachment ||
+		! wp.media.view.Attachment.Details
+	) {
+		return
+	}
+
+	// Editor media library modal (Attachment.Details)
+	wp.media.view.Attachment.Details =
+		wp.media.view.Attachment.Details.extend( {
+			template( view ) {
+				const html = wp.media.template( 'attachment-details' )( view )
+				const dom = document.createElement( 'div' )
+				dom.innerHTML = html
+
+				const container = dom.querySelector( '.attachment-info' )
+
+				injectCimoMetadata( {
+					model: view.model,
+					container,
+				} )
+
+				return dom.innerHTML
+			},
+		} )
+
+	// Admin Media in Grid View (Attachment.Details.TwoColumn)
+	if ( wp.media.view.Attachment.Details.TwoColumn ) {
+		const TwoColumn = wp.media.view.Attachment.Details.TwoColumn
+
+		wp.media.view.Attachment.Details.TwoColumn =
+			TwoColumn.extend( {
+				render() {
+					TwoColumn.prototype.render.apply( this, arguments )
+
+					const container = this.el.querySelector(
+						'.attachment-info > .details'
+					)
+
+					injectCimoMetadata( {
+						model: this.model,
+						container,
+					} )
+
+					return this
+				},
+			} )
+	}
 } )
