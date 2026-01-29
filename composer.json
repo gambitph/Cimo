@@ -3,7 +3,9 @@
 	"description": "Convert images to WebP on upload",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"enshrined/svg-sanitize": "^0.22.0"
+	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"wp-coding-standards/wpcs": "^3.0",
@@ -13,7 +15,10 @@
 		"lint:php": [
 			"phpcs --standard=phpcs.xml.dist -s"
 		]
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
-
-
