@@ -1,4 +1,5 @@
 import { Converter } from './converter-abstract'
+import { applyFilters } from '@wordpress/hooks'
 
 // Supported output formats
 const supportedFormats = [
@@ -19,6 +20,7 @@ class ImageConverter extends Converter {
 			'image/png',
 			'image/webp',
 			'image/jpg',
+			'image/heic',
 		]
 	}
 
@@ -126,6 +128,24 @@ class ImageConverter extends Converter {
 		}
 		if ( typeof maxDimension === 'string' ) {
 			maxDimension = parseFloat( maxDimension )
+		}
+
+		// If file type is HEIC, convert first to PNG
+		// then proceed to regular conversion
+		if ( fileItem.file.type === 'image/heic' ) {
+			const HEICConverter = applyFilters(
+				'cimo.getHEICConverter',
+				null,
+				fileItem.file,
+				{ format: 'png', quality: 1 }
+			)
+
+			if ( ! HEICConverter ) {
+				throw new Error( `HEIC converter is not found. HEIC conversion is only available in premium version.` )
+			}
+
+			const optimizedResult = await HEICConverter.convert()
+			fileItem.file = optimizedResult.file
 		}
 
 		return new Promise( ( resolve, reject ) => {
