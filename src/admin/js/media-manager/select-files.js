@@ -49,7 +49,9 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		if ( ! event.target.closest( '.components-form-file-upload' ) && // Allow uploads to the image block
 			! event.target.closest( '.media-frame' ) && // Allow uploads from the Media Manager
 			! event.target.closest( '.media-upload-form' ) && // Allow uploads from the admin Media > Add Media File
-			! event.target.closest( '.moxie-shim' ) ) { // Allow uploads from the admin Media > Library grid view
+			! event.target.closest( '.moxie-shim' ) && // Allow uploads from the admin Media > Library grid view
+			! event.target.closest( '.rwmb-meta-box' ) && // Allow uploads from Metabox Custom Fields
+			! event.target.closest( '.gfield--type-fileupload ' ) ) { // Allow uploads from Gravity Forms > File Upload
 			return
 		}
 

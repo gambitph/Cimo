@@ -27,6 +27,8 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			add_action( 'et_fb_enqueue_assets', [ $this, 'enqueue_cimo_assets' ] );
 			// Enqueue for the admin area in general.
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+			// Enqueue in frontend for forms plugin
+			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
 		}
 
 		/**
