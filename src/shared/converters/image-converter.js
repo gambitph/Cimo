@@ -15,13 +15,12 @@ const supportedFormats = [
 class ImageConverter extends Converter {
 	static get mimeTypes() {
 		// Accept all images supported by most browsers for conversion.
-		return [
+		return applyFilters( 'cimo.imageConverter.mimeTypes', [
 			'image/jpeg',
 			'image/png',
 			'image/webp',
 			'image/jpg',
-			'image/heic',
-		]
+		] )
 	}
 
 	static get showProgress() {
@@ -130,22 +129,9 @@ class ImageConverter extends Converter {
 			maxDimension = parseFloat( maxDimension )
 		}
 
-		// If file type is HEIC, convert first to PNG
-		// then proceed to regular conversion
-		if ( fileItem.file.type === 'image/heic' ) {
-			const HEICConverter = applyFilters(
-				'cimo.getHEICConverter',
-				null,
-				fileItem.file,
-				{ format: 'png', quality: 1 }
-			)
-
-			if ( ! HEICConverter ) {
-				throw new Error( `HEIC converter is not found. HEIC conversion is only available in premium version.` )
-			}
-
-			const optimizedResult = await HEICConverter.convert()
-			fileItem.file = optimizedResult.file
+		const modifiedFile = await applyFilters( 'cimo.convertImage.prepare', fileItem, outputFormat, options )
+		if ( modifiedFile ) {
+			fileItem.file = modifiedFile
 		}
 
 		return new Promise( ( resolve, reject ) => {
