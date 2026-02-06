@@ -129,10 +129,8 @@ class ImageConverter extends Converter {
 			maxDimension = parseFloat( maxDimension )
 		}
 
-		const modifiedFile = await applyFilters( 'cimo.convertImage.prepare', fileItem, outputFormat, options )
-		if ( modifiedFile ) {
-			fileItem.file = modifiedFile
-		}
+		// Allow preprocessing of the image before the conversion
+		fileItem.file = await applyFilters( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
 
 		return new Promise( ( resolve, reject ) => {
 			const img = new Image()
