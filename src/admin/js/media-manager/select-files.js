@@ -10,6 +10,15 @@ import { getFileConverter, requiresFileConversion } from '~cimo/shared/converter
 import { watchForEditorIframe } from '~cimo/shared/util'
 import { saveMetadata } from '~cimo/shared/metadata-saver'
 import { ProgressModal } from './progress-modal'
+import { applyFilters } from '@wordpress/hooks'
+
+// Allowed locations to be able to select files.
+const ALLOWED_LOCATIONS = applyFilters( 'cimo.selectFiles.allowedLocations', [
+	'.components-form-file-upload', // Allow uploads to the image block
+	'.media-frame', // Allow uploads from the Media Manager
+	'.media-upload-form', // Allow uploads from the admin Media > Add Media File
+	'.moxie-shim', // Allow uploads from the admin Media > Library grid view
+] )
 
 // Add event listener to the Media Manager's drop zone
 function addSelectFilesListenerToFileUploads( targetDocument ) {
@@ -46,12 +55,8 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		// selects that we want to, like the media manager picker or the image
 		// block uploader.
 		// Allow these locations to be able to select files.
-		if ( ! event.target.closest( '.components-form-file-upload' ) && // Allow uploads to the image block
-			! event.target.closest( '.media-frame' ) && // Allow uploads from the Media Manager
-			! event.target.closest( '.media-upload-form' ) && // Allow uploads from the admin Media > Add Media File
-			! event.target.closest( '.moxie-shim' ) && // Allow uploads from the admin Media > Library grid view
-			! event.target.closest( '.rwmb-meta-box' ) && // Allow uploads from Metabox Custom Fields
-			! event.target.closest( '.gfield--type-fileupload' ) ) { // Allow uploads from Gravity Forms > File Upload
+		const isAllowed = ALLOWED_LOCATIONS.some( selector => event.target.closest( selector ) )
+		if ( ! isAllowed ) {
 			return
 		}
 
