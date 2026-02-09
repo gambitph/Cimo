@@ -130,7 +130,10 @@ class ImageConverter extends Converter {
 		}
 
 		// Allow preprocessing of the image before the conversion
-		fileItem.file = await applyFilters( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
+		const updatedFile = await applyFilters( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
+		if ( updatedFile ) {
+			fileItem.file = updatedFile
+		}
 
 		return new Promise( ( resolve, reject ) => {
 			const img = new Image()
