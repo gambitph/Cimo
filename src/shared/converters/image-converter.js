@@ -1,5 +1,5 @@
 import { Converter } from './converter-abstract'
-import { applyFilters } from '@wordpress/hooks'
+import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
 
 // Supported output formats
 const supportedFormats = [
@@ -130,7 +130,7 @@ class ImageConverter extends Converter {
 		}
 
 		// Allow preprocessing of the image before the conversion
-		const updatedFile = await applyFilters( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
+		const updatedFile = await applyFiltersAsync( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
 		if ( updatedFile ) {
 			fileItem.file = updatedFile
 		}
