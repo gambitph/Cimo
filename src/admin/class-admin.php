@@ -56,6 +56,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 						'schema' => [
 							'type' => 'object',
 							'properties' => [
+								'image_output_format' => [
+									'type' => 'string',
+								],
 								'webp_quality' => [
 									'type' => 'integer',
 								],
@@ -217,6 +220,11 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			// Load up the complete options so we don't lose any existing settings.
 			$current = get_option( 'cimo_options', [] );
 			$sanitized = is_array( $current ) ? $current : [];
+
+			// Sanitize image output format
+			if ( isset( $options['image_output_format'] ) ) {
+				$sanitized['image_output_format'] = sanitize_text_field( $options['image_output_format'] );
+			}
 
 			// Sanitize webp quality
 			if ( isset( $options['webp_quality'] ) ) {

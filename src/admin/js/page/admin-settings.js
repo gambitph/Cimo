@@ -15,6 +15,7 @@ const buildType = applyFilters( 'cimo.admin.settings.buildType', 'free' )
 
 const AdminSettings = () => {
 	const [ settings, setSettings ] = useState( {
+		imageOutputFormat: 'webp',
 		webpQuality: 80,
 		maxImageDimension: '',
 		disableWpScaling: 1,
@@ -71,6 +72,7 @@ const AdminSettings = () => {
 			const cimoOptions = data.cimo_options || {}
 			const fetchedSettings = {
 				// Image Optimization settings
+				imageOutputFormat: cimoOptions.image_output_format || 'webp',
 				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
 				maxImageDimension: cimoOptions.max_image_dimension || '',
 				disableWpScaling: cimoOptions.disable_wp_scaling !== undefined ? cimoOptions.disable_wp_scaling : 1,
@@ -132,6 +134,7 @@ const AdminSettings = () => {
 		setSettings( settings => {
 			return {
 				...settings,
+				imageOutputFormat: 'webp',
 				webpQuality: 80,
 				maxImageDimension: 1920,
 				disableWpScaling: 1,
@@ -145,6 +148,7 @@ const AdminSettings = () => {
 		setSettings( settings => {
 			return {
 				...settings,
+				imageOutputFormat: 'webp',
 				webpQuality: '',
 				maxImageDimension: '',
 				disableWpScaling: 1,
@@ -229,6 +233,7 @@ const AdminSettings = () => {
 				data: {
 					cimo_options: {
 						// Image Optimization settings
+						image_output_format: settings.imageOutputFormat,
 						webp_quality: parseInt( settings.webpQuality ) || 0,
 						max_image_dimension: parseInt( settings.maxImageDimension ) || 0,
 						disable_wp_scaling: settings.disableWpScaling,
@@ -395,6 +400,28 @@ const AdminSettings = () => {
 							>
 								{ __( 'Recommended', 'cimo-image-optimizer' ) }
 							</Button>
+						</div>
+
+						<div className="cimo-setting-field">
+							<ToggleGroupControl
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
+								label={ __( 'Image Output Format', 'cimo-image-optimizer' ) }
+								value={ settings.imageOutputFormat || 'webp' }
+								onChange={ value => handleInputChange( 'imageOutputFormat', value ) }
+								isBlock
+								help={ __( 'Set the resulting format of the optimized files.', 'cimo-image-optimizer' ) }
+							>
+								<ToggleGroupControlOption
+									value="webp"
+									label={ __( 'WebP', 'cimo-image-optimizer' ) }
+								/>
+								<ToggleGroupControlOption
+									value="avif"
+									label={ __( 'AVIF', 'cimo-image-optimizer' ) }
+									disabled={ buildType === 'free' }
+								/>
+							</ToggleGroupControl>
 						</div>
 
 						<div className="cimo-setting-field">

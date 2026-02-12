@@ -38,13 +38,14 @@ export const getFileConverter = _file => {
 	}
 
 	if ( file.type.startsWith( 'image/' ) ) {
-		// If the browser doesn't support webp, then we can't convert it.
-		if ( ! isFormatSupported( 'webp' ) ) {
+		const imageOutputFormat = window.cimoSettings?.imageOutputFormat || 'webp'
+		// If the browser doesn't support set output format, then we can't convert it.
+		if ( ! isFormatSupported( imageOutputFormat ) ) {
 			return new NullConverter( file )
 		}
 		if ( ImageConverter.supportsMimeType( file.type ) ) {
 			return new ImageConverter( file, {
-				format: 'webp',
+				format: imageOutputFormat,
 				quality: window.cimoSettings?.webpQuality || 0.8,
 				maxDimension: window.cimoSettings?.maxImageDimension || 0,
 			} )

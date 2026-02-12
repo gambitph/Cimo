@@ -1,10 +1,12 @@
 import { Converter } from './converter-abstract'
+import { encode as encodeAvif } from '@jsquash/avif'
 
 // Supported output formats
 const supportedFormats = [
 	{ value: 'webp', mimeType: 'image/webp' },
 	{ value: 'jpg', mimeType: 'image/jpeg' },
 	{ value: 'png', mimeType: 'image/png' },
+	{ value: 'avif', mimeType: 'image/avif' },
 ]
 
 /**
@@ -19,6 +21,7 @@ class ImageConverter extends Converter {
 			'image/png',
 			'image/webp',
 			'image/jpg',
+			'image/avif',
 		]
 	}
 
@@ -171,7 +174,27 @@ class ImageConverter extends Converter {
 
 				const format = supportedFormats.find( f => f.value === outputFormat )
 				// Only use quality for lossy formats
-				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
+				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' || outputFormat === 'avif' ) ? quality : undefined
+
+				if ( outputFormat === 'avif' ) {
+					try {
+						const imageData = ctx.getImageData( 0, 0, width, height )
+						const avifQuality = Math.max( 1, Math.min( 100, Math.round( ( ( q ?? 0.5 ) * 100 ) ) ) )
+						const avifBuffer = await encodeAvif( imageData, { quality: avifQuality } )
+						const avifBlob = new Blob( [ avifBuffer ], { type: 'image/avif' } )
+						resolve( avifBlob )
+					} catch ( e ) {
+						reject( new Error( `Failed to encode AVIF: ${ e instanceof Error ? e.message : 'Unknown error' }` ) )
+					}
+				} else {
+					canvas.toBlob( function( blob ) {
+						if ( blob ) {
+							resolve( blob )
+						} else {
+							reject( new Error( 'Failed to convert image' ) )
+						}
+					}, format.mimeType, quality )
+				}
 
 				canvas.toBlob( function( blob ) {
 					// Clean up resources
