@@ -188,30 +188,22 @@ class ImageConverter extends Converter {
 					}
 				} else {
 					canvas.toBlob( function( blob ) {
+						// Clean up resources
+						URL.revokeObjectURL( objectUrl )
+						objectUrl = null
+
+						// Clear canvas to free memory
+						ctx.clearRect( 0, 0, canvas.width, canvas.height )
+						canvas.width = 0
+						canvas.height = 0
+
 						if ( blob ) {
 							resolve( blob )
 						} else {
 							reject( new Error( 'Failed to convert image' ) )
 						}
-					}, format.mimeType, quality )
+					}, format.mimeType, q )
 				}
-
-				canvas.toBlob( function( blob ) {
-					// Clean up resources
-					URL.revokeObjectURL( objectUrl )
-					objectUrl = null
-
-					// Clear canvas to free memory
-					ctx.clearRect( 0, 0, canvas.width, canvas.height )
-					canvas.width = 0
-					canvas.height = 0
-
-					if ( blob ) {
-						resolve( blob )
-					} else {
-						reject( new Error( 'Failed to convert image' ) )
-					}
-				}, format.mimeType, q )
 			}
 
 			img.onerror = () => {
