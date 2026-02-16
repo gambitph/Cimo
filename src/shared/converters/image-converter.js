@@ -1,5 +1,6 @@
 import { Converter } from './converter-abstract'
 import { encode as encodeAvif } from '@jsquash/avif'
+import { isFormatSupported } from './util'
 
 // Supported output formats
 const supportedFormats = [
@@ -240,8 +241,7 @@ class ImageConverter extends Converter {
 		}
 
 		// Check if the browser supports the desired output format
-		const testCanvas = document.createElement( 'canvas' )
-		if ( formatInfo && ! testCanvas.toDataURL( formatInfo.mimeType ).startsWith( `data:${ formatInfo.mimeType }` ) ) {
+		if ( ! await isFormatSupported( format ) ) {
 			// If not supported, skip conversion and return the original file
 			// eslint-disable-next-line no-console
 			console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )
