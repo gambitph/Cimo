@@ -1,6 +1,8 @@
 import { Converter } from './converter-abstract'
 import { isFormatSupported } from './util'
 
+import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
+
 // Supported output formats
 const supportedFormats = [
 	{ value: 'webp', mimeType: 'image/webp' },
@@ -16,13 +18,12 @@ const supportedFormats = [
 class ImageConverter extends Converter {
 	static get mimeTypes() {
 		// Accept all images supported by most browsers for conversion.
-		return [
+		return applyFilters( 'cimo.imageConverter.mimeTypes', [
 			'image/jpeg',
 			'image/png',
 			'image/webp',
 			'image/jpg',
-			'image/avif',
-		]
+		] )
 	}
 
 	static get showProgress() {
@@ -176,35 +177,32 @@ class ImageConverter extends Converter {
 				// Only use quality for lossy formats
 				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' || outputFormat === 'avif' ) ? quality : undefined
 
-				if ( outputFormat === 'avif' ) {
-					try {
-						const { encode: encodeAvif } = await import( '@jsquash/avif' )
-						const imageData = ctx.getImageData( 0, 0, width, height )
-						const avifQuality = Math.max( 1, Math.min( 100, Math.round( ( ( q ?? 0.5 ) * 100 ) ) ) )
-						const avifBuffer = await encodeAvif( imageData, { quality: avifQuality } )
-						const avifBlob = new Blob( [ avifBuffer ], { type: 'image/avif' } )
-						resolve( avifBlob )
-					} catch ( e ) {
-						reject( new Error( `Failed to encode AVIF: ${ e instanceof Error ? e.message : 'Unknown error' }` ) )
-					}
-				} else {
-					canvas.toBlob( function( blob ) {
-						// Clean up resources
-						URL.revokeObjectURL( objectUrl )
-						objectUrl = null
-
-						// Clear canvas to free memory
-						ctx.clearRect( 0, 0, canvas.width, canvas.height )
-						canvas.width = 0
-						canvas.height = 0
-
-						if ( blob ) {
-							resolve( blob )
-						} else {
-							reject( new Error( 'Failed to convert image' ) )
-						}
-					}, format.mimeType, q )
+				// Allow intercepting the conversion with a custom converter
+				const payload = {
+					ctx, width, height, quality: q,
 				}
+				const updatedBlob = await applyFiltersAsync( 'cimo.convertImage.intercept', fileItem.file, outputFormat, payload )
+				if ( updatedBlob instanceof Blob ) {
+					resolve( updatedBlob )
+					return
+				}
+
+				canvas.toBlob( function( blob ) {
+					// Clean up resources
+					URL.revokeObjectURL( objectUrl )
+					objectUrl = null
+
+					// Clear canvas to free memory
+					ctx.clearRect( 0, 0, canvas.width, canvas.height )
+					canvas.width = 0
+					canvas.height = 0
+
+					if ( blob ) {
+						resolve( blob )
+					} else {
+						reject( new Error( 'Failed to convert image' ) )
+					}
+				}, format.mimeType, q )
 			}
 
 			img.onerror = () => {
