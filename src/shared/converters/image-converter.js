@@ -1,5 +1,4 @@
 import { Converter } from './converter-abstract'
-import { encode as encodeAvif } from '@jsquash/avif'
 import { isFormatSupported } from './util'
 
 // Supported output formats
@@ -179,6 +178,7 @@ class ImageConverter extends Converter {
 
 				if ( outputFormat === 'avif' ) {
 					try {
+						const { encode: encodeAvif } = await import( '@jsquash/avif' )
 						const imageData = ctx.getImageData( 0, 0, width, height )
 						const avifQuality = Math.max( 1, Math.min( 100, Math.round( ( ( q ?? 0.5 ) * 100 ) ) ) )
 						const avifBuffer = await encodeAvif( imageData, { quality: avifQuality } )

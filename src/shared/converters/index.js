@@ -9,7 +9,7 @@ import { isFormatSupported } from './util'
  * @param {File} _file - The file to get the converter for.
  * @return {Converter} - The file converter.
  */
-export const getFileConverter = _file => {
+export const getFileConverter = async _file => {
 	let file = _file
 	// In some cases (e.g., when called from an iframe), the File object may come from a different window context,
 	// so instanceof File can fail even if it's a valid File. Instead, check for file-like shape.
@@ -41,7 +41,7 @@ export const getFileConverter = _file => {
 	if ( file.type.startsWith( 'image/' ) ) {
 		const imageOutputFormat = window.cimoSettings?.imageOutputFormat || 'webp'
 		// If the browser doesn't support set output format, then we can't convert it.
-		if ( ! isFormatSupported( imageOutputFormat ) ) {
+		if ( ! await isFormatSupported( imageOutputFormat ) ) {
 			return new NullConverter( file )
 		}
 		if ( ImageConverter.supportsMimeType( file.type ) ) {
