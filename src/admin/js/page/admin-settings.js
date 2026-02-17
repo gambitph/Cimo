@@ -35,6 +35,9 @@ const AdminSettings = () => {
 		// Audio Optimization settings
 		audioOptimizationEnabled: 1,
 		audioQuality: 128,
+
+		// Stealth Mode settings
+		stealthModeEnabled: 0,
 	} )
 	const [ imageSizes, setImageSizes ] = useState( [] )
 	const [ isSaving, setIsSaving ] = useState( false )
@@ -91,6 +94,9 @@ const AdminSettings = () => {
 				// Audio Optimization settings
 				audioOptimizationEnabled: cimoOptions.audio_optimization_enabled !== undefined ? cimoOptions.audio_optimization_enabled : 1,
 				audioQuality: cimoOptions.audio_quality !== undefined ? cimoOptions.audio_quality : 128,
+
+				// Stealth Mode settings
+				stealthModeEnabled: cimoOptions.stealth_mode_enabled !== undefined ? cimoOptions.stealth_mode_enabled : 0,
 			}
 			setSettings( fetchedSettings )
 			setHasUnsavedChanges( false )
@@ -249,6 +255,9 @@ const AdminSettings = () => {
 						// Audio Optimization settings
 						audio_optimization_enabled: settings.audioOptimizationEnabled,
 						audio_quality: settings.audioQuality || 0,
+
+						// Stealth Mode settings
+						stealth_mode_enabled: settings.stealthModeEnabled,
 					},
 				},
 			} )
@@ -766,6 +775,44 @@ const AdminSettings = () => {
 							</Button>
 						</> }
 					</div>
+				</div>
+
+				{ /* Stealth Mode Settings */ }
+
+				<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+					<div className="cimo-settings-header">
+						<h2>
+							<span aria-hidden="true">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-hat-glasses-icon lucide-hat-glasses"><path d="M14 18a2 2 0 0 0-4 0" /><path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" /><path d="M2 11h20" /><circle cx="17" cy="18" r="3" /><circle cx="7" cy="18" r="3" /></svg>
+							</span>
+							{ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
+						</h2>
+						{ buildType === 'free' && (
+							<span
+								className="cimo-premium-feature-label"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+								{ __( 'Premium', 'cimo-image-optimizer' ) }
+							</span>
+						) }
+					</div>
+
+					{ buildType === 'free' && (
+						<PremiumPlaceholder
+							label={ __( 'Upgrade to Premium to enter stealth mode.', 'cimo-image-optimizer' ) }
+						/>
+					) }
+					{ buildType === 'premium' && <>
+						<div className="cimo-setting-field">
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
+								checked={ settings.stealthModeEnabled === 1 }
+								onChange={ checked => handleInputChange( 'stealthModeEnabled', checked ? 1 : 0 ) }
+								help={ __( 'When Stealth Mode is enabled, Cimo will perform media optimization as it normally would, however, all Cimo branding and optimization stats will not be shown in the UI and dashboard. This settings page will not appear in the admin sidebar, you can access it by clicking the “Settings” link under Cimo in the plugins page.', 'cimo-image-optimizer' ) }
+							/>
+						</div>
+					</> }
 				</div>
 
 				{ /* Submit Button */ }

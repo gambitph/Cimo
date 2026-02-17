@@ -19,6 +19,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				// Our admin page.
 				add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
 				add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+				add_filter( 'plugin_action_links_' . plugin_basename( CIMO_FILE ), [ $this, 'add_admin_action_links' ] );
 			}
 
 			// Disable thumbnail generation
@@ -36,9 +37,15 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				__( 'Cimo Settings', 'cimo-image-optimizer' ),
 				__( 'Cimo', 'cimo-image-optimizer' ),
 				'manage_options',
-				'cimo-settings',
+				CIMO_SETTINGS_SLUG,
 				[ $this, 'admin_page_callback' ]
 			);
+		}
+
+		public function add_admin_action_links( $links ) {
+			$settings_link = '<a href="' . admin_url( 'admin.php?page=' . CIMO_SETTINGS_SLUG )  . '">' . __( 'Settings', 'cimo-image-optimizer' ) . '</a>';
+			array_unshift( $links, $settings_link );
+			return $links;
 		}
 
 		/**
@@ -108,6 +115,11 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 									'type' => 'integer',
 								],
 								'audio_quality' => [
+									'type' => 'integer',
+								],
+								
+								// Stealth Mode
+								'stealth_mode_enabled' => [
 									'type' => 'integer',
 								],
 							],
@@ -278,6 +290,11 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			}
 			if ( isset( $options['audio_quality'] ) ) {
 				$sanitized['audio_quality'] = intval( $options['audio_quality'] );
+			}
+
+			// Sanitize stealth mode
+			if ( isset( $options['stealth_mode_enabled'] ) ) {
+				$sanitized['stealth_mode_enabled'] = $options['stealth_mode_enabled'] ? 1 : 0;
 			}
 
 			return $sanitized;
