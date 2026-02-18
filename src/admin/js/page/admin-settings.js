@@ -2,7 +2,7 @@ import {
 	useState, useEffect, useCallback,
 } from '@wordpress/element'
 import {
-	Button, RangeControl, ToggleControl, TextControl,
+	Button, RangeControl, ToggleControl, TextControl, RadioControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components'
@@ -403,25 +403,19 @@ const AdminSettings = () => {
 						</div>
 
 						<div className="cimo-setting-field">
-							<ToggleGroupControl
+							<RadioControl
 								__nextHasNoMarginBottom
 								__next40pxDefaultSize
 								label={ __( 'Image Output Format', 'cimo-image-optimizer' ) }
-								value={ settings.imageOutputFormat || 'webp' }
+								selected={ settings.imageOutputFormat || 'webp' }
 								onChange={ value => handleInputChange( 'imageOutputFormat', value ) }
 								isBlock
+								options={ [
+									{ label: 'WebP', value: 'webp' },
+									{ label: 'AVIF', value: 'avif' },
+								] }
 								help={ __( 'Set the resulting format of the optimized files.', 'cimo-image-optimizer' ) }
-							>
-								<ToggleGroupControlOption
-									value="webp"
-									label={ __( 'WebP', 'cimo-image-optimizer' ) }
-								/>
-								<ToggleGroupControlOption
-									value="avif"
-									label={ __( 'AVIF', 'cimo-image-optimizer' ) }
-									disabled={ buildType === 'free' }
-								/>
-							</ToggleGroupControl>
+							/>
 						</div>
 
 						<div className="cimo-setting-field">
