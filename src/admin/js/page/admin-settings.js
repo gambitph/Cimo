@@ -891,6 +891,25 @@ const AdminSettings = () => {
 					<ul className="cimo-premium-features-list">
 						<li>
 							<span className="cimo-premium-icon">
+								{ /* HEIC Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
+							</span>
+							<span>
+								{ __( 'Support for HEIC image format', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* Lightning Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+							</span>
+							<span>
+								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<hr />
+						<li>
+							<span className="cimo-premium-icon">
 								{ /* Video Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-video h-3 w-3 text-purple-600" data-lov-id="src/components/WordPressAdmin.tsx:310:20" data-lov-name="Video" data-component-path="src/components/WordPressAdmin.tsx" data-component-line="310" data-component-file="WordPressAdmin.tsx" data-component-name="Video" data-component-content="%7B%22className%22%3A%22h-3%20w-3%20text-purple-600%22%7D"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg>
 							</span>
@@ -909,13 +928,14 @@ const AdminSettings = () => {
 						</li>
 						<li>
 							<span className="cimo-premium-icon">
-								{ /* Lightning Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+								{ /* SVG Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-code-icon lucide-file-code"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 12.5 8 15l2 2.5" /><path d="m14 12.5 2 2.5-2 2.5" /></svg>
 							</span>
 							<span>
-								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
+								{ __( 'Optimize SVG files on upload', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
+						<hr />
 						<li>
 							<span className="cimo-premium-icon">
 								{ /* Unlimited Icon */ }
