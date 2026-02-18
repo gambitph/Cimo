@@ -114,6 +114,14 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 								'audio_quality' => [
 									'type' => 'integer',
 								],
+
+								// SVG Optimization settings
+								'svg_upload' => [
+									'type' => 'integer',
+								],
+								'svg_optimization_enabled' => [
+									'type' => 'integer',
+								],
 							],
 						],
 					],
@@ -288,6 +296,15 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			}
 			if ( isset( $options['audio_quality'] ) ) {
 				$sanitized['audio_quality'] = intval( $options['audio_quality'] );
+			}
+
+			// Sanitize svg_upload
+			if ( isset( $options['svg_upload'] ) ) {
+				$sanitized['svg_upload'] = $options['svg_upload'] ? 1 : 0;
+			}
+			// Sanitize svg_optimization_enabled
+			if ( isset( $options['svg_optimization_enabled'] ) ) {
+				$sanitized['svg_optimization_enabled'] = $options['svg_optimization_enabled'] ? 1 : 0;
 			}
 
 			return $sanitized;
