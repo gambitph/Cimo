@@ -87,6 +87,10 @@ function copyDir( src, dest ) {
 	let hasCopiedFiles = false
 
 	for ( const item of items ) {
+		// Skip hidden files/folders (start with '.')
+		if ( item.startsWith( '.' ) ) {
+			continue
+		}
 		const srcPath = path.join( src, item )
 		const destPath = path.join( dest, item )
 		const stat = fs.statSync( srcPath )

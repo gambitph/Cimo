@@ -1,6 +1,6 @@
 {
 	"name": "cimo",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "Convert images to WebP on upload",
 	"private": true,
 	"license": "GPL-2.0-or-later",
@@ -39,5 +39,6 @@
 		"@mediabunny/mp3-encoder": "^1.25.0",
 		"mediabunny": "^1.25.0",
 		"svgo": "^4.0.0"
+		"heic2any": "^0.0.4"
 	}
 }

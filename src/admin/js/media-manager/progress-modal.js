@@ -68,6 +68,13 @@ class ProgressModal {
 			z-index: 9999999;
 		`
 
+		this.modal.addEventListener( 'mousedown', event => {
+			// Prevent clicks from removing the upload popover
+			event.preventDefault()
+			event.stopPropagation()
+			event.stopImmediatePropagation()
+		} )
+
 		const wrapper = document.createElement( 'div' )
 		wrapper.className = 'cimo-progress-wrapper'
 		wrapper.style.cssText = `
