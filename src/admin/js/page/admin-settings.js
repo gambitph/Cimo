@@ -427,7 +427,7 @@ const AdminSettings = () => {
 						<div className="cimo-setting-field">
 							<RangeControl
 								id="webpQuality"
-								label={ __( 'WebP Image Quality', 'cimo-image-optimizer' ) }
+								label={ __( 'Image Quality', 'cimo-image-optimizer' ) }
 								value={ settings.webpQuality || '' }
 								onChange={ value => handleInputChange( 'webpQuality', value || '' ) }
 								min="1"
