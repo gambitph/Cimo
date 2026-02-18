@@ -33,8 +33,14 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 			return
 		}
 
-		// Get the files from the input
+		// Get the file converters for the incoming files.
 		const files = Array.from( event.target.files )
+		const fileConverters = await Promise.all( files.map( file => getFileConverter( file ) ) )
+
+		// Do not continue if we do not need to convert any files.
+		if ( ! requiresFileConversion( fileConverters ) ) {
+			return
+		}
 
 		// TODO: We need filter this so that we will only override this on file
 		// selects that we want to, like the media manager picker or the image
@@ -47,26 +53,17 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 			return
 		}
 
-		// Prevent the default file handling
-		// This must happen before any async operations
-		event.preventDefault()
-		event.stopPropagation()
-		event.stopImmediatePropagation()
-
-		// Get the file converters for the incoming files.
-		const fileConverters = await Promise.all( files.map( file => getFileConverter( file ) ) )
-
-		// Do not continue if we do not need to convert any files.
-		if ( ! requiresFileConversion( fileConverters ) ) {
-			return
-		}
-
 		// DEV NOTE: Previously, we did a return here if the browser didn't
 		// support webp (this worked for Safari), this makes it so that the
 		// normal processing happens instead of our "interceptor". But since we
 		// want to support a mix of video/audio/image files, we can't just stop
 		// the entire handling of the drop event. We now just return the
 		// original file but still proceed with our conversion logic.
+
+		// Prevent the default file handling
+		event.preventDefault()
+		event.stopPropagation()
+		event.stopImmediatePropagation()
 
 		// Cancel the conversion if the user closes the progress modal.
 		const onCancel = () => {
