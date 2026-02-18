@@ -177,17 +177,8 @@ class ImageConverter extends Converter {
 				// Only use quality for lossy formats
 				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' || outputFormat === 'avif' ) ? quality : undefined
 
-				// Allow intercepting the conversion with a custom converter
-				const payload = {
-					ctx, width, height, quality: q,
-				}
-				const updatedBlob = await applyFiltersAsync( 'cimo.convertImage.intercept', fileItem.file, outputFormat, payload )
-				if ( updatedBlob instanceof Blob ) {
-					resolve( updatedBlob )
-					return
-				}
-
-				canvas.toBlob( function( blob ) {
+				// Define a cleanup function to revoke object URLs and clear canvas resources
+				const cleanup = () => {
 					// Clean up resources
 					URL.revokeObjectURL( objectUrl )
 					objectUrl = null
@@ -196,6 +187,28 @@ class ImageConverter extends Converter {
 					ctx.clearRect( 0, 0, canvas.width, canvas.height )
 					canvas.width = 0
 					canvas.height = 0
+				}
+
+				// Allow intercepting the conversion with a custom converter
+				const payload = {
+					ctx, width, height, quality: q,
+				}
+				const updatedBlob = await applyFiltersAsync(
+					'cimo.convertImage.intercept',
+					fileItem.file,
+					outputFormat,
+					payload
+
+				)
+
+				if ( updatedBlob instanceof Blob ) {
+					cleanup()
+					resolve( updatedBlob )
+					return
+				}
+
+				canvas.toBlob( function( blob ) {
+					cleanup()
 
 					if ( blob ) {
 						resolve( blob )

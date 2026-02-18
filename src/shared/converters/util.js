@@ -52,8 +52,6 @@ export async function isFormatSupported( format ) {
 			// If the browser doesn't support the format, it falls back to image/png
 			// Check if the data URL starts with the requested mime type
 			supported = dataUrl.startsWith( `data:${ mimeType }` )
-
-			return supported
 		} catch ( e ) {
 			supported = false
 		}

@@ -58,6 +58,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 							'properties' => [
 								'image_output_format' => [
 									'type' => 'string',
+									'enum' => [ 'webp', 'avif' ],
 								],
 								'webp_quality' => [
 									'type' => 'integer',
@@ -223,7 +224,8 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 
 			// Sanitize image output format
 			if ( isset( $options['image_output_format'] ) ) {
-				$sanitized['image_output_format'] = sanitize_text_field( $options['image_output_format'] );
+				$format = sanitize_text_field( $options['image_output_format'] );
+				$sanitized['image_output_format'] = in_array( $format, [ 'webp', 'avif' ], true ) ? $format : 'webp';
 			}
 
 			// Sanitize webp quality
