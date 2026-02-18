@@ -33,14 +33,8 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			return
 		}
 
-		// Get the file converters for the incoming files.
+		// Get the files from the input
 		const files = Array.from( event.dataTransfer.files )
-		const fileConverters = await Promise.all( files.map( file => getFileConverter( file ) ) )
-
-		// Do not continue if we do not need to convert any files.
-		if ( ! requiresFileConversion( fileConverters ) ) {
-			return
-		}
 
 		// TODO: We also want to filter out the target so we can set when this
 		// is triggered. We might break other funcitonality that we don't have
@@ -54,16 +48,25 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			return
 		}
 
+		// Prevent default browser behavior
+		// This must happen before any async operations
+		event.preventDefault()
+		event.stopPropagation()
+
+		// Get the file converters for the incoming files.
+		const fileConverters = await Promise.all( files.map( file => getFileConverter( file ) ) )
+
+		// Do not continue if we do not need to convert any files.
+		if ( ! requiresFileConversion( fileConverters ) ) {
+			return
+		}
+
 		// DEV NOTE: Previously, we did a return here if the browser didn't
 		// support webp (this worked for Safari), this makes it so that the
 		// normal processing happens instead of our "interceptor". But since we
 		// want to support a mix of video/audio/image files, we can't just stop
 		// the entire handling of the drop event. We now just return the
 		// original file but still proceed with our conversion logic.
-
-		// Prevent default browser behavior
-		event.preventDefault()
-		event.stopPropagation()
 
 		// Hide the drop files to upload note. Sometimes, like in Elementor, if
 		// there are multiple media managers opened, this can be many, hide them
