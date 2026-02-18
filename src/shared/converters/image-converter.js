@@ -132,6 +132,12 @@ class ImageConverter extends Converter {
 			maxDimension = parseFloat( maxDimension )
 		}
 
+		// Allow preprocessing of the image before the conversion
+		const updatedFile = await applyFiltersAsync( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
+		if ( updatedFile ) {
+			fileItem.file = updatedFile
+		}
+
 		return new Promise( ( resolve, reject ) => {
 			const img = new Image()
 			let objectUrl = null
