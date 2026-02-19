@@ -165,6 +165,13 @@ function injectCimoMetadata( {
 }
 
 domReady( () => {
+	const isStealthMode = String( window.cimoSettings?.stealthModeEnabled ?? '1' ) !== '0'
+
+	// Do not add Cimo stats if stealth mode is enabled.
+	if ( isStealthMode ) {
+		return
+	}
+
 	// Only proceed if wp.media is available (media library is loaded)
 	if (
 		typeof wp === 'undefined' ||

@@ -11,6 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 	class Cimo_Meta_Box {
 		public function __construct() {
+			$settings = get_option( 'cimo_options', [] );
+
+			// If stealth mode is enabled, do not add the meta box or the sidebar info.
+			if ( isset( $settings['stealth_mode_enabled'] ) && $settings['stealth_mode_enabled'] ) {
+				return;
+			}
+
 			// Add a meta box to display Cimo Data in the Edit Media screen
 			if ( is_admin() ) {
 				add_action( 'add_meta_boxes', [ $this, 'add_meta_box' ] );
