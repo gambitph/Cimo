@@ -27,8 +27,21 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			add_action( 'et_fb_enqueue_assets', [ $this, 'enqueue_cimo_assets' ] );
 			// Enqueue for the admin area in general.
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+
 			// Enqueue in frontend for forms plugin
-			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+			// These hooks only run if the respective forms exist in the frontend.
+			if( CIMO_BUILD === 'premium' ) {
+				// Fluent Forms
+				add_action( 'fluentform/load_form_assets', [ $this, 'enqueue_cimo_assets' ] );
+				// Gravity Forms
+				add_action( 'gform_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+				// WS Forms
+				add_action( 'wsf_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+				// Ninja Forms
+    			add_action( 'ninja_forms_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ]);
+				// Contact Form 7
+				add_action( 'wpcf7_contact_form', [ $this, 'enqueue_cimo_assets' ] );
+			}	
 		}
 
 		/**
