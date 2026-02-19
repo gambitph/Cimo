@@ -14,7 +14,9 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 			$settings = get_option( 'cimo_options', [] );
 
 			// If stealth mode is enabled, do not add the meta box or the sidebar info.
-			if ( isset( $settings['stealth_mode_enabled'] ) && $settings['stealth_mode_enabled'] ) {
+			if ( CIMO_BUILD === 'premium' && 
+				isset( $settings['stealth_mode_enabled'] ) && 
+				$settings['stealth_mode_enabled'] === 1 ) {
 				return;
 			}
 

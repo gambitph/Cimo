@@ -45,7 +45,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 
 			// Remove the menu page if stealth mode is enabled.
 			// The menu page is still accessible via the plugin actions links.
-			if ( isset( $settings['stealth_mode_enabled'] ) && $settings ['stealth_mode_enabled'] === 1 ) {
+			if ( CIMO_BUILD === 'premium' &&  
+				isset( $settings['stealth_mode_enabled'] ) && 
+				$settings['stealth_mode_enabled'] === 1 ) {
 				remove_submenu_page(
 					'options-general.php',
 					CIMO_SETTINGS_SLUG,
