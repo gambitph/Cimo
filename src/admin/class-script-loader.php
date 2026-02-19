@@ -91,6 +91,8 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'videoMaxResolution' => ! empty( $settings['video_max_resolution'] ) ? $settings['video_max_resolution'] : '',
 					'audioOptimizationEnabled' => isset( $settings['audio_optimization_enabled'] ) ? (int) $settings['audio_optimization_enabled'] : 1,
 					'audioQuality' => ! empty( $settings['audio_quality'] ) ? (int) $settings['audio_quality'] : 128,
+					'svgUpload' => isset( $settings['svg_upload'] ) ? (int) $settings['svg_upload'] : 0,
+					'svgOptimizationEnabled' => isset( $settings['svg_optimization_enabled'] ) ? (int) $settings['svg_optimization_enabled'] : 1,
 				]
 			);
 

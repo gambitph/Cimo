@@ -211,6 +211,15 @@
 	gap: 12px;
 }
 
+.cimo-premium-features-list hr {
+	margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 .cimo-premium-features-list li {
 	display: flex;
 	align-items: baseline;
