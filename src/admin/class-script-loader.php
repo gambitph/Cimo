@@ -93,6 +93,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'audioQuality' => ! empty( $settings['audio_quality'] ) ? (int) $settings['audio_quality'] : 128,
 					'svgUpload' => isset( $settings['svg_upload'] ) ? (int) $settings['svg_upload'] : 0,
 					'svgOptimizationEnabled' => isset( $settings['svg_optimization_enabled'] ) ? (int) $settings['svg_optimization_enabled'] : 1,
+					'stealthModeEnabled' => isset( $settings['stealth_mode_enabled'] ) ? (int) $settings['stealth_mode_enabled'] : 0,
 				]
 			);
 

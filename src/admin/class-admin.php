@@ -33,6 +33,8 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 		 * Add admin menu under Settings
 		 */
 		public function add_admin_menu() {
+			$cimo_options = get_option( 'cimo_options', [] );
+
 			add_options_page(
 				__( 'Cimo Settings', 'cimo-image-optimizer' ),
 				__( 'Cimo', 'cimo-image-optimizer' ),
@@ -40,10 +42,22 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				CIMO_SETTINGS_SLUG,
 				[ $this, 'admin_page_callback' ]
 			);
+
+			// Remove the menu page if stealth mode is enabled.
+			// The menu page is still accessible via the plugin actions links.
+			if ( isset( $cimo_options['stealth_mode_enabled'] ) && $cimo_options['stealth_mode_enabled'] === 1 ) {
+				remove_submenu_page(
+					'options-general.php',
+					CIMO_SETTINGS_SLUG,
+				);
+			}
 		}
 
+		/**
+		 * Add a Settings link to the plugin action links.
+		 */
 		public function add_admin_action_links( $links ) {
-			$settings_link = '<a href="' . admin_url( 'options-general.php?page=' . CIMO_SETTINGS_SLUG )  . '">' . __( 'Settings', 'cimo-image-optimizer' ) . '</a>';
+			$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=' . CIMO_SETTINGS_SLUG ) ) . '">' . esc_html__( 'Settings', 'cimo-image-optimizer' ) . '</a>';
 			array_unshift( $links, $settings_link );
 			return $links;
 		}
