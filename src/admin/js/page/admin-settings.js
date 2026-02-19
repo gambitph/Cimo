@@ -76,7 +76,7 @@ const AdminSettings = () => {
 			const cimoOptions = data.cimo_options || {}
 			const fetchedSettings = {
 				// Image Optimization settings
-				imageOutputFormat: cimoOptions.image_output_format || 'webp',
+				imageOutputFormat: buildType === 'free' ? 'webp' : cimoOptions.image_output_format || 'webp',
 				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
 				maxImageDimension: cimoOptions.max_image_dimension || '',
 				disableWpScaling: cimoOptions.disable_wp_scaling !== undefined ? cimoOptions.disable_wp_scaling : 1,
@@ -430,13 +430,38 @@ const AdminSettings = () => {
 								__next40pxDefaultSize
 								label={ __( 'Image Output Format', 'cimo-image-optimizer' ) }
 								selected={ settings.imageOutputFormat || 'webp' }
-								onChange={ value => handleInputChange( 'imageOutputFormat', value ) }
+								onChange={ value => {
+									if ( buildType === 'free' && value === 'avif' ) {
+										return
+									}
+									handleInputChange( 'imageOutputFormat', value )
+								} }
 								isBlock
 								options={ [
-									{ label: 'WebP', value: 'webp' },
-									{ label: 'AVIF', value: 'avif' },
+									{
+										label: 'WebP',
+										value: 'webp',
+									},
+									{
+										label: (
+											<div className="cimo-radio-option-label">
+												<span style={ buildType === 'free' ? { opacity: 0.5, pointerEvents: 'none' } : null }>
+													{ __( 'AVIF', 'cimo-image-optimizer' ) }
+												</span>
+												{ buildType === 'free' && (
+													<span
+														className="cimo-premium-feature-label"
+													>
+														<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+														{ __( 'Premium', 'cimo-image-optimizer' ) }
+													</span>
+												) }
+											</div>
+										),
+										value: 'avif',
+									},
 								] }
-								help={ __( 'Set the resulting format of the optimized files.', 'cimo-image-optimizer' ) }
+								help={ __( 'Set the resulting format of the optimized files. If AVIF is not supported, it will fallback to WebP.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
 
@@ -954,6 +979,15 @@ const AdminSettings = () => {
 							</span>
 							<span>
 								{ __( 'Optimize SVG files on upload', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* AVIF Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-fast-forward-icon lucide-fast-forward"><path d="M12 6a2 2 0 0 1 3.414-1.414l6 6a2 2 0 0 1 0 2.828l-6 6A2 2 0 0 1 12 18z" /><path d="M2 6a2 2 0 0 1 3.414-1.414l6 6a2 2 0 0 1 0 2.828l-6 6A2 2 0 0 1 2 18z" /></svg>
+							</span>
+							<span>
+								{ __( 'Support for AVIF format', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
 						<hr />

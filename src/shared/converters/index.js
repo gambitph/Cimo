@@ -39,18 +39,30 @@ export const getFileConverter = async _file => {
 	}
 
 	if ( file.type.startsWith( 'image/' ) ) {
-		const imageOutputFormat = window.cimoSettings?.imageOutputFormat || 'webp'
-		// If the browser doesn't support set output format, then we can't convert it.
-		if ( ! await isFormatSupported( imageOutputFormat ) ) {
+		const settings = window.cimoSettings ?? {}
+
+		// If in free version, immediately fallback to webp
+		let outputFormat = ! settings.isPremium ? 'webp' : settings.imageOutputFormat || 'webp'
+		let isSupported = await isFormatSupported( outputFormat )
+
+		// If format set by the user is avif, but the browser does not support it
+		// fallback to webp
+		if ( outputFormat === 'avif' && ! isSupported ) {
+			outputFormat = 'webp'
+			isSupported = await isFormatSupported( outputFormat )
+		}
+
+		// If the browser doesn't support set output format, or the initial mime type
+		// is not supported, then we can't convert it.
+		if ( ! isSupported || ! ImageConverter.supportsMimeType( file.type ) ) {
 			return new NullConverter( file )
 		}
-		if ( ImageConverter.supportsMimeType( file.type ) ) {
-			return new ImageConverter( file, {
-				format: imageOutputFormat,
-				quality: window.cimoSettings?.webpQuality || 0.8,
-				maxDimension: window.cimoSettings?.maxImageDimension || 0,
-			} )
-		}
+
+		return new ImageConverter( file, {
+			format: outputFormat,
+			quality: settings.webpQuality ?? 0.8,
+			maxDimension: settings.maxImageDimension ?? 0,
+		} )
 	}
 
 	return applyFilters( 'cimo.getFileConverter', null, file ) || ( new NullConverter( file ) )

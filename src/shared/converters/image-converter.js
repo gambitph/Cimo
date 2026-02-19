@@ -201,10 +201,9 @@ class ImageConverter extends Converter {
 				}
 				const updatedBlob = await applyFiltersAsync(
 					'cimo.convertImage.intercept',
-					fileItem.file,
+					null,
 					outputFormat,
 					payload
-
 				)
 
 				if ( updatedBlob instanceof Blob ) {
