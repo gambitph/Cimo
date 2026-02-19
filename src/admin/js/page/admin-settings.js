@@ -35,6 +35,10 @@ const AdminSettings = () => {
 		// Audio Optimization settings
 		audioOptimizationEnabled: 1,
 		audioQuality: 128,
+
+		// SVG Optimization settings
+		svgUpload: 0,
+		svgOptimizationEnabled: 1,
 	} )
 	const [ imageSizes, setImageSizes ] = useState( [] )
 	const [ isSaving, setIsSaving ] = useState( false )
@@ -91,6 +95,10 @@ const AdminSettings = () => {
 				// Audio Optimization settings
 				audioOptimizationEnabled: cimoOptions.audio_optimization_enabled !== undefined ? cimoOptions.audio_optimization_enabled : 1,
 				audioQuality: cimoOptions.audio_quality !== undefined ? cimoOptions.audio_quality : 128,
+
+				// SVG Optimization settings
+				svgUpload: cimoOptions.svg_upload !== undefined ? cimoOptions.svg_upload : 0,
+				svgOptimizationEnabled: cimoOptions.svg_optimization_enabled !== undefined ? cimoOptions.svg_optimization_enabled : 1,
 			}
 			setSettings( fetchedSettings )
 			setHasUnsavedChanges( false )
@@ -198,6 +206,16 @@ const AdminSettings = () => {
 		} )
 	}
 
+	const applySVGDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				svgUpload: 0,
+				svgOptimizationEnabled: 1,
+			}
+		} )
+	}
+
 	const handleDismissRating = useCallback( async () => {
 		setIsRatingDismissed( true )
 
@@ -249,6 +267,10 @@ const AdminSettings = () => {
 						// Audio Optimization settings
 						audio_optimization_enabled: settings.audioOptimizationEnabled,
 						audio_quality: settings.audioQuality || 0,
+
+						// SVG Optimization settings
+						svg_upload: settings.svgUpload,
+						svg_optimization_enabled: settings.svgOptimizationEnabled,
 					},
 				},
 			} )
@@ -766,6 +788,63 @@ const AdminSettings = () => {
 							</Button>
 						</> }
 					</div>
+
+					{ /* SVG Optimization Settings */ }
+					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-image-icon lucide-file-image"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><circle cx="10" cy="12" r="2" /><path d="m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22" /></svg>
+								</span>
+								{ __( 'SVG Optimization Settings', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Upgrade to Premium to compress and optimize SVG files on upload', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={ __( 'Enable SVG uploads', 'cimo-image-optimizer' ) }
+									checked={ settings.svgUpload === 1 }
+									onChange={ checked => handleInputChange( 'svgUpload', checked ? 1 : 0 ) }
+									help={ __( 'Allow SVG files to be uploaded in the media library. WordPress has this option disabled by default', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+
+							{ settings.svgUpload === 1 && <>
+								<div className="cimo-setting-field">
+									<ToggleControl
+										__nextHasNoMarginBottom
+										label={ __( 'Enable SVG Optimization', 'cimo-image-optimizer' ) }
+										checked={ settings.svgOptimizationEnabled === 1 }
+										onChange={ checked => handleInputChange( 'svgOptimizationEnabled', checked ? 1 : 0 ) }
+										help={ __( 'Turn this option off to upload SVG files without optimizing them.', 'cimo-image-optimizer' ) }
+									/>
+								</div>
+							</> }
+
+							<Button
+								variant="tertiary"
+								className="cimo-reset-button"
+								onClick={ applySVGDefaultSettings }
+							>
+								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+							</Button>
+						</> }
+					</div>
 				</div>
 
 				{ /* Submit Button */ }
@@ -812,6 +891,25 @@ const AdminSettings = () => {
 					<ul className="cimo-premium-features-list">
 						<li>
 							<span className="cimo-premium-icon">
+								{ /* HEIC Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
+							</span>
+							<span>
+								{ __( 'Support for HEIC image format', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* Lightning Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+							</span>
+							<span>
+								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<hr />
+						<li>
+							<span className="cimo-premium-icon">
 								{ /* Video Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-video h-3 w-3 text-purple-600" data-lov-id="src/components/WordPressAdmin.tsx:310:20" data-lov-name="Video" data-component-path="src/components/WordPressAdmin.tsx" data-component-line="310" data-component-file="WordPressAdmin.tsx" data-component-name="Video" data-component-content="%7B%22className%22%3A%22h-3%20w-3%20text-purple-600%22%7D"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg>
 							</span>
@@ -830,13 +928,14 @@ const AdminSettings = () => {
 						</li>
 						<li>
 							<span className="cimo-premium-icon">
-								{ /* Lightning Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+								{ /* SVG Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-code-icon lucide-file-code"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 12.5 8 15l2 2.5" /><path d="m14 12.5 2 2.5-2 2.5" /></svg>
 							</span>
 							<span>
-								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
+								{ __( 'Optimize SVG files on upload', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
+						<hr />
 						<li>
 							<span className="cimo-premium-icon">
 								{ /* Unlimited Icon */ }

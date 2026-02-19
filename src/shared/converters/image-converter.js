@@ -1,4 +1,5 @@
 import { Converter } from './converter-abstract'
+import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
 
 // Supported output formats
 const supportedFormats = [
@@ -14,12 +15,12 @@ const supportedFormats = [
 class ImageConverter extends Converter {
 	static get mimeTypes() {
 		// Accept all images supported by most browsers for conversion.
-		return [
+		return applyFilters( 'cimo.imageConverter.mimeTypes', [
 			'image/jpeg',
 			'image/png',
 			'image/webp',
 			'image/jpg',
-		]
+		] )
 	}
 
 	static get showProgress() {
@@ -126,6 +127,12 @@ class ImageConverter extends Converter {
 		}
 		if ( typeof maxDimension === 'string' ) {
 			maxDimension = parseFloat( maxDimension )
+		}
+
+		// Allow preprocessing of the image before the conversion
+		const updatedFile = await applyFiltersAsync( 'cimo.convertImage.prepare', fileItem.file, outputFormat, options )
+		if ( updatedFile ) {
+			fileItem.file = updatedFile
 		}
 
 		return new Promise( ( resolve, reject ) => {
