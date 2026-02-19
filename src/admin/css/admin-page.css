@@ -40,6 +40,7 @@
 
 .cimo-settings-section {
 	gap: 0;
+	order: 2;
 
 	.notice {
 		margin: 1.5em 0 0;
@@ -263,12 +264,31 @@
 	margin-right: 4px;
 }
 
-.cimo-save-button, .cimo-rating-buttons {
+.cimo-button, .cimo-save-button, .cimo-rating-buttons, .cimo-recommended-button {
+	gap: 8px !important;
 	border-radius: 6px;
-	--wp-components-color-accent: #31BF43;
-    --wp-components-color-accent-darker-10: #249433;
-    --wp-components-color-accent-darker-20: #196a24;
+	
+	svg {
+		fill: none;
+		width: 16px;
+		height: 16px;
+	}
 }
+
+.cimo-button:not(.is-secondary), .cimo-save-button, .cimo-rating-buttons {
+	--wp-components-color-accent: #31BF43;
+	--wp-components-color-accent-darker-10: #249433;
+	--wp-components-color-accent-darker-20: #196a24;
+}
+
+.cimo-button[disabled] {
+	--wp-components-color-accent: #aaa;
+    --wp-components-color-accent-darker-10: #bbb;
+    --wp-components-color-accent-darker-20: #ccc;
+	opacity: 0.5;
+	color: #222 !important; /* Ensure text remains visible */
+}
+
 
 .cimo-rating-buttons {
 	display: flex;
@@ -483,8 +503,60 @@
     gap: 8px;
     align-items: center;
 	box-shadow: 0 0 30px #35bd4738;
+	order: 0;
 
 	svg {
 		color: #259f35;
 	}
+}
+
+.cimo-is-premium .cimo-settings-bulk-optimization {
+	order: 1;
+}
+
+@keyframes cimo-bulk-optimizer-blink {
+
+	0%, 100% { opacity: 1; }
+
+	50% { opacity: 0.4; }
+}
+
+.cimo-bulk-optimizer-progress-bar {
+	height: 10px !important;
+    width: 100% !important;
+
+	> div {
+		background-color: #31BF43;
+	}
+}
+
+.cimo-bulk-optimizer-progress-bar.is-loading {
+	animation: cimo-bulk-optimizer-blink 1.5s ease-in-out infinite;
+}
+
+.cimo-bulk-optimizer-progress-bar-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.cimo-bulk-optimizer-progress-bar-text {
+	display: flex;
+    justify-content: space-between;
+}
+
+.cimo-bulk-optimizer-skipped-icon {
+	margin-inline-end: 6px;
+
+	svg {
+		width: 12px;
+		height: 12px;
+		margin-top: 2px;
+	}
+}
+
+.cimo-bulk-optimizer-button-container {
+	margin-top: 20px;
+	display: flex;
+	gap: 16px;
 }

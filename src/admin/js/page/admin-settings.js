@@ -1,5 +1,5 @@
 import {
-	useState, useEffect, useCallback,
+	useState, useEffect, useCallback, Fragment,
 } from '@wordpress/element'
 import {
 	Button, RangeControl, ToggleControl, TextControl,
@@ -12,6 +12,7 @@ import { __, sprintf } from '@wordpress/i18n'
 import cimoLogo from './assets/logo-long.webp'
 
 const buildType = applyFilters( 'cimo.admin.settings.buildType', 'free' )
+const BulkOptimizationComponent = applyFilters( 'cimo.admin.settings.bulkOptimizationComponent', Fragment )
 
 const AdminSettings = () => {
 	const [ settings, setSettings ] = useState( {
@@ -297,7 +298,7 @@ const AdminSettings = () => {
 	}
 
 	return (
-		<div className="cimo-admin-settings-wrap">
+		<div className={ 'cimo-admin-settings-wrap' + ( window.cimoAdmin?.isPremium ? ' cimo-is-premium' : '' ) }>
 			<div className="cimo-header">
 				<img className="cimo-logo" src={ cimoLogo } alt={ __( 'Cimo Logo', 'cimo-image-optimizer' ) } height="35" />
 
@@ -414,6 +415,8 @@ const AdminSettings = () => {
 							<Button
 								variant="secondary"
 								onClick={ applyImageRecommendedSettings }
+								className="cimo-recommended-button"
+								__next40pxDefaultSize
 							>
 								{ __( 'Recommended', 'cimo-image-optimizer' ) }
 							</Button>
@@ -506,6 +509,36 @@ const AdminSettings = () => {
 						>
 							{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
 						</Button>
+					</div>
+
+					{ /* Bulk Optimization */ }
+
+					<div className="cimo-settings-section cimo-settings-bulk-optimization">
+						<div className="cimo-settings-header">
+							<h2 id="bulk-optimization">
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-images-icon lucide-images"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /><circle cx="13" cy="7" r="1" fill="currentColor" /><rect x="8" y="2" width="14" height="14" rx="2" /></svg>
+								</span>
+								{ __( 'Bulk Image Optimization', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Bulk optimize existing media in your Media Library.', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<BulkOptimizationComponent />
+						</> }
 					</div>
 
 					{ /* Low Quality Image Placeholder */ }
@@ -623,6 +656,8 @@ const AdminSettings = () => {
 								<Button
 									variant="secondary"
 									onClick={ applyVideoRecommendedSettings }
+									className="cimo-recommended-button"
+									__next40pxDefaultSize
 								>
 									{ __( 'Recommended', 'cimo-image-optimizer' ) }
 								</Button>
@@ -889,6 +924,15 @@ const AdminSettings = () => {
 						{ __( 'Optimize more things and get premium support for a faster, happier site.', 'cimo-image-optimizer' ) }
 					</p>
 					<ul className="cimo-premium-features-list">
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* Images Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-images-icon lucide-images"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /><circle cx="13" cy="7" r="1" fill="currentColor" /><rect x="8" y="2" width="14" height="14" rx="2" /></svg>
+							</span>
+							<span>
+								{ __( 'Bulk Optimize Existing Media', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
 						<li>
 							<span className="cimo-premium-icon">
 								{ /* HEIC Icon */ }
