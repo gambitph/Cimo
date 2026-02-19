@@ -43,7 +43,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 		}
 
 		public function add_admin_action_links( $links ) {
-			$settings_link = '<a href="' . admin_url( 'admin.php?page=' . CIMO_SETTINGS_SLUG )  . '">' . __( 'Settings', 'cimo-image-optimizer' ) . '</a>';
+			$settings_link = '<a href="' . admin_url( 'options-general.php?page=' . CIMO_SETTINGS_SLUG )  . '">' . __( 'Settings', 'cimo-image-optimizer' ) . '</a>';
 			array_unshift( $links, $settings_link );
 			return $links;
 		}
