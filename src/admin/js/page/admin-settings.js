@@ -222,6 +222,15 @@ const AdminSettings = () => {
 		} )
 	}
 
+	const applyStealthModeDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				stealthModeEnabled: 0,
+			}
+		} )
+	}
+
 	const handleDismissRating = useCallback( async () => {
 		setIsRatingDismissed( true )
 
@@ -890,6 +899,13 @@ const AdminSettings = () => {
 									help={ __( 'When Stealth Mode is enabled, Cimo will perform media optimization as it normally would, however, all Cimo branding and optimization stats will not be shown in the UI and dashboard. This settings page will not appear in the admin sidebar, you can access it by clicking the “Settings” link under Cimo in the plugins page.', 'cimo-image-optimizer' ) }
 								/>
 							</div>
+							<Button
+								variant="tertiary"
+								className="cimo-reset-button"
+								onClick={ applyStealthModeDefaultSettings }
+							>
+								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+							</Button>
 						</> }
 					</div>
 				</div>
