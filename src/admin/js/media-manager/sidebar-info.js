@@ -167,7 +167,7 @@ function injectCimoMetadata( {
 domReady( () => {
 	const settings = window.cimoSettings || {}
 	const isPremium = !! window.cimoSettings?.isPremium
-	const isStealthMode = String( settings?.stealthModeEnabled ?? '1' ) !== '0'
+	const isStealthMode = String( settings?.stealthModeEnabled ?? '0' ) !== '0'
 
 	// Do not add Cimo stats if stealth mode is enabled.
 	if ( isPremium && isStealthMode ) {
