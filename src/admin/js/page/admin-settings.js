@@ -477,7 +477,7 @@ const AdminSettings = () => {
 								__next40pxDefaultSize
 								allowReset
 								initialPosition={ 80 }
-								help={ __( 'Set the quality / compression level for generated .webp images. Default is 80%. Higher values mean better quality and larger file size; lower values reduce file size with more compression but lower quality.', 'cimo-image-optimizer' ) }
+								help={ __( 'Set the quality / compression level for generated images. Default is 80%. Higher values mean better quality and larger file size; lower values reduce file size with more compression but lower quality.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
 						{ /* Maximum Image Dimension */ }
