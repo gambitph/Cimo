@@ -214,21 +214,30 @@ class ImageConverter extends Converter {
 
 	/**
 	 * Convert an image file to the desired format and options.
+	 * @param {boolean} [force=false] - Force conversion even if the file is already in the desired format.
 	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving to the converted file and optional metadata.
 	 */
-	async convert() {
+	async convert( force = false ) {
 		const file = this.file
 		const format = this.options?.format || 'webp'
 
 		// Not an image; return original file unchanged.
 		if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
-			return { file, metadata: null }
+			return {
+				file,
+				metadata: null,
+				reason: 'not-an-image',
+			}
 		}
 
 		// Skip if already the desired format
 		const formatInfo = supportedFormats.find( f => f.value === format )
-		if ( formatInfo && file.type === formatInfo.mimeType ) {
-			return { file, metadata: null }
+		if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
+			return {
+				file,
+				metadata: null,
+				reason: 'same-format',
+			}
 		}
 
 		// Check if the browser supports the desired output format
@@ -237,7 +246,11 @@ class ImageConverter extends Converter {
 			// If not supported, skip conversion and return the original file
 			// eslint-disable-next-line no-console
 			console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )
-			return { file, metadata: null }
+			return {
+				file,
+				metadata: null,
+				reason: 'format-not-supported',
+			}
 		}
 
 		// Detect if the image is an animated GIF, if so just return the file unchanged
@@ -257,7 +270,11 @@ class ImageConverter extends Converter {
 					gceCount++
 					// If more than one GCE block, it's animated
 					if ( gceCount > 1 ) {
-						return { file, metadata: null }
+						return {
+							file,
+							metadata: null,
+							reason: 'animated-gif',
+						}
 					}
 				}
 			}
@@ -277,7 +294,12 @@ class ImageConverter extends Converter {
 
 			// If the resulting image is bigger than the input, return the original file unchanged.
 			if ( convertedBlob.size > file.size ) {
-				throw new Error( `Resulting image is bigger than the input, skipping conversion.` )
+				return {
+					file,
+					metadata: null,
+					reason: 'resulting-image-bigger-than-input',
+					error: `Resulting image is bigger than the input, skipping conversion.`,
+				}
 			}
 
 			// Get the file extension for the new format
@@ -306,8 +328,17 @@ class ImageConverter extends Converter {
 
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
-			throw new Error( `Failed to convert image: ${ error.message }` )
+			return {
+				file,
+				metadata: null,
+				reason: 'failed-to-convert',
+				error: `Failed to convert image: ${ error.message }`,
+			}
 		}
+	}
+
+	async optimize() {
+		return this.convert( true )
 	}
 }
 

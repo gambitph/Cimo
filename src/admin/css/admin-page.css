@@ -1,3 +1,6 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable selector-class-pattern */
+
 /* Cimo Admin Settings Styles */
 
 .cimo-admin-settings-wrap {
@@ -7,6 +10,19 @@
     grid-template-columns: minmax(0, 750px) 300px 1fr;
     gap: 24px;
 	align-items: flex-start;
+}
+
+.cimo-admin-settings-wrap:has(.cimo-bulk-optimizer-image-list) {
+    grid-template-columns: minmax(0, 900px) 300px 1fr;
+}
+
+.cimo-bulk-optimizer-image-list-tabs {
+	min-width: auto;
+	white-space: pre;
+
+	> * {
+		flex: 0 0 auto !important;
+	}
 }
 
 .cimo-loading {
@@ -383,12 +399,26 @@
 }
 
 .cimo-image-sizes-list {
-	margin-top: 16px;
+	margin-top: 8px;
+	margin-left: 40px;
+}
+
+.cimo-image-sizes-list, .cimo-bulk-optimizer-image-list {
     padding: 24px;
     background: #fafafa;
-    border-radius: 16px;
+    border-radius: 8px;
     border: 1px solid #e2e1e1;
-    margin-left: 40px;
+	margin-top: 20px;
+}
+
+.cimo-bulk-optimizer-image-list {
+	padding: 0;
+
+	button svg {
+		fill: none;
+		width: 16px;
+		height: 16px;
+	}
 }
 
 .cimo-image-sizes-heading {
@@ -545,6 +575,18 @@
     justify-content: space-between;
 }
 
+.cimo-bulk-optimizer-skipped-label {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	opacity: 0.9;
+	transition: opacity 0.15s ease;
+}
+
+.cimo-bulk-optimizer-skipped-label:hover {
+	opacity: 1;
+}
+
 .cimo-bulk-optimizer-skipped-icon {
 	margin-inline-end: 6px;
 
@@ -559,4 +601,92 @@
 	margin-top: 20px;
 	display: flex;
 	gap: 16px;
+}
+
+.cimo-bulk-optimizer-image-list-header {
+	display: flex;
+	gap: 8px;
+	padding: 8px;
+
+	.components-base-control__field {
+		margin: 0;
+	}
+}
+
+.cimo-bulk-optimizer-image-list-toolbar {
+	flex: 1;
+}
+
+/* Image list */
+.cimo-bulk-optimizer-table {
+	width: 100%;
+	border-spacing: 0;
+    background: #f3f4f64d !important;
+	color: #65758b;
+
+	th,
+	td {
+		border: 0;
+		border-spacing: 0;
+		padding: 8px 16px;
+		border-top: 1px solid #e5e7eb;
+		white-space: nowrap;
+
+		&::before {
+			content: '\200E';
+		}
+	}
+
+	td {
+		background: #f8f8f94d !important;
+
+		&:first-child {
+			color: #0f1729;
+
+			max-width: 400px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			direction: rtl;
+			text-align: left;
+		}
+	}
+
+	thead {
+
+		th:first-child {
+			text-align: start;
+		}
+
+		th:last-child {
+			text-align: end;
+		}
+	}
+
+	.cimo-bulk-optimizer-cell-action {
+		text-align: end;
+		gap: 8px;
+		display: flex;
+		justify-content: end;
+	}
+}
+
+.cimo-bulk-optimizer-image-list-footer {
+	display: flex;
+    justify-content: space-between;
+    padding: 16px;
+	align-items: center;
+	border-top: 1px solid #e5e7eb;
+	background: #f3f4f633;
+}
+
+.cimo-bulk-optimizer-image-list-pagination {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+	
+	.components-button svg {
+		fill: none;
+		width: 16px;
+		height: 16px;
+	}
 }

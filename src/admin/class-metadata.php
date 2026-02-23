@@ -285,6 +285,11 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 		 * @return array The updated metadata.
 		 */
 		public function preserve_cimo_metadata( $metadata, $attachment_id ) {
+			// If there's a metadata for cimo incoming, then normal operation.
+			if ( isset( $metadata['cimo'] ) ) {
+				return $metadata;
+			}
+
 			// Get the existing Cimo metadata from the attachment metadata.
 			$existing_metadata = wp_get_attachment_metadata( $attachment_id );
 			if ( $existing_metadata && isset( $existing_metadata['cimo'] ) ) {
