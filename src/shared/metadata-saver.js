@@ -11,12 +11,6 @@
  * @param {Array<Object>} _metadataArray - Array of metadata objects (each must have a filename key)
  */
 export const saveMetadata = _metadataArray => {
-	const isFrontend = window.cimoSettings && window.cimoSettings.isFrontend
-
-	if ( isFrontend ) {
-		return Promise.resolve()
-	}
-
 	if ( ! Array.isArray( _metadataArray ) ) {
 		return Promise.resolve()
 	}
