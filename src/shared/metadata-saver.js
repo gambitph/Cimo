@@ -11,6 +11,12 @@
  * @param {Array<Object>} _metadataArray - Array of metadata objects (each must have a filename key)
  */
 export const saveMetadata = _metadataArray => {
+	const isFrontend = window.cimoSettings && window.cimoSettings.isFrontend
+
+	if ( isFrontend ) {
+		return Promise.resolve()
+	}
+
 	if ( ! Array.isArray( _metadataArray ) ) {
 		return Promise.resolve()
 	}
@@ -50,7 +56,11 @@ export const saveMetadata = _metadataArray => {
 			.then( response => {
 				if ( ! response.ok ) {
 					return response.json().then( err => {
-						throw new Error( err.message || response.statusText )
+						const newError = new Error( err.message || response.statusText )
+						newError.status = response.status
+						newError.code = err.code
+
+						throw newError
 					} )
 				}
 				return response.json()
@@ -65,6 +75,20 @@ export const saveMetadata = _metadataArray => {
 				resolve( data )
 			} )
 			.catch( error => {
+				const isUnauthorized = error.status === 401 ||
+					error.status === 403 ||
+					error.code === 'rest_cannot_create' ||
+					error.code === 'rest_forbidden'
+
+				if ( isUnauthorized ) {
+					// eslint-disable-next-line no-console
+					console.warn(
+						`Skipping metadata save — user not authorized.`
+					)
+					resolve()
+					return
+				}
+
 				// eslint-disable-next-line no-console
 				console.error(
 					`Failed to save metadata for filenames: [${ metadataArray.map( m => m.filename ).join( ', ' ) }]:`,
