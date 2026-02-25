@@ -11,6 +11,13 @@
  * @param {Array<Object>} _metadataArray - Array of metadata objects (each must have a filename key)
  */
 export const saveMetadata = _metadataArray => {
+	const { isFrontend = false, isLoggedIn = false } = window.cimoSettings ?? {}
+
+	// If we're on the frontend and the user is not logged in, we can't save metadata, so we just return.
+	if ( isFrontend && ! isLoggedIn ) {
+		return Promise.resolve()
+	}
+
 	if ( ! Array.isArray( _metadataArray ) ) {
 		return Promise.resolve()
 	}
@@ -74,11 +81,9 @@ export const saveMetadata = _metadataArray => {
 					error.code === 'rest_cannot_create' ||
 					error.code === 'rest_forbidden'
 
+				// If the error is due to unauthorized access, we resolve the promise without rejecting,
+				// since this is not a failure and we don't want to spam users.
 				if ( isUnauthorized ) {
-					// eslint-disable-next-line no-console
-					console.warn(
-						`Skipping metadata save — user not authorized.`
-					)
 					resolve()
 					return
 				}
