@@ -41,6 +41,8 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
     			add_action( 'ninja_forms_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ]);
 				// Contact Form 7
 				add_action( 'wpcf7_contact_form', [ $this, 'enqueue_cimo_assets' ] );
+				// JetFormBuilder
+				add_action( 'jet-form-builder/before-start-form-row', [ $this, 'enqueue_cimo_assets' ] );
 			}	
 		}
 
@@ -100,6 +102,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'restUrl' => rest_url( 'cimo/v1/' ),
 					'nonce'   => wp_create_nonce( 'wp_rest' ),
 					'isFrontend' => ! is_admin(),
+					'isLoggedIn' => is_user_logged_in(),
 					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
 					'maxImageDimension' => ! empty( $settings['max_image_dimension'] ) ? (int) $settings['max_image_dimension'] : 0,
 					'videoOptimizationEnabled' => isset( $settings['video_optimization_enabled'] ) ? (int) $settings['video_optimization_enabled'] : 1,
