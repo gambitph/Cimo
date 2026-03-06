@@ -125,6 +125,7 @@ class ImageConverter extends Converter {
 				quality = 0.8
 			}
 		}
+
 		if ( typeof maxDimension === 'string' ) {
 			maxDimension = parseFloat( maxDimension )
 		}
@@ -178,7 +179,7 @@ class ImageConverter extends Converter {
 
 				const format = supportedFormats.find( f => f.value === outputFormat )
 				// Only use quality for lossy formats
-				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
+				// const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
 
 				canvas.toBlob( function( blob ) {
 					// Clean up resources
@@ -195,7 +196,7 @@ class ImageConverter extends Converter {
 					} else {
 						reject( new Error( 'Failed to convert image' ) )
 					}
-				}, format.mimeType, q )
+				}, format.mimeType, quality ) // DEV NOTE: quality is ignored for PNG
 			}
 
 			img.onerror = () => {
@@ -215,11 +216,19 @@ class ImageConverter extends Converter {
 	/**
 	 * Convert an image file to the desired format and options.
 	 * @param {boolean} [force=false] - Force conversion even if the file is already in the desired format.
+	 * @param {Object}  [options]     - Options for the conversion.
 	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving to the converted file and optional metadata.
 	 */
-	async convert( force = false ) {
+	async convert( force = false, options = {} ) {
 		const file = this.file
-		const format = this.options?.format || 'webp'
+		const {
+			quality = this.options?.quality || 0.8,
+			forceSize = this.options?.forceSize || false,
+		} = options
+
+		let format = options.format || this.options?.format || ''
+		format = ( format.startsWith( 'image/' ) ? supportedFormats.find( f => f.mimeType === format )?.value : format ) ||
+			'webp'
 
 		// Not an image; return original file unchanged.
 		if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
@@ -287,13 +296,13 @@ class ImageConverter extends Converter {
 		try {
 			const start = performance.now()
 			const convertedBlob = await this.convertImage( fileItem, format, {
-				quality: this.options?.quality || 0.8,
+				quality,
 				maxDimension: this.options?.maxDimension || 0,
 			} )
 			const end = performance.now()
 
 			// If the resulting image is bigger than the input, return the original file unchanged.
-			if ( convertedBlob.size > file.size ) {
+			if ( ! forceSize && convertedBlob.size > file.size ) {
 				return {
 					file,
 					metadata: null,
@@ -338,7 +347,7 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		return this.convert( true )
+		return await applyFiltersAsync( 'cimo.imageConverter.optimize', this )
 	}
 }
 

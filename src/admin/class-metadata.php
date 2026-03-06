@@ -159,6 +159,9 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 				}
 			}
 
+			// Add our metadata key to note that this was optimized during upload.
+			$sanitized_metadata['optimized_during_upload'] = true;
+
 			// Save to a transient queue for metadata waiting for attachment creation
 			$transient_key = 'cimo_metadata_queue';
 			$queue = get_transient( $transient_key );

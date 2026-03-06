@@ -41,6 +41,7 @@
 		"heic2any": "^0.0.4",
 		"mediabunny": "^1.25.0",
 		"mime": "^4.1.0",
+		"resemblejs": "^5.0.0",
 		"svgo": "^4.0.0"
 	}
 }

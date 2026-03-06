@@ -534,9 +534,17 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Bulk optimize existing media in your Media Library.', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/788-bulk-optimization"
 							/>
 						) }
 						{ buildType === 'premium' && <>
+							<p>
+								{ __( 'Bulk optimize existing media in your Media Library in one go.', 'cimo-image-optimizer' ) }
+								&nbsp;
+								<a href="https://docs.wpcimo.com/article/788-bulk-optimization" target="_blank" rel="noopener noreferrer">
+									{ __( 'Learn more', 'cimo-image-optimizer' ) }
+								</a>
+							</p>
 							<BulkOptimizationComponent />
 						</> }
 					</div>
@@ -564,6 +572,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Show a low-quality preview while the image loads, then fade in the final image.', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/777-low-quality-image-placeholder"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -667,6 +676,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize video files on upload', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/775-video-optimization"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -785,6 +795,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize audio files on upload', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/776-audio-optimization"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -846,6 +857,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize SVG files on upload', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/780-svg-support"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -1026,15 +1038,32 @@ const PremiumPlaceholder = props => {
 	return (
 		<div className="cimo-settings-premium-placeholder">
 			{ props.label }
-			<Button
-				variant="secondary"
-				className="cimo-premium-cta"
-				href="https://wpcimo.com/pricing"
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				{ __( 'Upgrade to Premium', 'cimo-image-optimizer' ) }
-			</Button>
+			<div style={ {
+				display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px',
+			} }>
+				<Button
+					variant="secondary"
+					className="cimo-premium-cta cimo-premium-cta-upgrade"
+					href="https://wpcimo.com/pricing"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{ __( 'Upgrade to Premium', 'cimo-image-optimizer' ) }
+				</Button>
+				{ props.learnMoreUrl && (
+					<Button
+						variant="tertiary"
+						className="cimo-premium-cta cimo-premium-cta-learn-more"
+						href={ props.learnMoreUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						icon={ <>&nbsp;→&nbsp;</> }
+						iconPosition="right"
+					>
+						{ __( 'Learn More', 'cimo-image-optimizer' ) }
+					</Button>
+				) }
+			</div>
 		</div>
 	)
 }
