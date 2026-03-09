@@ -37,6 +37,7 @@
 	},
 	"dependencies": {
 		"@mediabunny/mp3-encoder": "^1.25.0",
+		"browser-image-compression": "^2.0.2",
 		"classnames": "^2.5.1",
 		"heic2any": "^0.0.4",
 		"mediabunny": "^1.25.0",

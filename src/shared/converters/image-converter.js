@@ -226,8 +226,8 @@ class ImageConverter extends Converter {
 			forceSize = this.options?.forceSize || false,
 		} = options
 
-		let format = options.format || this.options?.format || ''
-		format = ( format.startsWith( 'image/' ) ? supportedFormats.find( f => f.mimeType === format )?.value : format ) ||
+		let formatTo = options.format || this.options?.format || ''
+		formatTo = ( formatTo.startsWith( 'image/' ) ? supportedFormats.find( f => f.mimeType === formatTo )?.value : formatTo ) ||
 			'webp'
 
 		// Not an image; return original file unchanged.
@@ -240,7 +240,7 @@ class ImageConverter extends Converter {
 		}
 
 		// Skip if already the desired format
-		const formatInfo = supportedFormats.find( f => f.value === format )
+		const formatInfo = supportedFormats.find( f => f.value === formatTo )
 		if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
 			return {
 				file,
@@ -254,7 +254,7 @@ class ImageConverter extends Converter {
 		if ( formatInfo && ! testCanvas.toDataURL( formatInfo.mimeType ).startsWith( `data:${ formatInfo.mimeType }` ) ) {
 			// If not supported, skip conversion and return the original file
 			// eslint-disable-next-line no-console
-			console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )
+			console.error( '[Cimo] ' + formatTo + ' is not supported by the browser, please use another modern browser' )
 			return {
 				file,
 				metadata: null,
@@ -295,10 +295,22 @@ class ImageConverter extends Converter {
 
 		try {
 			const start = performance.now()
-			const convertedBlob = await this.convertImage( fileItem, format, {
-				quality,
-				maxDimension: this.options?.maxDimension || 0,
-			} )
+
+			let convertedBlob
+			if ( formatTo === 'png' ) {
+				const { default: imageCompression } = await import( /* webpackChunkName: "browser-image-compression" */ 'browser-image-compression' )
+				convertedBlob = await imageCompression( fileItem.file, {
+					useWebWorker: true,
+					alwaysKeepResolution: true,
+					maxIteration: 5,
+					// initialQuality: quality, // Use default
+				} )
+			} else {
+				convertedBlob = await this.convertImage( fileItem, formatTo, {
+					quality,
+					maxDimension: this.options?.maxDimension || 0,
+				} )
+			}
 			const end = performance.now()
 
 			// If the resulting image is bigger than the input, return the original file unchanged.
@@ -307,12 +319,12 @@ class ImageConverter extends Converter {
 					file,
 					metadata: null,
 					reason: 'resulting-image-bigger-than-input',
-					error: `Resulting image is bigger than the input, skipping conversion.`,
+					error: `Resulting image is bigger than the input (input: ${ file.size } bytes, output: ${ convertedBlob.size } bytes), skipping conversion.`,
 				}
 			}
 
 			// Get the file extension for the new format
-			const extension = format === 'jpeg' ? 'jpg' : format
+			const extension = formatTo === 'jpeg' ? 'jpg' : formatTo
 			// Prepend a unique identified to the filename
 			// const prefix = Math.random().toString( 36 ).substring( 2, 10 )
 			const newName = file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
