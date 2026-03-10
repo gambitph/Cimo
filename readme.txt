@@ -206,6 +206,8 @@ Yes! The settings page includes a statistics dashboard showing:
 
 = 1.2.3 =
 
+* New: Added SVG Optimization (premium)
+* New: Added HEIC image format support (premium)
 * Fixed: Dropping files stopped working in some instances #32
 
 = 1.2.2 =
