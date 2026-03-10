@@ -204,6 +204,10 @@ Yes! The settings page includes a statistics dashboard showing:
 
 == Changelog ==
 
+= 1.2.3 =
+
+* Fixed: Dropping files stopped working in some instances #32
+
 = 1.2.2 =
 
 * Fixed: Uploading an image via Media > Add Media File doesn't show stats #4
