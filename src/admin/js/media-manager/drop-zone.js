@@ -95,7 +95,17 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 					hasError = true
 					// eslint-disable-next-line no-console
 					console.warn( error )
-					return { file: converter.file, metadata: null }
+
+					// Add the error name in the metadata for selected error for displaying
+					// as a note.
+					const metadata = error.isDisplayNote ? {
+						filename: converter.file.name,
+						errorName: error.name,
+					} : null
+
+					return {
+						file: converter.file, metadata,
+					}
 				}
 			} )
 		)

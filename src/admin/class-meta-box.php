@@ -85,6 +85,23 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 
 						$cimo = $metadata['cimo'];
 
+						$converted_format_raw = isset( $cimo['convertedFormat'] ) ? $cimo['convertedFormat'] : ( isset( $post->post_mime_type ) ? $post->post_mime_type : '' );
+						$converted_format = $converted_format_raw ? cimo_convert_mimetype_to_format( $converted_format_raw ) : '';
+						$media_type_label = cimo_get_media_type_label( $converted_format_raw );
+
+						if ( isset( $cimo['errorName'] ) ) {
+							echo '<div class="cimo-media-manager-metadata-title-container">';
+							echo '<h3 class="cimo-media-manager-metadata-title">' . sprintf( esc_html__( '%s Conversion Skipped', 'cimo-image-optimizer' ), esc_html( $media_type_label ) ) . '</h3>';
+							echo '</div>';
+
+							if ( $cimo['errorName'] === 'FileSizeExceededError' ) {
+								echo'<p>The WebP version of this image was larger than the original, so the original file was kept instead.</p>';
+								echo '<p>You can try lowering the image quality setting to generate a smaller WebP file.</p>';
+								echo '<p>Change the file type if needed.</p>';
+							}
+							return;
+						}
+
 						// Calculate optimization savings
 						$compression_savings = isset( $cimo['compressionSavings'] ) ? floatval( $cimo['compressionSavings'] ) : null;
 						$optimization_savings = $compression_savings !== null ? number_format( 100 - ( $compression_savings * 100 ), 2 ) : null;
@@ -96,9 +113,6 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						$original_size = cimo_format_filesize( $original_filesize );
 						$converted_size = cimo_format_filesize( $converted_filesize );
 
-						$converted_format_raw = isset( $cimo['convertedFormat'] ) ? $cimo['convertedFormat'] : ( isset( $post->post_mime_type ) ? $post->post_mime_type : '' );
-						$converted_format = $converted_format_raw ? cimo_convert_mimetype_to_format( $converted_format_raw ) : '';
-						$media_type_label = cimo_get_media_type_label( $converted_format_raw );
 						$converttime = isset( $cimo['conversionTime'] ) ? floatval( $cimo['conversionTime'] ) : null;
 						if ( $converttime !== null ) {
 							if ( $converttime < 1000 ) {

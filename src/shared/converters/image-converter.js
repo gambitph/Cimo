@@ -276,8 +276,11 @@ class ImageConverter extends Converter {
 			const end = performance.now()
 
 			// If the resulting image is bigger than the input, return the original file unchanged.
-			if ( convertedBlob.size > file.size ) {
-				throw new Error( `Resulting image is bigger than the input, skipping conversion.` )
+			if ( convertedBlob.size < file.size ) {
+				const error = new Error( 'Resulting image is bigger than the input, skipping conversion.' )
+				error.name = 'FileSizeExceededError'
+				error.isDisplayNote = true
+				throw error
 			}
 
 			// Get the file extension for the new format
@@ -306,7 +309,8 @@ class ImageConverter extends Converter {
 
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
-			throw new Error( `Failed to convert image: ${ error.message }` )
+			error.message = `Failed to convert image: ${ error.message }`
+			throw error
 		}
 	}
 }
