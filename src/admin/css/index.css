@@ -20,7 +20,13 @@
 		margin-top: -1px;
 		fill: #19af19;
 	}
+
+	svg.error {
+		fill: #b31515;
+	}
 }
+
+
 
 .cimo-media-manager-metadata ul {
 	list-style: none;

@@ -46,6 +46,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 								'convertedFilesize',
 								'conversionTime',
 								'compressionSavings',
+								'errorName'
 							];
 							if ( ! is_array( $value ) ) {
 								// translators: The %s is the parameter name.
@@ -85,6 +86,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 								'convertedFilesize',
 								'conversionTime',
 								'compressionSavings',
+								'errorName'
 							];
 							$sanitized = [];
 							if ( is_array( $value ) ) {
@@ -137,6 +139,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 				'convertedFilesize',
 				'conversionTime',
 				'compressionSavings',
+				'errorName'
 			];
 			$sanitized_metadata = [];
 			foreach ( $metadata_array as $item ) {
