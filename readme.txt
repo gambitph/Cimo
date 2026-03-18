@@ -2,9 +2,9 @@
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
 Requires at least: 6.7.4
-Tested up to: 6.9
+Tested up to: 6.9.1
 Requires PHP: 8.0
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -203,6 +203,12 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.2.3 =
+
+* New: Added SVG Optimization (premium)
+* New: Added HEIC image format support (premium)
+* Fixed: Dropping files stopped working in some instances #32
 
 = 1.2.2 =
 
