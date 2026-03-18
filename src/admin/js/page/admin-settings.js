@@ -896,7 +896,15 @@ const AdminSettings = () => {
 									label={ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
 									checked={ settings.stealthModeEnabled === 1 }
 									onChange={ checked => handleInputChange( 'stealthModeEnabled', checked ? 1 : 0 ) }
-									help={ __( 'When Stealth Mode is enabled, Cimo will perform media optimization as it normally would, however, all Cimo branding and optimization stats will not be shown in the UI and dashboard. This settings page will not appear in the admin sidebar, you can access it by clicking the “Settings” link under Cimo in the plugins page.', 'cimo-image-optimizer' ) }
+									help={
+										<>
+											{ __( 'When Stealth Mode is enabled, all Cimo branding and optimization stats will not be shown in the UI and dashboard. This settings page will not appear in the admin sidebar, you can access it by clicking the “Settings” link under Cimo in the plugins page. Stealth Mode will not affect how your media is optimized; everything continues to work as usual, just without any visual indicators of Cimo.', 'cimo-image-optimizer' ) }
+											&nbsp;
+											<a href="https://docs.wpcimo.com/article/782-stealth-mode" target="_blank" rel="noopener noreferrer">
+												{ __( 'Learn more', 'cimo-image-optimizer' ) }
+											</a>
+										</>
+									}
 								/>
 							</div>
 							<Button
