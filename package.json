@@ -36,6 +36,7 @@
 		"prettier": "^3.3.3"
 	},
 	"dependencies": {
+		"@jsquash/avif": "^2.1.1",
 		"@mediabunny/mp3-encoder": "^1.25.0",
 		"mediabunny": "^1.25.0",
 		"svgo": "^4.0.0",

@@ -1,4 +1,6 @@
 import { Converter } from './converter-abstract'
+import { isFormatSupported } from './util'
+
 import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
 
 // Supported output formats
@@ -6,6 +8,7 @@ const supportedFormats = [
 	{ value: 'webp', mimeType: 'image/webp' },
 	{ value: 'jpg', mimeType: 'image/jpeg' },
 	{ value: 'png', mimeType: 'image/png' },
+	{ value: 'avif', mimeType: 'image/avif' },
 ]
 
 /**
@@ -178,9 +181,10 @@ class ImageConverter extends Converter {
 
 				const format = supportedFormats.find( f => f.value === outputFormat )
 				// Only use quality for lossy formats
-				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
+				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' || outputFormat === 'avif' ) ? quality : undefined
 
-				canvas.toBlob( function( blob ) {
+				// Define a cleanup function to revoke object URLs and clear canvas resources
+				const cleanup = () => {
 					// Clean up resources
 					URL.revokeObjectURL( objectUrl )
 					objectUrl = null
@@ -189,6 +193,27 @@ class ImageConverter extends Converter {
 					ctx.clearRect( 0, 0, canvas.width, canvas.height )
 					canvas.width = 0
 					canvas.height = 0
+				}
+
+				// Allow intercepting the conversion with a custom converter
+				const payload = {
+					ctx, width, height, quality: q,
+				}
+				const updatedBlob = await applyFiltersAsync(
+					'cimo.convertImage.intercept',
+					null,
+					outputFormat,
+					payload
+				)
+
+				if ( updatedBlob instanceof Blob ) {
+					cleanup()
+					resolve( updatedBlob )
+					return
+				}
+
+				canvas.toBlob( function( blob ) {
+					cleanup()
 
 					if ( blob ) {
 						resolve( blob )
@@ -232,8 +257,7 @@ class ImageConverter extends Converter {
 		}
 
 		// Check if the browser supports the desired output format
-		const testCanvas = document.createElement( 'canvas' )
-		if ( formatInfo && ! testCanvas.toDataURL( formatInfo.mimeType ).startsWith( `data:${ formatInfo.mimeType }` ) ) {
+		if ( ! await isFormatSupported( format ) ) {
 			// If not supported, skip conversion and return the original file
 			// eslint-disable-next-line no-console
 			console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )

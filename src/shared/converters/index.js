@@ -1,6 +1,7 @@
 import { ImageConverter } from './image-converter'
 import { NullConverter } from './null-converter'
 import { applyFilters } from '@wordpress/hooks'
+import { isFormatSupported } from './util'
 
 /**
  * Get the file converter for the given file.
@@ -8,7 +9,7 @@ import { applyFilters } from '@wordpress/hooks'
  * @param {File} _file - The file to get the converter for.
  * @return {Converter} - The file converter.
  */
-export const getFileConverter = _file => {
+export const getFileConverter = async _file => {
 	let file = _file
 	// In some cases (e.g., when called from an iframe), the File object may come from a different window context,
 	// so instanceof File can fail even if it's a valid File. Instead, check for file-like shape.
@@ -38,17 +39,30 @@ export const getFileConverter = _file => {
 	}
 
 	if ( file.type.startsWith( 'image/' ) ) {
-		// If the browser doesn't support webp, then we can't convert it.
-		if ( ! isFormatSupported( 'webp' ) ) {
+		const settings = window.cimoSettings ?? {}
+
+		// If in free version, immediately fallback to webp
+		let outputFormat = ! settings.isPremium ? 'webp' : settings.imageOutputFormat || 'webp'
+		let isSupported = await isFormatSupported( outputFormat )
+
+		// If format set by the user is avif, but the browser does not support it
+		// fallback to webp
+		if ( outputFormat === 'avif' && ! isSupported ) {
+			outputFormat = 'webp'
+			isSupported = await isFormatSupported( outputFormat )
+		}
+
+		// If the browser doesn't support set output format, or the initial mime type
+		// is not supported, then we can't convert it.
+		if ( ! isSupported || ! ImageConverter.supportsMimeType( file.type ) ) {
 			return new NullConverter( file )
 		}
-		if ( ImageConverter.supportsMimeType( file.type ) ) {
-			return new ImageConverter( file, {
-				format: 'webp',
-				quality: window.cimoSettings?.webpQuality || 0.8,
-				maxDimension: window.cimoSettings?.maxImageDimension || 0,
-			} )
-		}
+
+		return new ImageConverter( file, {
+			format: outputFormat,
+			quality: settings.webpQuality ?? 0.8,
+			maxDimension: settings.maxImageDimension ?? 0,
+		} )
 	}
 
 	return applyFilters( 'cimo.getFileConverter', null, file ) || ( new NullConverter( file ) )
@@ -67,41 +81,3 @@ export function requiresFileConversion( converters ) {
 	return ! converters.every( converter => converter.constructor.name === 'NullConverter' )
 }
 
-/**
- * Check if a specific image format is supported by the browser
- *
- * @param {string} format - Format name ('webp', 'jpg', 'png', 'avif') or MIME type ('image/webp')
- * @return {boolean} - True if format is supported, false otherwise
- */
-function isFormatSupported( format ) {
-	if ( ! format || typeof format !== 'string' ) {
-		return false
-	}
-
-	// Map format names to MIME types
-	const formatMap = {
-		webp: 'image/webp',
-		avif: 'image/avif',
-	}
-
-	// Get MIME type (either from map or use as-is if already a MIME type)
-	const mimeType = formatMap[ format.toLowerCase() ] || ( format.startsWith( 'image/' ) ? format : null )
-
-	if ( ! mimeType ) {
-		return false
-	}
-
-	// Create a test canvas and check if toDataURL supports the format
-	const canvas = document.createElement( 'canvas' )
-	canvas.width = 1
-	canvas.height = 1
-
-	try {
-		const dataUrl = canvas.toDataURL( mimeType )
-		// If the browser doesn't support the format, it falls back to image/png
-		// Check if the data URL starts with the requested mime type
-		return dataUrl.startsWith( `data:${ mimeType }` )
-	} catch ( e ) {
-		return false
-	}
-}

@@ -144,6 +144,13 @@
 	gap: 20px;
 }
 
+.cimo-radio-option-label {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	gap: 12px;
+}
+
 .cimo-submit-buttons {
 	display: flex;
 	gap: 12px;
