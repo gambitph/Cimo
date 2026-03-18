@@ -891,6 +891,24 @@ const AdminSettings = () => {
 					<ul className="cimo-premium-features-list">
 						<li>
 							<span className="cimo-premium-icon">
+								{ /* Frontend Forms Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-form-icon lucide-form"><path d="M4 14h6" /><path d="M4 2h10" /><rect x="4" y="18" width="16" height="4" rx="1" /><rect x="4" y="6" width="16" height="4" rx="1" /></svg>
+							</span>
+							<span>
+								{ __( 'Frontend Forms Support', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* Plugin Forms Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-unplug-icon lucide-unplug"><path d="m19 5 3-3" /><path d="m2 22 3-3" /><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z" /><path d="M7.5 13.5 10 11" /><path d="M10.5 16.5 13 14" /><path d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z" /></svg>
+							</span>
+							<span>
+								{ __( 'Plugin upload integration', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
 								{ /* HEIC Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
 							</span>
@@ -933,15 +951,6 @@ const AdminSettings = () => {
 							</span>
 							<span>
 								{ __( 'Optimize SVG files on upload', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* Frontend Forms Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-unplug-icon lucide-unplug"><path d="m19 5 3-3" /><path d="m2 22 3-3" /><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z" /><path d="M7.5 13.5 10 11" /><path d="M10.5 16.5 13 14" /><path d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z" /></svg>
-							</span>
-							<span>
-								{ __( 'Frontend Forms Support', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
 						<hr />
