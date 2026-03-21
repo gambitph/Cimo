@@ -12,13 +12,14 @@
 	display: flex;
 	margin: 0 0 16px;
 	gap: 4px;
+	align-items: center;
+	justify-content: center;
 
 	svg {
-		width: 20px;
-		height: 20px;
+		width: 16px;
+		height: 16px;
 		vertical-align: middle;
-		margin-top: -1px;
-		fill: #19af19;
+		fill: #18aa18;
 	}
 }
 
@@ -42,7 +43,7 @@
 .cimo-compression-savings {
 	font-size: 21px;
     font-weight: 700;
-    color: #19af19;
+    color: #18aa18;
 	margin-bottom: 16px !important;
 	text-align: center;
 }
@@ -51,7 +52,7 @@
 	display: block;
 	font-size: 13px;
     font-weight: 500;
-    color: #999;
+    color: #737373;
 }
 
 .cimo-value {
@@ -60,6 +61,14 @@
 
 .cimo-filesize-optimized {
 	margin-bottom: 16px !important;
+	border-bottom: 1px solid rgba(0, 0, 0, .1) !important;
+	padding-bottom: 16px !important;
+}
+
+.cimo-filesize-original,
+.cimo-filesize-optimized {
+	display: flex;
+	justify-content: space-between;
 }
 
 #cimo-data-meta-box.postbox .inside {
