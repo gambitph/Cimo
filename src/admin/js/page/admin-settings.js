@@ -433,7 +433,7 @@ const AdminSettings = () => {
 
 					{ /* General Settings */ }
 
-					<div className="cimo-settings-section">
+					<div className="cimo-settings-section cimo-settings-section-general">
 						<div className="cimo-settings-header">
 							<h2>
 								<span aria-hidden="true">
@@ -453,10 +453,20 @@ const AdminSettings = () => {
 						<div className="cimo-setting-field">
 							<ToggleControl
 								__nextHasNoMarginBottom
-								label={ __( 'Optimize All Media Uploads', 'cimo-image-optimizer' ) }
+								label={
+									<span>
+										{ __( 'Optimize All Media Uploads', 'cimo-image-optimizer' ) }
+										{ buildType === 'free' && (
+											<span className="cimo-premium-tag">
+												{ __( 'Premium', 'cimo-image-optimizer' ) }
+											</span>
+										) }
+									</span>
+								}
 								checked={ settings.optimizeAllMedia === 1 }
+								disabled={ buildType === 'free' }
 								onChange={ checked => handleInputChange( 'optimizeAllMedia', checked ? 1 : 0 ) }
-								help={ __( 'When enabled, Cimo will optimize all media uploads, including files uploaded through standard HTML file inputs used by plugins without dedicated integrations.', 'cimo-image-optimizer' ) }
+								help={ __( 'Enable to optimize all files uploaded via any input type="file" on your website, including those in the admin pages, plugin forms and custom HTML upload forms in the frontend of your stie. When disabled, only uploads handled by Cimo\'s official integrations will be optimized.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
 
