@@ -934,6 +934,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to enter stealth mode.', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/782-stealth-mode"
 							/>
 						) }
 						{ buildType === 'premium' && <>
