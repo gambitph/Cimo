@@ -125,6 +125,7 @@ class ImageConverter extends Converter {
 				quality = 0.8
 			}
 		}
+
 		if ( typeof maxDimension === 'string' ) {
 			maxDimension = parseFloat( maxDimension )
 		}
@@ -178,7 +179,7 @@ class ImageConverter extends Converter {
 
 				const format = supportedFormats.find( f => f.value === outputFormat )
 				// Only use quality for lossy formats
-				const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
+				// const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
 
 				canvas.toBlob( function( blob ) {
 					// Clean up resources
@@ -195,7 +196,7 @@ class ImageConverter extends Converter {
 					} else {
 						reject( new Error( 'Failed to convert image' ) )
 					}
-				}, format.mimeType, q )
+				}, format.mimeType, quality ) // DEV NOTE: quality is ignored for PNG
 			}
 
 			img.onerror = () => {
@@ -214,21 +215,38 @@ class ImageConverter extends Converter {
 
 	/**
 	 * Convert an image file to the desired format and options.
+	 * @param {boolean} [force=false] - Force conversion even if the file is already in the desired format.
+	 * @param {Object}  [options]     - Options for the conversion.
 	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving to the converted file and optional metadata.
 	 */
-	async convert() {
+	async convert( force = false, options = {} ) {
 		const file = this.file
-		const format = this.options?.format || 'webp'
+		const {
+			quality = this.options?.quality || 0.8,
+			forceSize = this.options?.forceSize || false,
+		} = options
+
+		let formatTo = options.format || this.options?.format || ''
+		formatTo = ( formatTo.startsWith( 'image/' ) ? supportedFormats.find( f => f.mimeType === formatTo )?.value : formatTo ) ||
+			'webp'
 
 		// Not an image; return original file unchanged.
 		if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
-			return { file, metadata: null }
+			return {
+				file,
+				metadata: null,
+				reason: 'not-an-image',
+			}
 		}
 
 		// Skip if already the desired format
-		const formatInfo = supportedFormats.find( f => f.value === format )
-		if ( formatInfo && file.type === formatInfo.mimeType ) {
-			return { file, metadata: null }
+		const formatInfo = supportedFormats.find( f => f.value === formatTo )
+		if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
+			return {
+				file,
+				metadata: null,
+				reason: 'same-format',
+			}
 		}
 
 		// Check if the browser supports the desired output format
@@ -236,8 +254,12 @@ class ImageConverter extends Converter {
 		if ( formatInfo && ! testCanvas.toDataURL( formatInfo.mimeType ).startsWith( `data:${ formatInfo.mimeType }` ) ) {
 			// If not supported, skip conversion and return the original file
 			// eslint-disable-next-line no-console
-			console.error( '[Cimo] ' + format + ' is not supported by the browser, please use another modern browser' )
-			return { file, metadata: null }
+			console.error( '[Cimo] ' + formatTo + ' is not supported by the browser, please use another modern browser' )
+			return {
+				file,
+				metadata: null,
+				reason: 'format-not-supported',
+			}
 		}
 
 		// Detect if the image is an animated GIF, if so just return the file unchanged
@@ -257,7 +279,11 @@ class ImageConverter extends Converter {
 					gceCount++
 					// If more than one GCE block, it's animated
 					if ( gceCount > 1 ) {
-						return { file, metadata: null }
+						return {
+							file,
+							metadata: null,
+							reason: 'animated-gif',
+						}
 					}
 				}
 			}
@@ -269,19 +295,36 @@ class ImageConverter extends Converter {
 
 		try {
 			const start = performance.now()
-			const convertedBlob = await this.convertImage( fileItem, format, {
-				quality: this.options?.quality || 0.8,
-				maxDimension: this.options?.maxDimension || 0,
-			} )
+
+			let convertedBlob
+			if ( formatTo === 'png' ) {
+				const { default: imageCompression } = await import( /* webpackChunkName: "browser-image-compression" */ 'browser-image-compression' )
+				convertedBlob = await imageCompression( fileItem.file, {
+					useWebWorker: true,
+					alwaysKeepResolution: true,
+					maxIteration: 5,
+					// initialQuality: quality, // Use default
+				} )
+			} else {
+				convertedBlob = await this.convertImage( fileItem, formatTo, {
+					quality,
+					maxDimension: this.options?.maxDimension || 0,
+				} )
+			}
 			const end = performance.now()
 
 			// If the resulting image is bigger than the input, return the original file unchanged.
-			if ( convertedBlob.size > file.size ) {
-				throw new Error( `Resulting image is bigger than the input, skipping conversion.` )
+			if ( ! forceSize && convertedBlob.size > file.size ) {
+				return {
+					file,
+					metadata: null,
+					reason: 'resulting-image-bigger-than-input',
+					error: `Resulting image is bigger than the input (input: ${ file.size } bytes, output: ${ convertedBlob.size } bytes), skipping conversion.`,
+				}
 			}
 
 			// Get the file extension for the new format
-			const extension = format === 'jpeg' ? 'jpg' : format
+			const extension = formatTo === 'jpeg' ? 'jpg' : formatTo
 			// Prepend a unique identified to the filename
 			// const prefix = Math.random().toString( 36 ).substring( 2, 10 )
 			const newName = file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
@@ -306,8 +349,17 @@ class ImageConverter extends Converter {
 
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
-			throw new Error( `Failed to convert image: ${ error.message }` )
+			return {
+				file,
+				metadata: null,
+				reason: 'failed-to-convert',
+				error: `Failed to convert image: ${ error.message }`,
+			}
 		}
+	}
+
+	async optimize() {
+		return await applyFiltersAsync( 'cimo.imageConverter.optimize', this )
 	}
 }
 
