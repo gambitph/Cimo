@@ -2,6 +2,7 @@ import { domReady } from '~cimo/shared/dom-ready'
 import { getCachedMetadata } from '~cimo/shared/metadata-saver'
 import { escape } from '~cimo/shared/util'
 import { __, sprintf } from '@wordpress/i18n'
+import { applyFilters } from '@wordpress/hooks'
 
 /**
  * Format bytes into human readable format (KB, MB, etc.)
@@ -165,12 +166,7 @@ function injectCimoMetadata( {
 }
 
 domReady( () => {
-	const settings = window.cimoSettings || {}
-	const isPremium = !! window.cimoSettings?.isPremium
-	const isStealthMode = String( settings?.stealthModeEnabled ?? '0' ) !== '0'
-
-	// Do not add Cimo stats if stealth mode is enabled.
-	if ( isPremium && isStealthMode ) {
+	if ( ! applyFilters( 'cimo.mediaManager.sidebarInfo.doRender', true ) ) {
 		return
 	}
 
