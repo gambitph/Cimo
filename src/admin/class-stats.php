@@ -84,6 +84,25 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 					}
 
 					$cimo_data = $metadata['cimo'];
+
+					/**
+					 * This data comes from bulk optimizing media in the Media Library:
+					 */
+
+					if ( isset( $cimo_data['bulk_optimization'] ) ) {
+						foreach ( $cimo_data['bulk_optimization'] as $size => $data ) {
+							$updated_stats['media_optimized_num']++;
+							$original_size_b = isset( $data['originalFilesize'] ) ? (int) $data['originalFilesize'] : 0;
+							$converted_size_b = isset( $data['convertedFilesize'] ) ? (int) $data['convertedFilesize'] : 0;
+							$updated_stats['total_original_size'] += $original_size_b / 1024;
+							$updated_stats['total_optimized_size'] += $converted_size_b / 1024;
+						}
+					}
+
+					/**
+					 * This data comes from individually optimized images from the user uploading media:
+					 */
+
 					$updated_stats['media_optimized_num']++;
 
 					// Extract file sizes (bytes) and add to KB totals
@@ -152,6 +171,36 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 			$value = round( $bytes / pow( $k, $i ), $dm );
 
 			return $value . ' ' . $sizes[ $i ];
+		}
+
+		/**
+		 * Update stats for when an attachment has been bulk optimized.
+		 *
+		 * @param int $attachment_id The attachment ID.
+		 * @param int $original_size The original file size in bytes.
+		 * @param int $optimized_size The optimized file size in bytes.
+		 */
+		public static function update_stats_bulk_optimized( $attachment_id, $original_size, $optimized_size ) {
+			$stats = self::get_stats();
+			$stats['media_optimized_num']++;
+			$stats['total_original_size'] += $original_size / 1024;
+			$stats['total_optimized_size'] += $optimized_size / 1024;
+			update_option( self::OPTION_KEY, $stats, false );
+		}
+
+		/**
+		 * Update stats for when an attachment has been restored from bulk optimization.
+		 *
+		 * @param int $attachment_id The attachment ID.
+		 * @param int $optimized_size The optimized file size in bytes.
+		 * @param int $restored_size The restored file size in bytes.
+		 */
+		public static function update_stats_bulk_restored( $attachment_id, $optimized_size, $restored_size ) {
+			$stats = self::get_stats();
+			$stats['media_optimized_num']--;
+			$stats['total_original_size'] -= $optimized_size / 1024;
+			$stats['total_optimized_size'] -= $restored_size / 1024;
+			update_option( self::OPTION_KEY, $stats, false );
 		}
 	}
 }

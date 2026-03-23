@@ -7,7 +7,7 @@
  * Author URI: http://gambit.ph
  * License: GPLv2 or later
  * Text Domain: cimo-image-optimizer
- * Version: 1.2.2
+ * Version: 1.2.3
  * 
  * @fs_premium_only /freemius.php, /freemius/, /lib/freemius-php-sdk
  */

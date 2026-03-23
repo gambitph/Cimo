@@ -1,3 +1,6 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable selector-class-pattern */
+
 /* Cimo Admin Settings Styles */
 
 .cimo-admin-settings-wrap {
@@ -7,6 +10,19 @@
     grid-template-columns: minmax(0, 750px) 300px 1fr;
     gap: 24px;
 	align-items: flex-start;
+}
+
+.cimo-admin-settings-wrap:has(.cimo-bulk-optimizer-image-list) {
+    grid-template-columns: minmax(0, 1000px) 100px 1fr;
+}
+
+.cimo-bulk-optimizer-image-list-tabs {
+	min-width: auto;
+	white-space: pre;
+
+	> * {
+		flex: 0 0 auto !important;
+	}
 }
 
 .cimo-loading {
@@ -40,6 +56,7 @@
 
 .cimo-settings-section {
 	gap: 0;
+	order: 2;
 
 	.notice {
 		margin: 1.5em 0 0;
@@ -142,6 +159,14 @@
 	align-items: flex-start;
 	margin-bottom: 30px;
 	gap: 20px;
+
+	&:has(+ p) {
+		margin-bottom: 0;
+	}
+
+	+ p {
+		margin-bottom: 30px;
+	}
 }
 
 .cimo-submit-buttons {
@@ -172,6 +197,7 @@
 		width: 100%;
 		justify-content: center;
 		border-radius: 6px;
+		margin-top: 24px;
 	}
 }
 
@@ -242,11 +268,12 @@
 	}
 }
 
-.cimo-premium-cta {
+.cimo-settings-premium-placeholder .components-button.cimo-premium-cta {
 	margin-top: 24px;
 	text-align: center;
-	--wp-components-color-accent: #31bf43;
-	--wp-components-color-accent-darker-10: #29a739;
+	--wp-components-color-accent: #31bf43 !important;
+	--wp-components-color-accent-darker-10: #29a739 !important;
+	--wp-admin-theme-color-darker-20: #29a739 !important;
 }
 
 .cimo-premium-guarantee {
@@ -263,11 +290,35 @@
 	margin-right: 4px;
 }
 
-.cimo-save-button, .cimo-rating-buttons {
+.cimo-button, .cimo-save-button, .cimo-rating-buttons, .cimo-recommended-button {
+	gap: 8px !important;
 	border-radius: 6px;
+	
+	svg {
+		fill: none;
+		width: 16px;
+		height: 16px;
+	}
+}
+
+.cimo-button:not(.is-secondary), .cimo-save-button, .cimo-rating-buttons {
 	--wp-components-color-accent: #31BF43;
-    --wp-components-color-accent-darker-10: #249433;
-    --wp-components-color-accent-darker-20: #196a24;
+	--wp-components-color-accent-darker-10: #249433;
+	--wp-components-color-accent-darker-20: #196a24;
+}
+
+.cimo-button[disabled] {
+	--wp-components-color-accent: #aaa;
+    --wp-components-color-accent-darker-10: #bbb;
+    --wp-components-color-accent-darker-20: #ccc;
+	opacity: 0.5;
+	color: #222 !important; /* Ensure text remains visible */
+}
+
+.cimo-button.cimo-bulk-optimize-button.is-optimizing {
+	--wp-components-color-accent: #ef4343;
+	--wp-components-color-accent-darker-10: #cd3939;
+	--wp-components-color-accent-darker-20: #982a2a;
 }
 
 .cimo-rating-buttons {
@@ -363,12 +414,28 @@
 }
 
 .cimo-image-sizes-list {
-	margin-top: 16px;
+	margin-top: 8px;
+	margin-left: 40px;
+}
+
+.cimo-image-sizes-list, .cimo-bulk-optimizer-image-list {
     padding: 24px;
     background: #fafafa;
-    border-radius: 16px;
+    border-radius: 8px;
     border: 1px solid #e2e1e1;
-    margin-left: 40px;
+	margin-top: 20px;
+}
+
+.cimo-bulk-optimizer-image-list {
+	padding: 0;
+
+	button svg,
+	a svg {
+		fill: none;
+		width: 16px;
+		height: 16px;
+		min-width: fit-content;
+	}
 }
 
 .cimo-image-sizes-heading {
@@ -468,10 +535,6 @@
 	}
 }
 
-.cimo-settings-section:has(.cimo-settings-premium-placeholder) {
-	opacity: 0.65;
-}
-
 .components-toggle-group-control {
 	--wp-components-color-foreground: var(--wp-admin-theme-color, #3858e9);
 }
@@ -483,8 +546,293 @@
     gap: 8px;
     align-items: center;
 	box-shadow: 0 0 30px #35bd4738;
+	order: 0;
 
 	svg {
 		color: #259f35;
 	}
+}
+
+.cimo-is-premium .cimo-settings-bulk-optimization {
+	order: 1;
+}
+
+@keyframes cimo-bulk-optimizer-blink {
+
+	0%, 100% { opacity: 1; }
+
+	50% { opacity: 0.4; }
+}
+
+.cimo-bulk-optimizer-progress-bar {
+	height: 10px !important;
+    width: 100% !important;
+
+	> div {
+		background-color: #31BF43;
+	}
+}
+
+.cimo-bulk-optimizer-progress-bar.is-loading {
+	animation: cimo-bulk-optimizer-blink 1.5s ease-in-out infinite;
+}
+
+.cimo-bulk-optimizer-progress-bar-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.cimo-bulk-optimizer-progress-bar-text {
+	display: flex;
+    justify-content: space-between;
+}
+
+.cimo-bulk-optimizer-skipped-label {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	opacity: 0.9;
+	transition: opacity 0.15s ease;
+}
+
+.cimo-bulk-optimizer-skipped-label:hover {
+	opacity: 1;
+}
+
+.cimo-bulk-optimizer-skipped-icon {
+	margin-inline-end: 6px;
+
+	svg {
+		width: 12px;
+		height: 12px;
+		margin-top: 2px;
+	}
+}
+
+.cimo-bulk-optimizer-button-container {
+	margin-top: 20px;
+	display: flex;
+	gap: 16px;
+}
+
+.cimo-bulk-optimizer-image-list-header {
+	display: flex;
+	gap: 8px;
+	padding: 8px;
+
+	.components-base-control__field {
+		margin: 0;
+	}
+}
+
+.cimo-bulk-optimizer-image-list-toolbar {
+	flex: 1;
+}
+
+/* Image list */
+.cimo-bulk-optimizer-table {
+	width: 100%;
+	table-layout: fixed;
+	border-spacing: 0;
+    background: #f3f4f64d !important;
+	color: #65758b;
+
+	th,
+	td {
+		border: 0;
+		border-spacing: 0;
+		padding: 8px 16px;
+		border-top: 1px solid #e5e7eb;
+		white-space: nowrap;
+		box-sizing: border-box;
+
+		&::before {
+			content: '\200E';
+		}
+	}
+
+	th:first-child,
+	td:first-child {
+		width: auto;
+	}
+
+	th:nth-child(2),
+	td:nth-child(2),
+	th:nth-child(3),
+	td:nth-child(3),
+	th:nth-child(4),
+	td:nth-child(4) {
+		width: 100px;
+	}
+
+	th:last-child,
+	td:last-child {
+		width: 250px;
+	}
+
+	td {
+		padding: 8px 16px;
+		height: 50px;
+        align-items: center;
+		background: #f8f8f94d !important;
+
+		&:first-child {
+			color: #0f1729;
+		}
+
+		.cimo-bulk-optimizer-filename-container {
+			overflow: hidden;
+			display: inline-flex;
+			align-items: center;
+			position: relative;
+			max-width: 100%;
+			justify-content: flex-end;
+			gap: 8px;
+		}
+	}
+
+	thead {
+
+		th:first-child {
+			text-align: start;
+		}
+
+		th:last-child {
+			text-align: end;
+		}
+	}
+
+	.cimo-bulk-optimizer-cell-action {
+		text-align: end;
+		gap: 8px;
+		display: flex;
+		justify-content: end;
+	}
+
+	.cimo-bulk-optimizer-sortable-header {
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		text-align: inherit;
+	}
+
+	.cimo-bulk-optimizer-sortable-header:hover {
+		text-decoration: underline;
+	}
+
+	.cimo-bulk-optimizer-sortable-header.is-sorted {
+		font-weight: 600;
+	}
+
+	.cimo-bulk-optimizer-sort-indicator {
+		display: inline-flex;
+		align-items: center;
+		margin-inline-start: 4px;
+	}
+
+	.cimo-bulk-optimizer-sort-icon {
+		font-size: 0.85em;
+		opacity: 0.8;
+	}
+
+	.cimo-bulk-optimizer-sort-icon-unsorted {
+		opacity: 0.35;
+		font-size: 0.75em;
+	}
+}
+
+.cimo-bulk-optimizer-optimized-percentage {
+	color: #16a249;
+    font-size: 10px;
+    padding: 4px;
+    background-color: #16a2491a;
+    border: 1px solid #16a24933;
+    border-radius: 50px;
+    margin-inline-start: 8px;
+}
+
+.cimo-bulk-optimizer-filename-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.cimo-bulk-optimizer-optimizing-label,
+.cimo-bulk-optimizer-optimizing-action {
+	font-size: 12px;
+	color: #059669;
+	opacity: 0.9;
+}
+
+.cimo-bulk-optimizer-skip-reason {
+	font-size: 12px;
+	color: #6b7280;
+	opacity: 0.9;
+	white-space: normal;
+	word-break: break-word;
+	display: block;
+}
+
+.cimo-bulk-optimizer-image-list-footer {
+	display: flex;
+    justify-content: space-between;
+    padding: 16px;
+	align-items: center;
+	border-top: 1px solid #e5e7eb;
+	background: #f3f4f633;
+}
+
+.cimo-bulk-optimizer-image-list-pagination {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+	
+	.components-button svg {
+		fill: none;
+		width: 16px;
+		height: 16px;
+	}
+}
+
+.cimo-bulk-optimizer-optimization-in-progress {
+	padding: 16px;
+    background: #eda11514;
+    color: #b35600;
+    border: 1px solid #b3560042;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/** 
+ * Strobe animation for progress bar & button during bulk optimization
+ */
+@keyframes cimo-strobe {
+
+	0%, 100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.7;
+	}
+}
+
+/* Progress bar gets strobe animation while optimizing */
+.cimo-bulk-optimizer-progress-bar-container.is-optimizing .cimo-bulk-optimizer-progress-bar {
+	animation: cimo-strobe 1.5s linear infinite;
+}
+
+/* Bulk optimize button animates while optimizing */
+.cimo-bulk-optimize-button.is-optimizing {
+	animation: cimo-strobe 1.5s linear infinite;
 }

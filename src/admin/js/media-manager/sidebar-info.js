@@ -88,6 +88,30 @@ function injectCimoMetadata( {
 		return
 	}
 
+	// If the image is not optimized, and there is no bulk optimization, return
+	if ( typeof customMetadata.compressionSavings === 'undefined' && typeof customMetadata.bulk_optimization === 'undefined' ) {
+		return
+	}
+	if ( typeof customMetadata.compressionSavings === 'undefined' && Array.isArray( customMetadata.bulk_optimization ) && customMetadata.bulk_optimization.length === 0 ) {
+		return
+	}
+
+	let originalFilesize = parseInt( customMetadata.originalFilesize || 0 )
+	let convertedFilesize = parseInt( customMetadata.convertedFilesize || 0 )
+
+	const isBulkOptimized = customMetadata.bulk_optimization &&
+		typeof customMetadata.bulk_optimization === 'object' &&
+		! Array.isArray( customMetadata.bulk_optimization ) &&
+		Object.keys( customMetadata.bulk_optimization ).length > 0
+
+	// Bulk optimization keys are the sizes, so we need to sum the original filesizes of the bulk optimization
+	if ( isBulkOptimized ) {
+		for ( const size in customMetadata.bulk_optimization ) {
+			originalFilesize += parseInt( customMetadata.bulk_optimization[ size ].originalFilesize || 0 )
+			convertedFilesize += parseInt( customMetadata.bulk_optimization[ size ].convertedFilesize || 0 )
+		}
+	}
+
 	const customContent = document.createElement( 'div' )
 	customContent.className = 'cimo-media-manager-metadata'
 
@@ -108,10 +132,10 @@ function injectCimoMetadata( {
 
 	const optimizationSavings = customMetadata.compressionSavings
 		? ( 100 - ( customMetadata.compressionSavings * 100 ) ).toFixed( 2 )
-		: null
+		: ( 100 * ( originalFilesize - convertedFilesize ) / originalFilesize ).toFixed( 2 )
 
 	const kbSaved = formatFilesize(
-		customMetadata.originalFilesize - customMetadata.convertedFilesize,
+		originalFilesize - convertedFilesize,
 		1,
 		true
 	)
@@ -120,6 +144,8 @@ function injectCimoMetadata( {
 		optimizationSavings > 0
 			? 'cimo-optimization-savings-up'
 			: 'cimo-optimization-savings-down'
+
+	const arrow = convertedFilesize < originalFilesize ? '↓' : ( convertedFilesize > originalFilesize ? '↑' : '' )
 
 	html += `
 		<li class="cimo-compression-savings ${ escape( optimizationSavingsClass ) }">
@@ -130,36 +156,50 @@ function injectCimoMetadata( {
 
 	html += `
 		<li class="cimo-filesize-original">
-			Original: <span class="cimo-value">${ escape( formatFilesize( parseInt( customMetadata.originalFilesize ) || 0 ) ) }</span>
+			Original: <span class="cimo-value">${ escape( formatFilesize( originalFilesize ) ) }</span>
 		</li>
 		<li class="cimo-filesize-optimized">
-			Optimized: <span class="cimo-value">${ escape( formatFilesize( parseInt( customMetadata.convertedFilesize ) || 0 ) ) }</span>
+			Optimized: <span class="cimo-value">${ escape( arrow ) } ${ escape( formatFilesize( convertedFilesize ) ) }</span>
 		</li>
 	`
 
-	html += `
-		<li class="cimo-converted">
-			🏞️ Converted to <span class="cimo-value">${ escape( convertMimetypeToFormat( customMetadata.convertedFormat ) ) }</span>
-		</li>
-	`
-
-	let conversionTimeDisplay = 'N/A'
-	if ( customMetadata.conversionTime ) {
-		const timeMs = parseFloat( customMetadata.conversionTime )
-		conversionTimeDisplay =
-			timeMs < 1000
-				? `${ timeMs.toFixed( 0 ) } ms`
-				: timeMs < 60000
-					? `${ ( timeMs / 1000 ).toFixed( 1 ) } sec`
-					: `${ ( timeMs / 60000 ).toFixed( 1 ) } min`
+	if ( isBulkOptimized ) {
+		html += `
+			<li class="cimo-bulk-optimization-number">
+				🏞️ <span class="cimo-value">${ escape( Object.keys( customMetadata.bulk_optimization ).length.toString() ) }</span> thumbnail(s) processed
+			</li>
+			<li class="cimo-bulk-optimization-number">
+				⚡️ Bulk optimized
+			</li>
+			
+		`
 	}
 
-	html += `
-		<li class="cimo-time">
-			⚡️ Done in <span class="cimo-value">${ escape( conversionTimeDisplay ) }</span>
-		</li>
-		</ul>
-	`
+	if ( ! isBulkOptimized ) {
+		html += `
+			<li class="cimo-converted">
+				🏞️ Converted to <span class="cimo-value">${ escape( convertMimetypeToFormat( customMetadata.convertedFormat ) ) }</span>
+			</li>
+		`
+
+		let conversionTimeDisplay = 'N/A'
+		if ( customMetadata.conversionTime ) {
+			const timeMs = parseFloat( customMetadata.conversionTime )
+			conversionTimeDisplay =
+				timeMs < 1000
+					? `${ timeMs.toFixed( 0 ) } ms`
+					: timeMs < 60000
+						? `${ ( timeMs / 1000 ).toFixed( 1 ) } sec`
+						: `${ ( timeMs / 60000 ).toFixed( 1 ) } min`
+		}
+
+		html += `
+			<li class="cimo-time">
+				⚡️ Done in <span class="cimo-value">${ escape( conversionTimeDisplay ) }</span>
+			</li>
+			</ul>
+		`
+	}
 
 	customContent.innerHTML = html
 	container.appendChild( customContent )

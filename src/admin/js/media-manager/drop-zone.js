@@ -46,7 +46,7 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		// is triggered. We might break other funcitonality that we don't have
 		// the conversion to happen.
 		if ( ! event.target.closest( '.media-frame-uploader' ) && // Allowed to drop in the Media Manager
-			! event.target.closest( '.supports-drag-drop' ).querySelector( '.media-frame-uploader' ) && // Allowed a fallback to drop in the Media Manager
+			! event.target.closest( '.supports-drag-drop' )?.querySelector( '.media-frame-uploader' ) && // Allowed a fallback to drop in the Media Manager
 			! event.target.closest( '.media-upload-form' ) && // Allowed to drop in the admin Media > Add Media File.
 			! event.target.closest( '.editor-post-featured-image' ) && // Allowed to drop in the featured image drop zone.
 			! event.target.closest( '.editor-styles-wrapper' ) && // Allowed to drop in the block editor when adding new image blocks
@@ -90,7 +90,13 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		const optimizedResults = await Promise.all(
 			fileConverters.map( async converter => {
 				try {
-					return await converter.convert()
+					const result = await converter.convert()
+					if ( result.error ) {
+						// eslint-disable-next-line no-console
+						console.warn( result.error )
+						hasError = true
+					}
+					return result
 				} catch ( error ) {
 					hasError = true
 					// eslint-disable-next-line no-console
