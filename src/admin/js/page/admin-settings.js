@@ -1,5 +1,5 @@
 import {
-	useState, useEffect, useCallback,
+	useState, useEffect, useCallback, Fragment,
 } from '@wordpress/element'
 import {
 	Button, RangeControl, ToggleControl, TextControl,
@@ -12,6 +12,7 @@ import { __, sprintf } from '@wordpress/i18n'
 import cimoLogo from './assets/logo-long.webp'
 
 const buildType = applyFilters( 'cimo.admin.settings.buildType', 'free' )
+const BulkOptimizationComponent = applyFilters( 'cimo.admin.settings.bulkOptimizationComponent', Fragment )
 
 const AdminSettings = () => {
 	const [ settings, setSettings ] = useState( {
@@ -43,6 +44,9 @@ const AdminSettings = () => {
 		// SVG Optimization settings
 		svgUpload: 0,
 		svgOptimizationEnabled: 1,
+
+		// Stealth Mode settings
+		stealthModeEnabled: 0,
 	} )
 	const [ imageSizes, setImageSizes ] = useState( [] )
 	const [ isSaving, setIsSaving ] = useState( false )
@@ -106,6 +110,9 @@ const AdminSettings = () => {
 				// SVG Optimization settings
 				svgUpload: cimoOptions.svg_upload !== undefined ? cimoOptions.svg_upload : 0,
 				svgOptimizationEnabled: cimoOptions.svg_optimization_enabled !== undefined ? cimoOptions.svg_optimization_enabled : 1,
+
+				// Stealth Mode settings
+				stealthModeEnabled: cimoOptions.stealth_mode_enabled !== undefined ? cimoOptions.stealth_mode_enabled : 0,
 			}
 			setSettings( fetchedSettings )
 			setHasUnsavedChanges( false )
@@ -241,6 +248,15 @@ const AdminSettings = () => {
 		} )
 	}
 
+	const applyStealthModeDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				stealthModeEnabled: 0,
+			}
+		} )
+	}
+
 	const handleDismissRating = useCallback( async () => {
 		setIsRatingDismissed( true )
 
@@ -299,6 +315,9 @@ const AdminSettings = () => {
 						// SVG Optimization settings
 						svg_upload: settings.svgUpload,
 						svg_optimization_enabled: settings.svgOptimizationEnabled,
+
+						// Stealth Mode settings
+						stealth_mode_enabled: settings.stealthModeEnabled,
 					},
 				},
 			} )
@@ -325,7 +344,7 @@ const AdminSettings = () => {
 	}
 
 	return (
-		<div className="cimo-admin-settings-wrap">
+		<div className={ 'cimo-admin-settings-wrap' + ( window.cimoAdmin?.isPremium ? ' cimo-is-premium' : '' ) }>
 			<div className="cimo-header">
 				<img className="cimo-logo" src={ cimoLogo } alt={ __( 'Cimo Logo', 'cimo-image-optimizer' ) } height="35" />
 
@@ -586,6 +605,44 @@ const AdminSettings = () => {
 						</Button>
 					</div>
 
+					{ /* Bulk Optimization */ }
+
+					<div className="cimo-settings-section cimo-settings-bulk-optimization">
+						<div className="cimo-settings-header">
+							<h2 id="bulk-optimization">
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-images-icon lucide-images"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /><circle cx="13" cy="7" r="1" fill="currentColor" /><rect x="8" y="2" width="14" height="14" rx="2" /></svg>
+								</span>
+								{ __( 'Bulk Image Optimization', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Bulk optimize existing media in your Media Library.', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/788-bulk-optimization"
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<p>
+								{ __( 'Bulk optimize existing media in your Media Library in one go.', 'cimo-image-optimizer' ) }
+								&nbsp;
+								<a href="https://docs.wpcimo.com/article/788-bulk-optimization" target="_blank" rel="noopener noreferrer">
+									{ __( 'Learn more', 'cimo-image-optimizer' ) }
+								</a>
+							</p>
+							<BulkOptimizationComponent />
+						</> }
+					</div>
+
 					{ /* Low Quality Image Placeholder */ }
 
 					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
@@ -609,6 +666,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Show a low-quality preview while the image loads, then fade in the final image.', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/777-low-quality-image-placeholder"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -701,6 +759,8 @@ const AdminSettings = () => {
 								<Button
 									variant="secondary"
 									onClick={ applyVideoRecommendedSettings }
+									className="cimo-recommended-button"
+									__next40pxDefaultSize
 								>
 									{ __( 'Recommended', 'cimo-image-optimizer' ) }
 								</Button>
@@ -710,6 +770,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize video files on upload', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/775-video-optimization"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -828,6 +889,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize audio files on upload', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/776-audio-optimization"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -889,6 +951,7 @@ const AdminSettings = () => {
 						{ buildType === 'free' && (
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize SVG files on upload', 'cimo-image-optimizer' ) }
+								learnMoreUrl="https://docs.wpcimo.com/article/780-svg-support"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -918,6 +981,59 @@ const AdminSettings = () => {
 								variant="tertiary"
 								className="cimo-reset-button"
 								onClick={ applySVGDefaultSettings }
+							>
+								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+							</Button>
+						</> }
+					</div>
+
+					{ /* Stealth Mode Settings */ }
+
+					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-hat-glasses-icon lucide-hat-glasses"><path d="M14 18a2 2 0 0 0-4 0" /><path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" /><path d="M2 11h20" /><circle cx="17" cy="18" r="3" /><circle cx="7" cy="18" r="3" /></svg>
+								</span>
+								{ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Upgrade to Premium to enter stealth mode.', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
+									checked={ settings.stealthModeEnabled === 1 }
+									onChange={ checked => handleInputChange( 'stealthModeEnabled', checked ? 1 : 0 ) }
+									help={
+										<>
+											{ __( 'When Stealth Mode is enabled, all Cimo branding and optimization stats will not be shown in the UI and dashboard. This settings page will not appear in the admin sidebar, you can access it by clicking the “Settings” link under Cimo in the plugins page. Stealth Mode will not affect how your media is optimized; everything continues to work as usual, just without any visual indicators of Cimo.', 'cimo-image-optimizer' ) }
+											&nbsp;
+											<a href="https://docs.wpcimo.com/article/782-stealth-mode" target="_blank" rel="noopener noreferrer">
+												{ __( 'Learn more', 'cimo-image-optimizer' ) }
+											</a>
+										</>
+									}
+								/>
+							</div>
+							<Button
+								variant="tertiary"
+								className="cimo-reset-button"
+								onClick={ applyStealthModeDefaultSettings }
 							>
 								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
 							</Button>
@@ -969,6 +1085,15 @@ const AdminSettings = () => {
 					<ul className="cimo-premium-features-list">
 						<li>
 							<span className="cimo-premium-icon">
+								{ /* Images Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-images-icon lucide-images"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /><circle cx="13" cy="7" r="1" fill="currentColor" /><rect x="8" y="2" width="14" height="14" rx="2" /></svg>
+							</span>
+							<span>
+								{ __( 'Bulk Optimize Existing Media', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
 								{ /* Frontend Forms Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-form-icon lucide-form"><path d="M4 14h6" /><path d="M4 2h10" /><rect x="4" y="18" width="16" height="4" rx="1" /><rect x="4" y="6" width="16" height="4" rx="1" /></svg>
 							</span>
@@ -983,24 +1108,6 @@ const AdminSettings = () => {
 							</span>
 							<span>
 								{ __( 'Plugin upload integration', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* HEIC Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
-							</span>
-							<span>
-								{ __( 'Support for HEIC image format', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* Lightning Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
-							</span>
-							<span>
-								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
 						<hr />
@@ -1034,6 +1141,34 @@ const AdminSettings = () => {
 						<hr />
 						<li>
 							<span className="cimo-premium-icon">
+								{ /* HEIC Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
+							</span>
+							<span>
+								{ __( 'Support for HEIC image format', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* Lightning Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+							</span>
+							<span>
+								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<hr />
+						<li>
+							<span className="cimo-premium-icon">
+								{ /* Stealth Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-hat-glasses-icon lucide-hat-glasses"><path d="M14 18a2 2 0 0 0-4 0" /><path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" /><path d="M2 11h20" /><circle cx="17" cy="18" r="3" /><circle cx="7" cy="18" r="3" /></svg>
+							</span>
+							<span>
+								{ __( 'Stealth mode', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
 								{ /* Unlimited Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-icon customizable lucide-infinity-icon lucide-infinity lucide-icon customizable"><path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"></path></svg>
 							</span>
@@ -1041,15 +1176,6 @@ const AdminSettings = () => {
 								{ __( 'Still without limits', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
-						{ /* <li>
-						<span className="cimo-premium-icon"> */ }
-						{ /* White label Icon */ }
-						{ /* <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-						</span>
-						<span>
-							{ __( 'White label', 'cimo-image-optimizer' ) }
-						</span>
-					</li> */ }
 					</ul>
 
 					<div className="cimo-premium-cta">
@@ -1078,15 +1204,32 @@ const PremiumPlaceholder = props => {
 	return (
 		<div className="cimo-settings-premium-placeholder">
 			{ props.label }
-			<Button
-				variant="secondary"
-				className="cimo-premium-cta"
-				href="https://wpcimo.com/pricing"
-				target="_blank"
-				rel="noopener noreferrer"
-			>
-				{ __( 'Upgrade to Premium', 'cimo-image-optimizer' ) }
-			</Button>
+			<div style={ {
+				display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px',
+			} }>
+				<Button
+					variant="secondary"
+					className="cimo-premium-cta cimo-premium-cta-upgrade"
+					href="https://wpcimo.com/pricing"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{ __( 'Upgrade to Premium', 'cimo-image-optimizer' ) }
+				</Button>
+				{ props.learnMoreUrl && (
+					<Button
+						variant="tertiary"
+						className="cimo-premium-cta cimo-premium-cta-learn-more"
+						href={ props.learnMoreUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						icon={ <>&nbsp;→&nbsp;</> }
+						iconPosition="right"
+					>
+						{ __( 'Learn More', 'cimo-image-optimizer' ) }
+					</Button>
+				) }
+			</div>
 		</div>
 	)
 }

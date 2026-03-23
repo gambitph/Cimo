@@ -21,6 +21,10 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 		}
 
 		public function add_meta_box() {
+			if ( ! apply_filters( 'cimo/metabox/do_render', true ) ) {
+				return;
+			}
+
 			add_meta_box(
 				'cimo-data-meta-box',
 				__( 'Cimo Optimization', 'cimo-image-optimizer' ),
@@ -90,6 +94,35 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						$optimization_savings = $compression_savings !== null ? number_format( 100 - ( $compression_savings * 100 ), 2 ) : null;
 						$original_filesize = isset( $cimo['originalFilesize'] ) ? floatval( $cimo['originalFilesize'] ) : 0;
 						$converted_filesize = isset( $cimo['convertedFilesize'] ) ? floatval( $cimo['convertedFilesize'] ) : 0;
+
+						$is_bulk_optimized = isset( $cimo['bulk_optimization'] ) &&
+							is_array( $cimo['bulk_optimization'] ) &&
+							! empty( $cimo['bulk_optimization'] );
+
+						// For bulk optimization, we need to recalculate the optimization savings percentage
+						// based on the original and converted file sizes for all the thumbnails
+						if ( $is_bulk_optimized ) {
+							$bulk_optimization_count = count( $cimo['bulk_optimization'] );
+							$bulk_optimization_sizes = array_keys( $cimo['bulk_optimization'] );
+
+							// Gather all original and converted file sizes for bulk_optimization
+							$bulk_original_filesize = 0;
+							$bulk_converted_filesize = 0;
+							if ( $is_bulk_optimized ) {
+								foreach ( $cimo['bulk_optimization'] as $size_key => $bulk_data ) {
+									$orig = isset( $bulk_data['originalFilesize'] ) ? floatval( $bulk_data['originalFilesize'] ) : 0;
+									$conv = isset( $bulk_data['convertedFilesize'] ) ? floatval( $bulk_data['convertedFilesize'] ) : 0;
+									$bulk_original_filesize += $orig;
+									$bulk_converted_filesize += $conv;
+								}
+							}
+
+							$original_filesize = $bulk_original_filesize;
+							$converted_filesize = $bulk_converted_filesize;
+
+							$optimization_savings = number_format( 100 * ( $original_filesize - $converted_filesize ) / $original_filesize, 2 );
+						}
+
 						$kb_saved = cimo_format_filesize( $original_filesize - $converted_filesize, 1, true );
 						$optimization_savings_class = ( $optimization_savings > 0 ) ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down';
 
@@ -121,33 +154,74 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 
 						// Optimization savings
 						echo '<li class="cimo-compression-savings ' . esc_attr( $optimization_savings_class ) . '">';
-						echo 'Saved ' . esc_html( $optimization_savings ) . '% <span class="cimo-compression-savings-bytes">(' . esc_html( $kb_saved ) . ')</span>';
+						echo sprintf(
+							/* translators: %s: percentage saved */
+							esc_html__( 'Saved %s%%', 'cimo-image-optimizer' ),
+							esc_html( $optimization_savings )
+						);
+						echo ' <span class="cimo-compression-savings-bytes">(' . esc_html( $kb_saved ) . ')</span>';
 						echo '</li>';
 
 						// Filesize original
 						echo '<li class="cimo-filesize-original">';
-						echo 'Original: <span class="cimo-value">' . esc_html( $original_size ) . '</span>';
+						echo sprintf(
+							/* translators: %s: original file size */
+							esc_html__( 'Original: %s', 'cimo-image-optimizer' ),
+							'<span class="cimo-value">' . esc_html( $original_size ) . '</span>'
+						);
 						echo '</li>';
 
 						// Filesize optimized
 						echo '<li class="cimo-filesize-optimized">';
-						echo 'Optimized: <span class="cimo-value">' . esc_html( $converted_size ) . '</span>';
+						$arrow = $converted_filesize < $original_filesize ? '↓' : ( $converted_filesize > $original_filesize ? '↑' : '' );
+						echo sprintf(
+							/* translators: %s: optimized file size */
+							esc_html__( 'Optimized: %s', 'cimo-image-optimizer' ),
+							'<span class="cimo-value">' . esc_html( $arrow ) . ' ' . esc_html( $converted_size ) . '</span>'
+						);
 						echo '</li>';
 
-						// Converted format
-						echo '<li class="cimo-converted">';
-						echo '🏞️ Converted to <span class="cimo-value">' . esc_html( $converted_format ) . '</span>';
-						echo '</li>';
+						if ( ! $is_bulk_optimized ) {
 
-						// Conversion time
-						echo '<li class="cimo-time">';
-						echo '⚡️ Done in <span class="cimo-value">' . esc_html( $converttime_str ) . '</span>';
-						echo '</li>';
+							// Converted format
+							echo '<li class="cimo-converted">';
+							echo '🏞️ ' . sprintf(
+								/* translators: %s: converted format */
+								esc_html__( 'Converted to %s', 'cimo-image-optimizer' ),
+								'<span class="cimo-value">' . esc_html( $converted_format ) . '</span>'
+							);
+							echo '</li>';
+
+							// Conversion time
+							echo '<li class="cimo-time">';
+							echo '⚡️ ' . sprintf(
+								/* translators: %s: conversion time */
+								esc_html__( 'Done in %s', 'cimo-image-optimizer' ),
+								'<span class="cimo-value">' . esc_html( $converttime_str ) . '</span>'
+							);
+							echo '</li>';
+
+						} else {
+
+							// Bulk optimization number
+							echo '<li class="cimo-bulk-optimization-number">';
+							echo '🏞️ ' . sprintf(
+								/* translators: %s: bulk optimization count */
+								esc_html__( '%s thumbnail(s) processed', 'cimo-image-optimizer' ),
+								'<span class="cimo-value">' . esc_html( $bulk_optimization_count ) . '</span>'
+							);
+							echo '</li>';
+
+							// Bulk optimization note
+							echo '<li class="cimo-bulk-optimization-note">';
+							echo '⚡️ ' . esc_html__( 'Bulk optimized', 'cimo-image-optimizer' );
+							echo '</li>';
+						}
 
 						echo '</ul>';
 						// echo '</div>';
 					} else {
-						echo '<p>Cimo did not optimize this attachment.</p>';
+						echo '<p>' . esc_html__( 'Cimo did not optimize this attachment.', 'cimo-image-optimizer' ) . '</p>';
 					}
 				},
 				'attachment',

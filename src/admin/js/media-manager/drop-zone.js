@@ -109,7 +109,13 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		const optimizedResults = await Promise.all(
 			fileConverters.map( async converter => {
 				try {
-					return await converter.convert()
+					const result = await converter.convert()
+					if ( result.error ) {
+						// eslint-disable-next-line no-console
+						console.warn( result.error )
+						hasError = true
+					}
+					return result
 				} catch ( error ) {
 					hasError = true
 					// eslint-disable-next-line no-console
