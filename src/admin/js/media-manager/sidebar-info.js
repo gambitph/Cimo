@@ -2,6 +2,7 @@ import { domReady } from '~cimo/shared/dom-ready'
 import { getCachedMetadata } from '~cimo/shared/metadata-saver'
 import { escape } from '~cimo/shared/util'
 import { __, sprintf } from '@wordpress/i18n'
+import { applyFilters } from '@wordpress/hooks'
 
 /**
  * Format bytes into human readable format (KB, MB, etc.)
@@ -205,6 +206,10 @@ function injectCimoMetadata( {
 }
 
 domReady( () => {
+	if ( ! applyFilters( 'cimo.mediaManager.sidebarInfo.doRender', true ) ) {
+		return
+	}
+
 	// Only proceed if wp.media is available (media library is loaded)
 	if (
 		typeof wp === 'undefined' ||

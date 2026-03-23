@@ -21,6 +21,10 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 		}
 
 		public function add_meta_box() {
+			if ( ! apply_filters( 'cimo/metabox/do_render', true ) ) {
+				return;
+			}
+
 			add_meta_box(
 				'cimo-data-meta-box',
 				__( 'Cimo Optimization', 'cimo-image-optimizer' ),

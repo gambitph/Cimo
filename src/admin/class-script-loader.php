@@ -84,6 +84,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				[
 					'restUrl' => rest_url( 'cimo/v1/' ),
 					'nonce'   => wp_create_nonce( 'wp_rest' ),
+					'isPremium' => CIMO_BUILD === 'premium',
 					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
 					'maxImageDimension' => ! empty( $settings['max_image_dimension'] ) ? (int) $settings['max_image_dimension'] : 0,
 					'videoOptimizationEnabled' => isset( $settings['video_optimization_enabled'] ) ? (int) $settings['video_optimization_enabled'] : 1,
@@ -93,6 +94,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'audioQuality' => ! empty( $settings['audio_quality'] ) ? (int) $settings['audio_quality'] : 128,
 					'svgUpload' => isset( $settings['svg_upload'] ) ? (int) $settings['svg_upload'] : 0,
 					'svgOptimizationEnabled' => isset( $settings['svg_optimization_enabled'] ) ? (int) $settings['svg_optimization_enabled'] : 1,
+					'stealthModeEnabled' => isset( $settings['stealth_mode_enabled'] ) ? (int) $settings['stealth_mode_enabled'] : 0,
 				]
 			);
 

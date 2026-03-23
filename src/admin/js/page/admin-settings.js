@@ -40,6 +40,9 @@ const AdminSettings = () => {
 		// SVG Optimization settings
 		svgUpload: 0,
 		svgOptimizationEnabled: 1,
+
+		// Stealth Mode settings
+		stealthModeEnabled: 0,
 	} )
 	const [ imageSizes, setImageSizes ] = useState( [] )
 	const [ isSaving, setIsSaving ] = useState( false )
@@ -100,6 +103,9 @@ const AdminSettings = () => {
 				// SVG Optimization settings
 				svgUpload: cimoOptions.svg_upload !== undefined ? cimoOptions.svg_upload : 0,
 				svgOptimizationEnabled: cimoOptions.svg_optimization_enabled !== undefined ? cimoOptions.svg_optimization_enabled : 1,
+
+				// Stealth Mode settings
+				stealthModeEnabled: cimoOptions.stealth_mode_enabled !== undefined ? cimoOptions.stealth_mode_enabled : 0,
 			}
 			setSettings( fetchedSettings )
 			setHasUnsavedChanges( false )
@@ -217,6 +223,15 @@ const AdminSettings = () => {
 		} )
 	}
 
+	const applyStealthModeDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				stealthModeEnabled: 0,
+			}
+		} )
+	}
+
 	const handleDismissRating = useCallback( async () => {
 		setIsRatingDismissed( true )
 
@@ -272,6 +287,9 @@ const AdminSettings = () => {
 						// SVG Optimization settings
 						svg_upload: settings.svgUpload,
 						svg_optimization_enabled: settings.svgOptimizationEnabled,
+
+						// Stealth Mode settings
+						stealth_mode_enabled: settings.stealthModeEnabled,
 					},
 				},
 			} )
@@ -892,6 +910,59 @@ const AdminSettings = () => {
 							</Button>
 						</> }
 					</div>
+
+					{ /* Stealth Mode Settings */ }
+
+					<div className="cimo-settings-section" style={ { gridColumn: '1 / 2' } }>
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-hat-glasses-icon lucide-hat-glasses"><path d="M14 18a2 2 0 0 0-4 0" /><path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" /><path d="M2 11h20" /><circle cx="17" cy="18" r="3" /><circle cx="7" cy="18" r="3" /></svg>
+								</span>
+								{ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
+							</h2>
+							{ buildType === 'free' && (
+								<span
+									className="cimo-premium-feature-label"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+									{ __( 'Premium', 'cimo-image-optimizer' ) }
+								</span>
+							) }
+						</div>
+
+						{ buildType === 'free' && (
+							<PremiumPlaceholder
+								label={ __( 'Upgrade to Premium to enter stealth mode.', 'cimo-image-optimizer' ) }
+							/>
+						) }
+						{ buildType === 'premium' && <>
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={ __( 'Stealth Mode', 'cimo-image-optimizer' ) }
+									checked={ settings.stealthModeEnabled === 1 }
+									onChange={ checked => handleInputChange( 'stealthModeEnabled', checked ? 1 : 0 ) }
+									help={
+										<>
+											{ __( 'When Stealth Mode is enabled, all Cimo branding and optimization stats will not be shown in the UI and dashboard. This settings page will not appear in the admin sidebar, you can access it by clicking the “Settings” link under Cimo in the plugins page. Stealth Mode will not affect how your media is optimized; everything continues to work as usual, just without any visual indicators of Cimo.', 'cimo-image-optimizer' ) }
+											&nbsp;
+											<a href="https://docs.wpcimo.com/article/782-stealth-mode" target="_blank" rel="noopener noreferrer">
+												{ __( 'Learn more', 'cimo-image-optimizer' ) }
+											</a>
+										</>
+									}
+								/>
+							</div>
+							<Button
+								variant="tertiary"
+								className="cimo-reset-button"
+								onClick={ applyStealthModeDefaultSettings }
+							>
+								{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+							</Button>
+						</> }
+					</div>
 				</div>
 
 				{ /* Submit Button */ }
@@ -994,6 +1065,15 @@ const AdminSettings = () => {
 						<hr />
 						<li>
 							<span className="cimo-premium-icon">
+								{ /* Stealth Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-hat-glasses-icon lucide-hat-glasses"><path d="M14 18a2 2 0 0 0-4 0" /><path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" /><path d="M2 11h20" /><circle cx="17" cy="18" r="3" /><circle cx="7" cy="18" r="3" /></svg>
+							</span>
+							<span>
+								{ __( 'Stealth mode', 'cimo-image-optimizer' ) }
+							</span>
+						</li>
+						<li>
+							<span className="cimo-premium-icon">
 								{ /* Unlimited Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-icon customizable lucide-infinity-icon lucide-infinity lucide-icon customizable"><path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"></path></svg>
 							</span>
@@ -1001,15 +1081,6 @@ const AdminSettings = () => {
 								{ __( 'Still without limits', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
-						{ /* <li>
-						<span className="cimo-premium-icon"> */ }
-						{ /* White label Icon */ }
-						{ /* <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-						</span>
-						<span>
-							{ __( 'White label', 'cimo-image-optimizer' ) }
-						</span>
-					</li> */ }
 					</ul>
 
 					<div className="cimo-premium-cta">
