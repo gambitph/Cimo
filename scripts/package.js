@@ -237,6 +237,36 @@ function updatePluginHeaderVersion( buildDir, suffix ) {
 	console.log( `📝 Updated version in ${ pluginFileName } to include suffix: ${ suffix }` )
 }
 
+function updateReadmeStableTag( buildDir ) {
+	const pluginFilePath = path.join( buildDir, 'cimo.php' )
+	const readmePath = path.join( buildDir, 'readme.txt' )
+
+	if ( ! fs.existsSync( pluginFilePath ) || ! fs.existsSync( readmePath ) ) {
+		return
+	}
+
+	const pluginContent = fs.readFileSync( pluginFilePath, 'utf8' )
+	const versionMatch = pluginContent.match( /^\s*\*\s*Version:\s*([^\r\n]+)/m )
+	if ( ! versionMatch ) {
+		return
+	}
+
+	const version = versionMatch[ 1 ].trim()
+	const readmeContent = fs.readFileSync( readmePath, 'utf8' )
+	const updated = readmeContent.replace(
+		/^Stable tag:\s*[^\r\n]+/m,
+		`Stable tag: ${ version }`
+	)
+
+	if ( updated === readmeContent ) {
+		console.log( '⚠️  Could not find "Stable tag:" line in readme.txt' )
+		return
+	}
+
+	fs.writeFileSync( readmePath, updated )
+	console.log( `📝 Updated Stable tag in readme.txt to ${ version }` )
+}
+
 // Main packaging function
 async function packagePlugin() {
 	// eslint-disable-next-line no-console
@@ -281,6 +311,9 @@ async function packagePlugin() {
 
 	console.log( '📝 Updating plugin header version...' )
 	updatePluginHeaderVersion( BUILD_DIR, folderSuffix )
+
+	console.log( '📝 Syncing readme Stable tag to packaged version...' )
+	updateReadmeStableTag( BUILD_DIR )
 
 	// Create zip file
 	// eslint-disable-next-line no-console
