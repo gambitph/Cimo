@@ -1059,7 +1059,7 @@ const AdminSettings = () => {
 
 					<div className="cimo-premium-cta">
 						<Button
-							href="https://wpcimo.com/pricing"
+							href="https://wpcimo.com/pricing?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade"
 							variant="primary"
 							target="_blank"
 							rel="noopener noreferrer"
