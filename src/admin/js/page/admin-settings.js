@@ -1002,86 +1002,59 @@ const AdminSettings = () => {
 						<div className="cimo-sidebar-heading-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-crown-icon lucide-crown"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /><path d="M5 21h14" /></svg>
 						</div>
-						<h2>{ __( 'Upgrade to Premium', 'cimo-image-optimizer' ) }</h2>
+						<h2>{ __( 'Upgrade For Full Control', 'cimo-image-optimizer' ) }</h2>
 					</div>
 					<p className="cimo-premium-intro">
-						{ __( 'Optimize more things and get premium support for a faster, happier site.', 'cimo-image-optimizer' ) }
+						{ __( 'Optimize existing images, control user uploads, and keep your server free from image processing.', 'cimo-image-optimizer' ) }
 					</p>
+					<h3 className="screen-reader-text" style={ {
+						position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(1px, 1px, 1px, 1px)',
+					} }>
+						{ __( 'Main Features', 'cimo-image-optimizer' ) }
+					</h3>
 					<ul className="cimo-premium-features-list">
 						<li>
 							<span className="cimo-premium-icon">
 								{ /* Images Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-images-icon lucide-images"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /><circle cx="13" cy="7" r="1" fill="currentColor" /><rect x="8" y="2" width="14" height="14" rx="2" /></svg>
 							</span>
+							<h4>
+								{ __( 'Existing Images', 'cimo-image-optimizer' ) }
+							</h4>
 							<span>
-								{ __( 'Bulk Optimize Existing Media', 'cimo-image-optimizer' ) }
+								{ __( 'Optimize your entire media library with Bulk Optimization', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
 						<li>
 							<span className="cimo-premium-icon">
-								{ /* HEIC Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></svg>
+								{ /* Users Icon */ }
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users-icon lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg>
 							</span>
+							<h4>
+								{ __( 'User Uploads', 'cimo-image-optimizer' ) }
+							</h4>
 							<span>
-								{ __( 'Support for HEIC image format', 'cimo-image-optimizer' ) }
+								{ __( 'Prevent oversized uploads from users with Form Plugin integrations', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* Lightning Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
-							</span>
-							<span>
-								{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<hr />
 						<li>
 							<span className="cimo-premium-icon">
 								{ /* Video Icon */ }
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-video h-3 w-3 text-purple-600" data-lov-id="src/components/WordPressAdmin.tsx:310:20" data-lov-name="Video" data-component-path="src/components/WordPressAdmin.tsx" data-component-line="310" data-component-file="WordPressAdmin.tsx" data-component-name="Video" data-component-content="%7B%22className%22%3A%22h-3%20w-3%20text-purple-600%22%7D"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg>
 							</span>
+							<h4>
+								{ __( 'More media', 'cimo-image-optimizer' ) }
+							</h4>
 							<span>
-								{ __( 'Optimize videos on upload', 'cimo-image-optimizer' ) }
+								{ __( 'Optimize video and audio uploads', 'cimo-image-optimizer' ) }
 							</span>
 						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* Audio Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-music h-3 w-3 text-purple-600" data-lov-id="src/components/WordPressAdmin.tsx:316:20" data-lov-name="Music" data-component-path="src/components/WordPressAdmin.tsx" data-component-line="316" data-component-file="WordPressAdmin.tsx" data-component-name="Music" data-component-content="%7B%22className%22%3A%22h-3%20w-3%20text-purple-600%22%7D"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-							</span>
-							<span>
-								{ __( 'Optimize audio on upload', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* SVG Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-code-icon lucide-file-code"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 12.5 8 15l2 2.5" /><path d="m14 12.5 2 2.5-2 2.5" /></svg>
-							</span>
-							<span>
-								{ __( 'Optimize SVG files on upload', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<hr />
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* Stealth Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-hat-glasses-icon lucide-hat-glasses"><path d="M14 18a2 2 0 0 0-4 0" /><path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" /><path d="M2 11h20" /><circle cx="17" cy="18" r="3" /><circle cx="7" cy="18" r="3" /></svg>
-							</span>
-							<span>
-								{ __( 'Stealth mode', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
-						<li>
-							<span className="cimo-premium-icon">
-								{ /* Unlimited Icon */ }
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-icon customizable lucide-infinity-icon lucide-infinity lucide-icon customizable"><path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"></path></svg>
-							</span>
-							<span>
-								{ __( 'Still without limits', 'cimo-image-optimizer' ) }
-							</span>
-						</li>
+					</ul>
+					<h3 className="cimo-premium-features-list-secondary-heading">{ __( 'Also includes:', 'cimo-image-optimizer' ) }</h3>
+					<ul className="cimo-premium-features-list cimo-premium-features-list-secondary">
+						<li>{ __( 'SVG & HEIC support', 'cimo-image-optimizer' ) }</li>
+						<li>{ __( 'Low Quality Image Placeholder', 'cimo-image-optimizer' ) }</li>
+						<li>{ __( 'Stealth mode', 'cimo-image-optimizer' ) }</li>
 					</ul>
 
 					<div className="cimo-premium-cta">
@@ -1091,11 +1064,11 @@ const AdminSettings = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'Upgrade Now', 'cimo-image-optimizer' ) }
+							{ __( 'Unlock full optimization', 'cimo-image-optimizer' ) }
 						</Button>
 						<div className="cimo-premium-guarantee">
-							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a249" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 13.5l2.5 2.5L16 9" /></svg>
-							{ __( '30-day money back guarantee', 'cimo-image-optimizer' ) }
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 13.5l2.5 2.5L16 9" /></svg>
+							{ __( '30-day money-back guarantee. No risk.', 'cimo-image-optimizer' ) }
 						</div>
 					</div>
 				</div>

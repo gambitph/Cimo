@@ -7,7 +7,7 @@
 	margin-top: 20px;
 	margin-inline-end: 20px;
 	display: grid;
-    grid-template-columns: minmax(0, 750px) 300px 1fr;
+    grid-template-columns: minmax(0, 750px) 350px 1fr;
     gap: 24px;
 	align-items: flex-start;
 }
@@ -198,6 +198,13 @@
 		justify-content: center;
 		border-radius: 6px;
 		margin-top: 24px;
+        background: #3c83f6;
+		background-image: linear-gradient(to right, #9833ff, #4d2fe5);
+
+		&:hover {
+			background: #226be0 !important;
+			background-image: linear-gradient(to right, #8114ef, #3516d2) !important;
+		}
 	}
 }
 
@@ -215,6 +222,11 @@
 	h2 {
 		margin: 0;
 	}
+}
+
+.cimo-premium-intro {
+	color: #4d4c4f;
+    margin-bottom: 1.4em;
 }
 
 .cimo-sidebar-heading-icon {
@@ -248,8 +260,42 @@
 
 .cimo-premium-features-list li {
 	display: flex;
-	align-items: baseline;
 	gap: 12px;
+	align-items: center;
+
+	&:has(h4) {
+		display: grid;
+		grid-template-columns: 24px auto;
+		row-gap: 2px;
+
+		h4 {
+			margin: 0;
+			font-size: 1.1em;
+			line-height: 1;
+
+			~ span {
+				grid-column: 2 / 3;
+			}
+		}
+	}
+}
+
+.cimo-premium-features-list-secondary {
+	color: #4d4c4f;
+	list-style: disc inside;
+	display: block;
+}
+
+.cimo-premium-features-list-secondary li {
+	display: list-item;
+	list-style: inherit;
+}
+
+.cimo-premium-features-list-secondary-heading {
+	font-size: 1em;
+    margin: 1.4em 0 0.7em;
+    color: #4d4c4f;
+    text-transform: uppercase;
 }
 
 .cimo-premium-icon {
