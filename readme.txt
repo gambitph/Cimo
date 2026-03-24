@@ -1,10 +1,10 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 6.7.4
-Tested up to: 6.9.1
+Requires at least: 6.7.5
+Tested up to: 6.9.4
 Requires PHP: 8.0
-Stable tag: 1.2.3
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -92,9 +92,12 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 
 If you upgrade to [Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt), you will get the following:
 
+* **Bulk Optimization** – optimize your existing media in your Media Library in one click, no server processing as well
+* **Optimize Files Uploaded via Form Plugins** – automatically optimize images, videos, and audio uploaded through popular form plugins (Gravity Forms, WPForms, Ninja Forms, Formidable, Fluent Forms, etc.)
 * **Video Optimization** – automatically optimize and optionally downscale the resolution of videos as you upload them
 * **Audio Optimization** – auotmatically optimize audio files as you upload them
 * **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
+* **Stealth Mode** – completely hides all Cimo branding and interface elements, while all optimization features continue to work seamlessly in the background.
 
 [Visit our website](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) to learn more
 
@@ -165,7 +168,7 @@ Currently WebP conversion is fully supported.
 
 = Does Cimo work with existing images? =
 
-Currently, Cimo optimizes images during the upload process. For existing images, you can re-upload them to get the optimization benefits.
+Cimo optimizes images during the upload process. For existing images, we have bulk optimization available in Cimo Premium. Learn more on our [pricing page](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=faq&utm_campaign=readme-txt).
 
 = Does Cimo convert video and audio files? =
 
@@ -203,6 +206,16 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.3.0 =
+
+* New: Bulk optimization without server processing (premium)
+* New: Frontend file uploads can now be optimized (premium)
+* New: Integrations to popular WordPress Form plugins (premium)
+* New: Added stealth mode (premium)
+* New: Added settings link in plugins page entry
+* Fixed: Cimo settings page improvements
+* Fixed: Improvements on stats metabox styling
 
 = 1.2.3 =
 
