@@ -16,11 +16,15 @@ const BulkOptimizationComponent = applyFilters( 'cimo.admin.settings.bulkOptimiz
 
 const AdminSettings = () => {
 	const [ settings, setSettings ] = useState( {
-		webpQuality: 80,
-		maxImageDimension: '',
+		// General settings
+		optimizeAllMedia: 0,
 		disableWpScaling: 1,
 		disableThumbnailGeneration: 0,
 		thumbnailSizes: [], // Stores DISABLED thumbnail sizes
+
+		// Image optimization settings
+		webpQuality: 80,
+		maxImageDimension: '',
 
 		// LQIP settings
 		lqipEnabled: 0,
@@ -78,12 +82,15 @@ const AdminSettings = () => {
 
 			const cimoOptions = data.cimo_options || {}
 			const fetchedSettings = {
-				// Image Optimization settings
-				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
-				maxImageDimension: cimoOptions.max_image_dimension || '',
+				// General Settings
+				optimizeAllMedia: cimoOptions.optimize_all_media !== undefined ? cimoOptions.optimize_all_media : 0,
 				disableWpScaling: cimoOptions.disable_wp_scaling !== undefined ? cimoOptions.disable_wp_scaling : 1,
 				disableThumbnailGeneration: cimoOptions.disable_thumbnail_generation !== undefined ? cimoOptions.disable_thumbnail_generation : 0,
 				thumbnailSizes: cimoOptions.thumbnail_sizes || [],
+
+				// Image Optimization settings
+				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
+				maxImageDimension: cimoOptions.max_image_dimension || '',
 
 				// LQIP settings
 				lqipEnabled: cimoOptions.lqip_enabled !== undefined ? cimoOptions.lqip_enabled : 0,
@@ -143,15 +150,36 @@ const AdminSettings = () => {
 		} )
 	}
 
+	const applyGeneralRecommendedSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				optimizeAllMedia: 0,
+				disableWpScaling: 1,
+				disableThumbnailGeneration: 1,
+				thumbnailSizes: [],
+			}
+		} )
+	}
+
+	const applyGeneralDefaultSettings = () => {
+		setSettings( settings => {
+			return {
+				...settings,
+				optimizeAllMedia: 0,
+				disableWpScaling: 1,
+				disableThumbnailGeneration: 0,
+				thumbnailSizes: [],
+			}
+		} )
+	}
+
 	const applyImageRecommendedSettings = () => {
 		setSettings( settings => {
 			return {
 				...settings,
 				webpQuality: 80,
 				maxImageDimension: 1920,
-				disableWpScaling: 1,
-				disableThumbnailGeneration: 1,
-				thumbnailSizes: [],
 			}
 		} )
 	}
@@ -162,9 +190,6 @@ const AdminSettings = () => {
 				...settings,
 				webpQuality: '',
 				maxImageDimension: '',
-				disableWpScaling: 1,
-				disableThumbnailGeneration: 0,
-				thumbnailSizes: [],
 			}
 		} )
 	}
@@ -262,12 +287,15 @@ const AdminSettings = () => {
 				method: 'POST',
 				data: {
 					cimo_options: {
-						// Image Optimization settings
-						webp_quality: parseInt( settings.webpQuality ) || 0,
-						max_image_dimension: parseInt( settings.maxImageDimension ) || 0,
+						// General settings
+						optimize_all_media: settings.optimizeAllMedia,
 						disable_wp_scaling: settings.disableWpScaling,
 						disable_thumbnail_generation: settings.disableThumbnailGeneration,
 						thumbnail_sizes: settings.thumbnailSizes,
+
+						// Image Optimization settings
+						webp_quality: parseInt( settings.webpQuality ) || 0,
+						max_image_dimension: parseInt( settings.maxImageDimension ) || 0,
 
 						// LQIP settings
 						lqip_enabled: settings.lqipEnabled,
@@ -422,48 +450,42 @@ const AdminSettings = () => {
 						) }
 					</div>
 
-					<div className="cimo-settings-section">
+					{ /* General Settings */ }
+
+					<div className="cimo-settings-section cimo-settings-section-general">
 						<div className="cimo-settings-header">
 							<h2>
 								<span aria-hidden="true">
 									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
 								</span>
-								{ __( 'Image Optimization Settings', 'cimo-image-optimizer' ) }
+								{ __( 'General Settings', 'cimo-image-optimizer' ) }
 							</h2>
 							<Button
 								variant="secondary"
-								onClick={ applyImageRecommendedSettings }
-								className="cimo-recommended-button"
-								__next40pxDefaultSize
+								onClick={ applyGeneralRecommendedSettings }
 							>
 								{ __( 'Recommended', 'cimo-image-optimizer' ) }
 							</Button>
 						</div>
 
+						{ /* Optimize All Media Uploads*/ }
 						<div className="cimo-setting-field">
-							<RangeControl
-								id="webpQuality"
-								label={ __( 'WebP Image Quality', 'cimo-image-optimizer' ) }
-								value={ settings.webpQuality || '' }
-								onChange={ value => handleInputChange( 'webpQuality', value || '' ) }
-								min="1"
-								max="100"
-								step="1"
-								__next40pxDefaultSize
-								allowReset
-								initialPosition={ 80 }
-								help={ __( 'Set the quality / compression level for generated .webp images. Default is 80%. Higher values mean better quality and larger file size; lower values reduce file size with more compression but lower quality.', 'cimo-image-optimizer' ) }
-							/>
-						</div>
-						{ /* Maximum Image Dimension */ }
-						<div className="cimo-setting-field">
-							<TextControl
-								label={ __( 'Maximum Image Dimension', 'cimo-image-optimizer' ) }
-								type="number"
-								value={ settings.maxImageDimension }
-								onChange={ value => handleInputChange( 'maxImageDimension', value ) }
-								help={ __( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to disable resizing. We recommend a value of 1920px.', 'cimo-image-optimizer' ) }
-								__next40pxDefaultSize
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={
+									<span>
+										{ __( 'Optimize All Media Uploads', 'cimo-image-optimizer' ) }
+										{ buildType === 'free' && (
+											<span className="cimo-premium-tag">
+												{ __( 'Premium', 'cimo-image-optimizer' ) }
+											</span>
+										) }
+									</span>
+								}
+								checked={ settings.optimizeAllMedia === 1 }
+								disabled={ buildType === 'free' }
+								onChange={ checked => handleInputChange( 'optimizeAllMedia', checked ? 1 : 0 ) }
+								help={ __( 'Enable to optimize all files uploaded via any input type="file" on your website, including those in the admin pages, plugin forms and custom HTML upload forms in the frontend of your stie. When disabled, only uploads handled by Cimo\'s official integrations will be optimized.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
 
@@ -518,6 +540,60 @@ const AdminSettings = () => {
 									) }
 								</div>
 							) }
+						</div>
+
+						<Button
+							variant="tertiary"
+							className="cimo-reset-button"
+							onClick={ applyGeneralDefaultSettings }
+						>
+							{ __( 'Reset to Default', 'cimo-image-optimizer' ) }
+						</Button>
+					</div>
+
+					{ /* Image Optimization */ }
+
+					<div className="cimo-settings-section">
+						<div className="cimo-settings-header">
+							<h2>
+								<span aria-hidden="true">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-image-icon lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+								</span>
+								{ __( 'Image Optimization Settings', 'cimo-image-optimizer' ) }
+							</h2>
+							<Button
+								variant="secondary"
+								onClick={ applyImageRecommendedSettings }
+							>
+								{ __( 'Recommended', 'cimo-image-optimizer' ) }
+							</Button>
+						</div>
+
+						<div className="cimo-setting-field">
+							<RangeControl
+								id="webpQuality"
+								label={ __( 'WebP Image Quality', 'cimo-image-optimizer' ) }
+								value={ settings.webpQuality || '' }
+								onChange={ value => handleInputChange( 'webpQuality', value || '' ) }
+								min="1"
+								max="100"
+								step="1"
+								__next40pxDefaultSize
+								allowReset
+								initialPosition={ 80 }
+								help={ __( 'Set the quality / compression level for generated .webp images. Default is 80%. Higher values mean better quality and larger file size; lower values reduce file size with more compression but lower quality.', 'cimo-image-optimizer' ) }
+							/>
+						</div>
+						{ /* Maximum Image Dimension */ }
+						<div className="cimo-setting-field">
+							<TextControl
+								label={ __( 'Maximum Image Dimension', 'cimo-image-optimizer' ) }
+								type="number"
+								value={ settings.maxImageDimension }
+								onChange={ value => handleInputChange( 'maxImageDimension', value ) }
+								help={ __( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to disable resizing. We recommend a value of 1920px.', 'cimo-image-optimizer' ) }
+								__next40pxDefaultSize
+							/>
 						</div>
 
 						<Button

@@ -79,12 +79,10 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 						'schema' => [
 							'type' => 'object',
 							'properties' => [
-								'webp_quality' => [
+								// General settings
+								'optimize_all_media' => [
 									'type' => 'integer',
-								],
-								'max_image_dimension' => [
-									'type' => 'integer',
-								],
+								], 
 								'disable_wp_scaling' => [
 									'type' => 'integer',
 								],
@@ -96,6 +94,14 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 									'items' => [
 										'type' => 'string',
 									],
+								],
+
+								// Image Optimization settings
+								'webp_quality' => [
+									'type' => 'integer',
+								],
+								'max_image_dimension' => [
+									'type' => 'integer',
 								],
 
 								// LQIP settings
@@ -256,18 +262,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			$current = get_option( 'cimo_options', [] );
 			$sanitized = is_array( $current ) ? $current : [];
 
-			// Sanitize webp quality
-			if ( isset( $options['webp_quality'] ) ) {
-				$quality = absint( $options['webp_quality'] );
-				// 0 means disabled/not set
-				$sanitized['webp_quality'] = $quality > 0 ? max( 1, min( 100, $quality ) ) : 0;
-			}
-
-			// Sanitize max image dimension
-			if ( isset( $options['max_image_dimension'] ) ) {
-				$dimension = absint( $options['max_image_dimension'] );
-				// 0 means disabled/not set
-				$sanitized['max_image_dimension'] = $dimension;
+			// Sanitize optimize_all_media
+			if ( isset( $options['optimize_all_media'] ) ) {
+				$sanitized['optimize_all_media'] = $options['optimize_all_media'] ? 1 : 0;
 			}
 
 			// Sanitize disable_wp_scaling
@@ -283,6 +280,20 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			// Sanitize thumbnail sizes
 			if ( isset( $options['thumbnail_sizes'] ) && is_array( $options['thumbnail_sizes'] ) ) {
 				$sanitized['thumbnail_sizes'] = array_map( 'sanitize_text_field', $options['thumbnail_sizes'] );
+			}
+
+			// Sanitize webp quality
+			if ( isset( $options['webp_quality'] ) ) {
+				$quality = absint( $options['webp_quality'] );
+				// 0 means disabled/not set
+				$sanitized['webp_quality'] = $quality > 0 ? max( 1, min( 100, $quality ) ) : 0;
+			}
+
+			// Sanitize max image dimension
+			if ( isset( $options['max_image_dimension'] ) ) {
+				$dimension = absint( $options['max_image_dimension'] );
+				// 0 means disabled/not set
+				$sanitized['max_image_dimension'] = $dimension;
 			}
 
 			// Sanitize lqip_enabled

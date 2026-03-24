@@ -136,14 +136,25 @@
 	gap: 16px;
 }
 
-.cimo-stat-percentage,
-.cimo-premium-feature-label {
+.cimo-stat-percentage {
 	color: #16a249;
     background: #16a24933;
     padding: 8px 12px;
     border-radius: 8px;
     font-weight: 700;
     line-height: 1;
+}
+
+.cimo-premium-tag {
+	margin-left: 8px;
+	font-size: 11px;
+	background: #FFE066;
+	color: #7C5700;
+	border-radius: 6px;
+	padding: 2px 7px;
+	font-weight: 600;
+	vertical-align: middle;
+	display: inline-block;
 }
 
 .cimo-settings-section-wrapper {
@@ -560,10 +571,20 @@
 .cimo-premium-feature-label {
 	gap: 4px;
     display: flex;
+	color: #7C5700;
+    background: #FFE066;
+	align-items: center;
+	font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 600;
+    line-height: 1;
+	vertical-align: middle;
+	height: 20px;
 
 	svg {
-		width: 14px;
-		height: 14px;
+		width: 12px;
+		height: 12px;
 	}
 }
 
@@ -596,6 +617,17 @@
 
 	svg {
 		color: #259f35;
+	}
+}
+
+.cimo-settings-section-general {
+
+	.cimo-setting-field:has(.is-disabled) {
+		order: 9;
+
+		~ .cimo-reset-button {
+			order: 10;
+		}
 	}
 }
 
