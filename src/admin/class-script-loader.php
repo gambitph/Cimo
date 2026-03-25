@@ -12,9 +12,9 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 	class Cimo_Script_Loader {
 		public function __construct() {
 			// Enqueue for the block editor.
-			add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_cimo_assets' ] );
+			add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_cimo_assets' ] );
 			// Enqueue for Elementor.
-			add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+			add_action( 'elementor/editor/before_enqueue_scripts', [ __CLASS__, 'enqueue_cimo_assets' ] );
 			// Enqueue for Beaver Builder main window (outside BB's iframe).
 			if ( class_exists( 'FLBuilderModel' ) ) {
 				add_action( 'wp_head', [ $this, 'maybe_enqueue_for_beaver_builder' ], 999 );
@@ -22,11 +22,11 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			// Enqueue for Bricks Builder
 			add_action( 'bricks_before_site_wrapper', [ $this, 'maybe_enqueue_for_bricks_builder' ] );
 			// Enqueue for Oxygen Builder
-			add_action( 'oxygen_enqueue_ui_scripts', [ $this, 'enqueue_cimo_assets' ] );
+			add_action( 'oxygen_enqueue_ui_scripts', [ __CLASS__, 'enqueue_cimo_assets' ] );
 			// Enqueue for Divi
-			add_action( 'et_fb_enqueue_assets', [ $this, 'enqueue_cimo_assets' ] );
+			add_action( 'et_fb_enqueue_assets', [ __CLASS__, 'enqueue_cimo_assets' ] );
 			// Enqueue for the admin area in general.
-			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_cimo_assets' ] );
+			add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_cimo_assets' ] );
 		}
 
 		/**
@@ -35,7 +35,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 		public function maybe_enqueue_for_beaver_builder() {
 			// Check if we're in the Beaver Builder editor context.
 			if ( class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active() ) {
-				$this->enqueue_cimo_assets();
+				self::enqueue_cimo_assets();
 			}
 		}
 
@@ -44,7 +44,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 		 */
 		public function maybe_enqueue_for_bricks_builder() {
 			if ( function_exists( 'bricks_is_builder' ) && bricks_is_builder() ) {
-				$this->enqueue_cimo_assets();
+				self::enqueue_cimo_assets();
 			}
 		}
 
