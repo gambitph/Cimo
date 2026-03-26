@@ -74,3 +74,79 @@
 #cimo-data-meta-box.postbox .inside {
 	padding-top: 12px;
 }
+
+.cimo-optimization-toggle-container {
+	position: fixed;
+	bottom: 16px;
+	right: 16px;
+	z-index: 99999;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	border-radius: 999px;
+
+	background-color: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(6px);
+
+	color: #fff;
+	font-size: 12px;
+	font-family: system-ui, -apple-system, sans-serif;
+
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cimo-optimization-toggle-label {
+	white-space: nowrap;
+	opacity: 0.9;
+}
+
+.cimo-optimization-toggle-switch {
+	position: relative;
+	display: inline-block;
+	width: 34px;
+	height: 18px;
+}
+
+/* Hide default checkbox */
+.cimo-optimization-toggle-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+/* Slider */
+.cimo-optimization-toggle-slider {
+	position: absolute;
+	inset: 0;
+	background-color: #888;
+	border-radius: 34px;
+	transition: background-color 0.2s ease;
+	cursor: pointer;
+}
+
+.cimo-optimization-toggle-slider::before {
+	content: "";
+	position: absolute;
+	height: 14px;
+	width: 14px;
+	left: 2px;
+	bottom: 2px;
+
+	background-color: #fff;
+	border-radius: 50%;
+
+	transition: transform 0.2s ease;
+}
+
+.cimo-optimization-toggle-switch input:checked + .cimo-optimization-toggle-slider {
+  background-color: #0EBA35;
+}
+
+.cimo-optimization-toggle-switch input:checked + .cimo-optimization-toggle-slider::before {
+  transform: translateX(16px);
+}
+
+.cimo-optimization-toggle:hover {
+  background: rgba(0, 0, 0, 0.7);
+}

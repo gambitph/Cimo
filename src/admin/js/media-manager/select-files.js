@@ -32,6 +32,10 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 	}
 
 	const selectFilesListener = async event => {
+		if ( window.cimoSettings?.disableOptimization ) {
+			return
+		}
+
 		// Check if it's a file select.
 		if ( event.target.type !== 'file' ) {
 			return

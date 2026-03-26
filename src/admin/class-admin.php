@@ -83,6 +83,12 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 								'optimize_all_media' => [
 									'type' => 'integer',
 								], 
+								'show_optimization_toggle' => [
+									'type' => 'integer',
+								],
+								'persist_optimization_toggle' => [
+									'type' => 'integer',
+								],
 								'disable_wp_scaling' => [
 									'type' => 'integer',
 								],
@@ -265,6 +271,16 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			// Sanitize optimize_all_media
 			if ( isset( $options['optimize_all_media'] ) ) {
 				$sanitized['optimize_all_media'] = $options['optimize_all_media'] ? 1 : 0;
+			}
+
+			// Sanitize show_optimization_toggle
+			if ( isset( $options['show_optimization_toggle'] ) ) {
+				$sanitized['show_optimization_toggle'] = $options['show_optimization_toggle'] ? 1 : 0;
+			}
+
+			// Sanitize persist_optimization_toggle
+			if ( isset( $options['persist_optimization_toggle'] ) ) {
+				$sanitized['persist_optimization_toggle'] = $options['persist_optimization_toggle'] ? 1 : 0;
 			}
 
 			// Sanitize disable_wp_scaling

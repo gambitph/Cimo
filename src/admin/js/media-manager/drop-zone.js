@@ -38,6 +38,10 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 	}
 
 	const customDropHandler = async event => {
+		if ( window.cimoSettings?.disableOptimization ) {
+			return
+		}
+
 		// If this is a synthetic change event dispatched by us after conversion, skip conversion.
 		if ( event.__cimo_converted ) {
 			return
