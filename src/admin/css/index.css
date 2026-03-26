@@ -147,6 +147,6 @@
   transform: translateX(16px);
 }
 
-.cimo-optimization-toggle:hover {
+.cimo-optimization-toggle-container:hover {
   background: rgba(0, 0, 0, 0.7);
 }
