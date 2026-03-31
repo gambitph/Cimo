@@ -97,6 +97,15 @@ class Converter {
 	}
 
 	/**
+	 * Perform smart optimization.
+	 * If a subclass has not implemented this method, perform regular conversion.
+	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving with the converted file and optional metadata.
+	 */
+	async optimize() {
+		return await this.convert()
+	}
+
+	/**
 	 * Cancel the current conversion.
 	 * Subclasses should override this to implement actual cancellation logic.
 	 */

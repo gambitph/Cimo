@@ -241,13 +241,13 @@ class ImageConverter extends Converter {
 
 		// Skip if already the desired format
 		const formatInfo = supportedFormats.find( f => f.value === formatTo )
-		if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
-			return {
-				file,
-				metadata: null,
-				reason: 'same-format',
-			}
-		}
+		// if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
+		// 	return {
+		// 		file,
+		// 		metadata: null,
+		// 		reason: 'same-format',
+		// 	}
+		// }
 
 		// Check if the browser supports the desired output format
 		const testCanvas = document.createElement( 'canvas' )
@@ -359,7 +359,16 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		return await applyFiltersAsync( 'cimo.imageConverter.optimize', this )
+		let result = await applyFiltersAsync( 'cimo.imageConverter.optimize', {
+			file: this.file,
+			metadata: null,
+			reason: 'no-optimizer',
+		}, this )
+
+		if ( result.reason === 'no-optimizer' || ! result.metadata ) {
+			result = await this.convert()
+		}
+		return result
 	}
 }
 

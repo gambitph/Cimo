@@ -38,15 +38,19 @@ export const getFileConverter = _file => {
 	}
 
 	if ( file.type.startsWith( 'image/' ) ) {
-		// If the browser doesn't support webp, then we can't convert it.
-		if ( ! isFormatSupported( 'webp' ) ) {
-			return new NullConverter( file )
+		let format = 'webp'
+
+		// If webp is not supported, use the same format of the file.
+		if ( ! isFormatSupported( format ) ) {
+			format = file.type
 		}
+
 		if ( ImageConverter.supportsMimeType( file.type ) ) {
 			return new ImageConverter( file, {
-				format: 'webp',
+				format,
 				quality: window.cimoSettings?.webpQuality || 0.8,
 				maxDimension: window.cimoSettings?.maxImageDimension || 0,
+				initialQuality: 1, // Initial quality for smart optimization.
 			} )
 		}
 	}
