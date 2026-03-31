@@ -19,6 +19,7 @@ const AdminSettings = () => {
 		// General settings
 		optimizeAllMedia: 0,
 		showOptimizationToggle: 0,
+		showOptimizationToggleFrontend: 0,
 		persistOptimizationToggle: 0,
 		disableWpScaling: 1,
 		disableThumbnailGeneration: 0,
@@ -87,6 +88,7 @@ const AdminSettings = () => {
 				// General Settings
 				optimizeAllMedia: cimoOptions.optimize_all_media !== undefined ? cimoOptions.optimize_all_media : 0,
 				showOptimizationToggle: cimoOptions.show_optimization_toggle !== undefined ? cimoOptions.show_optimization_toggle : 0,
+				showOptimizationToggleFrontend: cimoOptions.show_optimization_toggle_frontend !== undefined ? cimoOptions.show_optimization_toggle_frontend : 0,
 				persistOptimizationToggle: cimoOptions.persist_optimization_toggle !== undefined ? cimoOptions.persist_optimization_toggle : 0,
 				disableWpScaling: cimoOptions.disable_wp_scaling !== undefined ? cimoOptions.disable_wp_scaling : 1,
 				disableThumbnailGeneration: cimoOptions.disable_thumbnail_generation !== undefined ? cimoOptions.disable_thumbnail_generation : 0,
@@ -160,6 +162,7 @@ const AdminSettings = () => {
 				...settings,
 				optimizeAllMedia: 0,
 				showOptimizationToggle: 0,
+				showOptimizationToggleFrontend: 0,
 				persistOptimizationToggle: 0,
 				disableWpScaling: 1,
 				disableThumbnailGeneration: 1,
@@ -174,6 +177,7 @@ const AdminSettings = () => {
 				...settings,
 				optimizeAllMedia: 0,
 				showOptimizationToggle: 0,
+				showOptimizationToggleFrontend: 0,
 				persistOptimizationToggle: 0,
 				disableWpScaling: 1,
 				disableThumbnailGeneration: 0,
@@ -298,6 +302,7 @@ const AdminSettings = () => {
 						// General settings
 						optimize_all_media: settings.optimizeAllMedia,
 						show_optimization_toggle: settings.showOptimizationToggle,
+						show_optimization_toggle_frontend: settings.showOptimizationToggleFrontend,
 						persist_optimization_toggle: settings.persistOptimizationToggle,
 						disable_wp_scaling: settings.disableWpScaling,
 						disable_thumbnail_generation: settings.disableThumbnailGeneration,
@@ -521,6 +526,29 @@ const AdminSettings = () => {
 								help={ __( 'Enable to show a small floating toggle near the corner of the screen that you can untick to disable media optimization for the current window.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
+
+						{ /* Show in Frontend */ }
+						{ settings.showOptimizationToggle === 1 && buildType === 'premium' &&
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={
+										<span>
+											{ __( 'Show in Frontend', 'cimo-image-optimizer' ) }
+											{ buildType === 'free' && (
+												<span className="cimo-premium-tag">
+													{ __( 'Premium', 'cimo-image-optimizer' ) }
+												</span>
+											) }
+										</span>
+									}
+									checked={ buildType === 'premium' ? settings.showOptimizationToggleFrontend === 1 : 0 }
+									disabled={ buildType === 'free' }
+									onChange={ checked => handleInputChange( 'showOptimizationToggleFrontend', checked ? 1 : 0 ) }
+									help={ __( 'Enable to show the optimization toggle in frontend If enabled, the floating toggle will also be shown in the frontend. Website visitors will also be able to see the floating toggle for user-facing forms.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+						}
 
 						{ /* Persist Optimization Toggle */ }
 						{ settings.showOptimizationToggle === 1 && buildType === 'premium' &&

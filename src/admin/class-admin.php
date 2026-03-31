@@ -86,6 +86,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 								'show_optimization_toggle' => [
 									'type' => 'integer',
 								],
+								'show_optimization_toggle_frontend' => [
+									'type' => 'integer',
+								],
 								'persist_optimization_toggle' => [
 									'type' => 'integer',
 								],
@@ -276,6 +279,11 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			// Sanitize show_optimization_toggle
 			if ( isset( $options['show_optimization_toggle'] ) ) {
 				$sanitized['show_optimization_toggle'] = $options['show_optimization_toggle'] ? 1 : 0;
+			}
+
+			// Sanitize show_optimization_toggle_frontend
+			if ( isset( $options['show_optimization_toggle_frontend'] ) ) {
+				$sanitized['show_optimization_toggle_frontend'] = $options['show_optimization_toggle_frontend'] ? 1 : 0;
 			}
 
 			// Sanitize persist_optimization_toggle
