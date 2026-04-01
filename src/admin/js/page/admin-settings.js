@@ -523,7 +523,7 @@ const AdminSettings = () => {
 								checked={ buildType === 'premium' ? settings.showOptimizationToggle === 1 : 0 }
 								disabled={ buildType === 'free' }
 								onChange={ checked => handleInputChange( 'showOptimizationToggle', checked ? 1 : 0 ) }
-								help={ __( 'Enable to show a small floating toggle near the corner of the screen that you can untick to disable media optimization for the current window.', 'cimo-image-optimizer' ) }
+								help={ __( 'Enable to show a small floating toggle near the lower right-hand corner of your screen in the WordPress backend. This can be used to temporarily disable media optimization for the current tab.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
 
@@ -545,7 +545,7 @@ const AdminSettings = () => {
 									checked={ buildType === 'premium' ? settings.showOptimizationToggleFrontend === 1 : 0 }
 									disabled={ buildType === 'free' }
 									onChange={ checked => handleInputChange( 'showOptimizationToggleFrontend', checked ? 1 : 0 ) }
-									help={ __( 'Enable to show the optimization toggle in frontend If enabled, the floating toggle will also be shown in the frontend. Website visitors will also be able to see the floating toggle for user-facing forms.', 'cimo-image-optimizer' ) }
+									help={ __( 'Enable to show the optimization toggle also in frontend. Website visitors will also be able to see the floating toggle for visitor-facing forms and whenever there is a file upload input.', 'cimo-image-optimizer' ) }
 								/>
 							</div>
 						}
@@ -557,7 +557,7 @@ const AdminSettings = () => {
 									__nextHasNoMarginBottom
 									label={
 										<span>
-											{ __( 'Persist Optimization Toggle State Across Pages', 'cimo-image-optimizer' ) }
+											{ __( 'Remember Toggle On/Off After Page Reload', 'cimo-image-optimizer' ) }
 											{ buildType === 'free' && (
 												<span className="cimo-premium-tag">
 													{ __( 'Premium', 'cimo-image-optimizer' ) }
@@ -568,7 +568,7 @@ const AdminSettings = () => {
 									checked={ buildType === 'premium' ? settings.persistOptimizationToggle === 1 : 0 }
 									disabled={ buildType === 'free' }
 									onChange={ checked => handleInputChange( 'persistOptimizationToggle', checked ? 1 : 0 ) }
-									help={ __( 'Enable to persist the current state of the Optimization Toggle across different pages and window.', 'cimo-image-optimizer' ) }
+									help={ __( 'If enabled, your optimization toggle will remain the same even after you refresh the page or visit other pages. If disabled, the toggle will always reset to ON after reloading the page.', 'cimo-image-optimizer' ) }
 								/>
 							</div>
 						}
