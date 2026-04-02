@@ -83,6 +83,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 				'cimoSettings',
 				[
 					'restUrl' => rest_url( 'cimo/v1/' ),
+					'settingsUrl' => admin_url( 'options-general.php?page=' . CIMO_SETTINGS_SLUG . '#cimo-stats' ),
 					'nonce'   => wp_create_nonce( 'wp_rest' ),
 					'isFrontend' => ! is_admin(),
 					'isLoggedIn' => is_user_logged_in(),

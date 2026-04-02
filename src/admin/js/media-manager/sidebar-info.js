@@ -1,5 +1,6 @@
 import { domReady } from '~cimo/shared/dom-ready'
 import { getCachedMetadata } from '~cimo/shared/metadata-saver'
+import { buildPricingUrl } from '~cimo/shared/pricing-url'
 import { escape } from '~cimo/shared/util'
 import { __, sprintf } from '@wordpress/i18n'
 import { applyFilters } from '@wordpress/hooks'
@@ -147,9 +148,22 @@ function injectCimoMetadata( {
 
 	const arrow = convertedFilesize < originalFilesize ? '↓' : ( convertedFilesize > originalFilesize ? '↑' : '' )
 
+	const settingsUrl =
+		typeof window !== 'undefined' && window.cimoSettings?.settingsUrl
+			? String( window.cimoSettings.settingsUrl )
+			: ''
+
+	const statsHintSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-icon lucide-chart-no-axes-column"><path d="M5 21v-6"/><path d="M12 21V3"/><path d="M19 21V9"/></svg>'
+
+	const statsHintHtml = settingsUrl
+		? `<a class="cimo-media-stats-hint" href="${ escape( settingsUrl ) }" title="${ escape( __( 'View site-wide stats in Cimo settings', 'cimo-image-optimizer' ) ) }" aria-label="${ escape( __( 'View site-wide stats in Cimo settings', 'cimo-image-optimizer' ) ) }">${ statsHintSvg }</a>`
+		: ''
+
 	html += `
 		<li class="cimo-compression-savings ${ escape( optimizationSavingsClass ) }">
-			Saved ${ escape( optimizationSavings ) }%
+			<span class="cimo-compression-savings-headline">
+				Saved ${ escape( optimizationSavings ) }%${ statsHintHtml }
+			</span>
 			<span class="cimo-compression-savings-bytes">(${ escape( kbSaved ) })</span>
 		</li>
 	`
@@ -171,7 +185,6 @@ function injectCimoMetadata( {
 			<li class="cimo-bulk-optimization-number">
 				⚡️ Bulk optimized
 			</li>
-			
 		`
 	}
 
@@ -197,8 +210,19 @@ function injectCimoMetadata( {
 			<li class="cimo-time">
 				⚡️ Done in <span class="cimo-value">${ escape( conversionTimeDisplay ) }</span>
 			</li>
-			</ul>
 		`
+	}
+
+	html += '</ul>'
+
+	const showPremiumHint = typeof window !== 'undefined' &&
+		window.cimoSettings &&
+		! window.cimoSettings.isPremium &&
+		! isBulkOptimized
+
+	if ( showPremiumHint ) {
+		const premiumUrl = buildPricingUrl( 'attachment-modal' )
+		html += `<p class="cimo-media-premium-hint"><a href="${ escape( premiumUrl ) }" target="_blank" rel="noopener noreferrer">${ escape( __( 'Apply this to your entire library →', 'cimo-image-optimizer' ) ) }</a></p>`
 	}
 
 	customContent.innerHTML = html
