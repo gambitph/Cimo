@@ -51,7 +51,7 @@ if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 					<?php
 						// Translators: The %s is replaced by the Cimo Premium link.
 						printf(
-							esc_html__( 'Apply this to your entire media library and user uploads with %s', 'cimo-image-optimizer' ),
+							esc_html__( 'Extend to your entire media library and user uploads with %s', 'cimo-image-optimizer' ),
 							'<a href="' . esc_url( Cimo_Admin::pricing_url( 'activation-notice', 'admin' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Cimo Premium →', 'cimo-image-optimizer' ) . '</a>'
 						);
 					?>
