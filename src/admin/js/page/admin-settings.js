@@ -9,6 +9,7 @@ import {
 import { applyFilters } from '@wordpress/hooks'
 import apiFetch from '@wordpress/api-fetch'
 import { __, sprintf } from '@wordpress/i18n'
+import { buildPricingUrl } from '~cimo/shared/pricing-url'
 import cimoLogo from './assets/logo-long.webp'
 
 const buildType = applyFilters( 'cimo.admin.settings.buildType', 'free' )
@@ -349,7 +350,7 @@ const AdminSettings = () => {
 				<img className="cimo-logo" src={ cimoLogo } alt={ __( 'Cimo Logo', 'cimo-image-optimizer' ) } height="35" />
 
 				{ /* Statistics Section */ }
-				<div className="cimo-stats-section">
+				<div className="cimo-stats-section" id="cimo-stats">
 					<div className="cimo-stats-column cimo-stats-column-big">
 						<h3>{ __( 'Total Storage Saved', 'cimo-image-optimizer' ) }</h3>
 						<div className="cimo-stats-main">
@@ -390,7 +391,7 @@ const AdminSettings = () => {
 					if ( match ) {
 						const num = parseFloat( match[ 1 ] )
 						const unit = match[ 2 ].toUpperCase()
-						if ( unit === 'MB' && num > 100 ) {
+						if ( unit === 'MB' && num > 5 ) {
 							showRating = true
 						}
 					}
@@ -629,6 +630,7 @@ const AdminSettings = () => {
 							<PremiumPlaceholder
 								label={ __( 'Bulk optimize existing media in your Media Library.', 'cimo-image-optimizer' ) }
 								learnMoreUrl="https://docs.wpcimo.com/article/788-bulk-optimization"
+								pricingUtmContent="bulk"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -667,6 +669,7 @@ const AdminSettings = () => {
 							<PremiumPlaceholder
 								label={ __( 'Show a low-quality preview while the image loads, then fade in the final image.', 'cimo-image-optimizer' ) }
 								learnMoreUrl="https://docs.wpcimo.com/article/777-low-quality-image-placeholder"
+								pricingUtmContent="lqip"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -771,6 +774,7 @@ const AdminSettings = () => {
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize video files on upload', 'cimo-image-optimizer' ) }
 								learnMoreUrl="https://docs.wpcimo.com/article/775-video-optimization"
+								pricingUtmContent="video"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -890,6 +894,7 @@ const AdminSettings = () => {
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize audio files on upload', 'cimo-image-optimizer' ) }
 								learnMoreUrl="https://docs.wpcimo.com/article/776-audio-optimization"
+								pricingUtmContent="audio"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -952,6 +957,7 @@ const AdminSettings = () => {
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to compress and optimize SVG files on upload', 'cimo-image-optimizer' ) }
 								learnMoreUrl="https://docs.wpcimo.com/article/780-svg-support"
+								pricingUtmContent="svg"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -1011,6 +1017,7 @@ const AdminSettings = () => {
 							<PremiumPlaceholder
 								label={ __( 'Upgrade to Premium to enter stealth mode.', 'cimo-image-optimizer' ) }
 								learnMoreUrl="https://docs.wpcimo.com/article/782-stealth-mode"
+								pricingUtmContent="stealth"
 							/>
 						) }
 						{ buildType === 'premium' && <>
@@ -1135,7 +1142,7 @@ const AdminSettings = () => {
 
 					<div className="cimo-premium-cta">
 						<Button
-							href="https://wpcimo.com/pricing?utm_source=plugin&utm_medium=admin&utm_campaign=upgrade"
+							href={ buildPricingUrl( 'sidebar' ) }
 							variant="primary"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -1156,6 +1163,7 @@ const AdminSettings = () => {
 export default AdminSettings
 
 const PremiumPlaceholder = props => {
+	const pricingHref = buildPricingUrl( props.pricingUtmContent || 'placeholder' )
 	return (
 		<div className="cimo-settings-premium-placeholder">
 			{ props.label }
@@ -1165,7 +1173,7 @@ const PremiumPlaceholder = props => {
 				<Button
 					variant="secondary"
 					className="cimo-premium-cta cimo-premium-cta-upgrade"
-					href="https://wpcimo.com/pricing"
+					href={ pricingHref }
 					target="_blank"
 					rel="noopener noreferrer"
 				>

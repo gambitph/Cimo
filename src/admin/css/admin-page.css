@@ -203,6 +203,9 @@
 .cimo-settings-sidebar {
 	background: #faf6ff;
     border: 1px solid #d4bbf1;
+	position: sticky;
+	top: 40px;
+	align-self: start;
 
 	.components-button {
 		width: 100%;
@@ -526,6 +529,11 @@
 
 	.cimo-settings-form {
 		order: 2;
+	}
+
+	.cimo-settings-sidebar {
+		position: static;
+		top: auto;
 	}
 
 	.cimo-stats-section {

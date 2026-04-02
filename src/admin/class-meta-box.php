@@ -219,6 +219,11 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						}
 
 						echo '</ul>';
+						if ( CIMO_BUILD === 'free' && ! $is_bulk_optimized ) {
+							echo '<p class="cimo-media-premium-hint">';
+							echo '<a href="' . esc_url( Cimo_Admin::pricing_url( 'attachment-meta', 'admin' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Apply this to your entire library →', 'cimo-image-optimizer' ) . '</a>';
+							echo '</p>';
+						}
 						// echo '</div>';
 					} else {
 						echo '<p>' . esc_html__( 'Cimo did not optimize this attachment.', 'cimo-image-optimizer' ) . '</p>';

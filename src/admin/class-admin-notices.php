@@ -47,6 +47,15 @@ if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 					<strong><?php esc_html_e( 'Cimo Image Optimizer activated.', 'cimo-image-optimizer' ); ?></strong>
 					<?php esc_html_e( 'Your images are instantly optimized within your browser as you upload — only the optimized versions ever touch your site!', 'cimo-image-optimizer' ); ?>
 				</p>
+				<p class="cimo-activation-notice-secondary">
+					<?php
+						// Translators: The %s is replaced by the Cimo Premium link.
+						printf(
+							esc_html__( 'Apply this to your entire media library and user uploads with %s', 'cimo-image-optimizer' ),
+							'<a href="' . esc_url( Cimo_Admin::pricing_url( 'activation-notice', 'admin' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Cimo Premium →', 'cimo-image-optimizer' ) . '</a>'
+						);
+					?>
+				</p>
 				<p>
 					<a href="<?php echo esc_url( $dismiss_url ); ?>" class="button button-secondary">
 						<?php esc_html_e( 'Dismiss', 'cimo-image-optimizer' ); ?>
