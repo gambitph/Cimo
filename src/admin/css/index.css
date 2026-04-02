@@ -77,7 +77,6 @@
 	margin-top: -2px;
 
 	-webkit-user-drag: none; /* For Chrome, Safari, and Edge */
-	user-drag: none;
 	-webkit-user-select: none; /* Prevents text/element selection while dragging */
 	-moz-user-select: none;    /* For Firefox */
 	-ms-user-select: none;     /* For older IE/Edge */
