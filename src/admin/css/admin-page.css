@@ -476,6 +476,10 @@
 .cimo-image-sizes-list {
 	margin-top: 8px;
 	margin-left: 40px;
+
+	.components-toggle-control {
+		margin-bottom: 8px;
+	}
 }
 
 .cimo-image-sizes-list, .cimo-bulk-optimizer-image-list {
