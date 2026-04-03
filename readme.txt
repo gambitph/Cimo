@@ -97,7 +97,7 @@ If you upgrade to [Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-d
 * **Bulk Optimization** – optimize your existing media in your Media Library in one click, no server processing as well
 * **Optimize Files Uploaded via Form Plugins** – automatically optimize images, videos, and audio uploaded through popular form plugins (Gravity Forms, WPForms, Ninja Forms, Formidable, Fluent Forms, etc.)
 * **Video Optimization** – automatically optimize and optionally downscale the resolution of videos as you upload them
-* **Audio Optimization** – auotmatically optimize audio files as you upload them
+* **Audio Optimization** – automatically optimize audio files as you upload them
 * **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
 * **Stealth Mode** – completely hides all Cimo branding and interface elements, while all optimization features continue to work seamlessly in the background.
 
