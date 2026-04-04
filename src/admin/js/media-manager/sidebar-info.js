@@ -148,8 +148,13 @@ function injectCimoMetadata( {
 
 	const arrow = convertedFilesize < originalFilesize ? '↓' : ( convertedFilesize > originalFilesize ? '↑' : '' )
 
+	const canManageOptions =
+		typeof window !== 'undefined' && Boolean( window.cimoSettings?.canManageOptions )
+
 	const settingsUrl =
-		typeof window !== 'undefined' && window.cimoSettings?.settingsUrl
+		canManageOptions &&
+		typeof window !== 'undefined' &&
+		window.cimoSettings?.settingsUrl
 			? String( window.cimoSettings.settingsUrl )
 			: ''
 
@@ -217,6 +222,7 @@ function injectCimoMetadata( {
 
 	const showPremiumHint = typeof window !== 'undefined' &&
 		window.cimoSettings &&
+		canManageOptions &&
 		! window.cimoSettings.isPremium &&
 		! isBulkOptimized
 

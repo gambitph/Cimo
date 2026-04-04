@@ -87,6 +87,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'nonce'   => wp_create_nonce( 'wp_rest' ),
 					'isFrontend' => ! is_admin(),
 					'isLoggedIn' => is_user_logged_in(),
+					'canManageOptions' => current_user_can( 'manage_options' ),
 					'optimizeAllMedia' => isset( $settings['optimize_all_media'] ) ? (int) $settings['optimize_all_media'] : 0,
 					'isPremium' => CIMO_BUILD === 'premium',
 					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
