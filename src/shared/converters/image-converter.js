@@ -215,11 +215,10 @@ class ImageConverter extends Converter {
 
 	/**
 	 * Convert an image file to the desired format and options.
-	 * @param {boolean} [force=false] - Force conversion even if the file is already in the desired format.
-	 * @param {Object}  [options]     - Options for the conversion.
+	 * @param {Object} [options] - Options for the conversion.
 	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving to the converted file and optional metadata.
 	 */
-	async convert( force = false, options = {} ) {
+	async convert( options = {} ) {
 		const file = this.file
 		const {
 			quality = this.options?.quality || 0.8,
@@ -239,15 +238,7 @@ class ImageConverter extends Converter {
 			}
 		}
 
-		// Skip if already the desired format
 		const formatInfo = supportedFormats.find( f => f.value === formatTo )
-		// if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
-		// 	return {
-		// 		file,
-		// 		metadata: null,
-		// 		reason: 'same-format',
-		// 	}
-		// }
 
 		// Check if the browser supports the desired output format
 		const testCanvas = document.createElement( 'canvas' )
