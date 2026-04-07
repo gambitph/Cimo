@@ -1,7 +1,7 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 6.7.5
+Requires at least: 6.6.2
 Tested up to: 6.9.4
 Requires PHP: 8.0
 Stable tag: 1.3.0
@@ -85,6 +85,8 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 		* Kadence
 		* Greenshift
 		* GenerateBlocks
+	* Popular plugins
+		* WooCommerce
 
 **Since Cimo's optimization works during the upload process, Cimo should be compatible with any plugin that uses images**
 
@@ -214,6 +216,7 @@ Yes! The settings page includes a statistics dashboard showing:
 * New: Integrations to popular WordPress Form plugins (premium)
 * New: Added stealth mode (premium)
 * New: Added settings link in plugins page entry
+* New: Added support for dropping images in WooCommerce descriptions
 * Fixed: Cimo settings page improvements
 * Fixed: Improvements on stats metabox styling
 
