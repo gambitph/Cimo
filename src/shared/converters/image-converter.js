@@ -350,7 +350,9 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		const smartOptimization = String( window.cimoSettings?.smartOptimization ?? '1' ) !== '0'
+		const smartOptimization =
+			Boolean( window.cimoSettings?.isPremium ) &&
+			String( window.cimoSettings?.smartOptimization ?? '1' ) !== '0'
 		let result = null
 
 		if ( smartOptimization ) {
