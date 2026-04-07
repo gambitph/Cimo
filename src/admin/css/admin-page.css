@@ -647,6 +647,26 @@
 	order: 1;
 }
 
+.cimo-smart-optimization-toggle {
+	order: 2;
+
+	~ .cimo-setting-field {
+		order: 3;
+	}
+
+	~ .cimo-webp-quality-range-control {
+		order: 1;
+	}
+
+	~ .cimo-reset-button {
+		order: 10;
+	}
+}
+
+.cimo-is-premium .cimo-smart-optimization-toggle {
+	order: 1;
+}
+
 @keyframes cimo-bulk-optimizer-blink {
 
 	0%, 100% { opacity: 1; }

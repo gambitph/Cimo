@@ -576,20 +576,29 @@ const AdminSettings = () => {
 						</div>
 
 						{ /* Smart Optimization */ }
-						<div className="cimo-setting-field">
+						<div className="cimo-setting-field cimo-smart-optimization-toggle">
 							<ToggleControl
 								__nextHasNoMarginBottom
-								label={ __( 'Smart Optimization', 'cimo-image-optimizer' ) }
-								checked={ settings.smartOptimization === 1 }
+								label={
+									<span>
+										{ __( 'Smart Optimization', 'cimo-image-optimizer' ) }
+										{ buildType === 'free' && (
+											<span className="cimo-premium-tag">
+												{ __( 'Premium', 'cimo-image-optimizer' ) }
+											</span>
+										) }
+									</span>
+								}
+								checked={ buildType === 'free' ? false : ( settings.smartOptimization === 1 ) }
 								disabled={ buildType === 'free' }
 								onChange={ checked => handleInputChange( 'smartOptimization', checked ? 1 : 0 ) }
-								help={ __( 'Automatically optimizes images to achieve the best possible quality while keeping file sizes as small as possible for faster performance.', 'cimo-image-optimizer' ) }
+								help={ __( 'Smart Optimization uses our advanced algorithms to choose the best compression and quality settings per image. This adds a small overhead to the upload process, but the results are even smaller file sizes and faster loading times.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
 
 						{ /* WebP Image Quality */ }
 						{ ( buildType === 'free' || settings.smartOptimization === 0 ) && (
-							<div className="cimo-setting-field">
+							<div className="cimo-setting-field cimo-webp-quality-range-control">
 								<RangeControl
 									id="webpQuality"
 									label={ __( 'WebP Image Quality', 'cimo-image-optimizer' ) }
