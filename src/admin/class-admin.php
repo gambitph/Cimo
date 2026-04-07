@@ -20,6 +20,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
 				add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
 				add_filter( 'plugin_action_links_' . plugin_basename( CIMO_FILE ), [ $this, 'add_admin_action_links' ] );
+				if ( CIMO_BUILD === 'free' ) {
+					add_filter( 'plugin_row_meta', [ $this, 'add_plugin_row_meta' ], 10, 2 );
+				}
 			}
 
 			// Disable thumbnail generation
@@ -56,11 +59,48 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 		}
 
 		/**
+		 * Pricing URL with UTM parameters (free-build upsell surfaces).
+		 *
+		 * @param string $utm_content Optional utm_content value.
+		 * @param string $utm_medium  Defaults to admin; use plugins-screen for Plugins screen links.
+		 * @return string
+		 */
+		public static function pricing_url( $utm_content = '', $utm_medium = 'admin' ) {
+			$args = [
+				'utm_source'   => 'plugin',
+				'utm_medium'   => $utm_medium,
+				'utm_campaign' => 'upgrade',
+			];
+			if ( is_string( $utm_content ) && $utm_content !== '' ) {
+				$args['utm_content'] = $utm_content;
+			}
+			return add_query_arg( $args, 'https://wpcimo.com/pricing' );
+		}
+
+		/**
 		 * Add a Settings link to the plugin action links.
 		 */
 		public function add_admin_action_links( $links ) {
 			$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=' . CIMO_SETTINGS_SLUG ) ) . '">' . esc_html__( 'Settings', 'cimo-image-optimizer' ) . '</a>';
-			array_unshift( $links, $settings_link );
+			if ( CIMO_BUILD === 'free' ) {
+				$upgrade_link = '<a href="' . esc_url( self::pricing_url( 'plugins-action', 'plugins-screen' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Upgrade', 'cimo-image-optimizer' ) . '</a>';
+				return array_merge( [ $settings_link, $upgrade_link ], $links );
+			}
+			return array_merge( [ $settings_link ], $links );
+		}
+
+		/**
+		 * Subtle Premium link on the Plugins screen (free build only).
+		 *
+		 * @param string[] $links Existing row meta links.
+		 * @param string   $file   Plugin basename.
+		 * @return string[]
+		 */
+		public function add_plugin_row_meta( $links, $file ) {
+			if ( CIMO_BUILD !== 'free' || plugin_basename( CIMO_FILE ) !== $file ) {
+				return $links;
+			}
+			$links[] = '<a href="' . esc_url( self::pricing_url( 'plugins-row', 'plugins-screen' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Cimo Premium — bulk optimize & more', 'cimo-image-optimizer' ) . '</a>';
 			return $links;
 		}
 

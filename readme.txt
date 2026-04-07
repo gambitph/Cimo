@@ -1,10 +1,10 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 6.6.2
+Requires at least: 6.7.5
 Tested up to: 6.9.4
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,7 +97,7 @@ If you upgrade to [Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-d
 * **Bulk Optimization** – optimize your existing media in your Media Library in one click, no server processing as well
 * **Optimize Files Uploaded via Form Plugins** – automatically optimize images, videos, and audio uploaded through popular form plugins (Gravity Forms, WPForms, Ninja Forms, Formidable, Fluent Forms, etc.)
 * **Video Optimization** – automatically optimize and optionally downscale the resolution of videos as you upload them
-* **Audio Optimization** – auotmatically optimize audio files as you upload them
+* **Audio Optimization** – automatically optimize audio files as you upload them
 * **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
 * **Stealth Mode** – completely hides all Cimo branding and interface elements, while all optimization features continue to work seamlessly in the background.
 
@@ -208,6 +208,12 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.3.1 =
+
+* Fixed: Optimization metadata may not be attached if uploading images with the same filename #40
+* Fixed: Added view all stats link
+* Fixed: Added upgrade links
 
 = 1.3.0 =
 

@@ -40,12 +40,65 @@
     line-height: 1.2;
 }
 
+.cimo-media-premium-hint {
+	margin: 20px 0 0;
+	font-size: 11px;
+	line-height: 1.45;
+	text-align: center;
+}
+
+.cimo-media-premium-hint a {
+	color: #6a788b;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
 .cimo-compression-savings {
 	font-size: 21px;
     font-weight: 700;
     color: #18aa18;
 	margin-bottom: 16px !important;
 	text-align: center;
+}
+
+.cimo-media-stats-hint {
+	display: inline-flex;
+	align-items: center;
+	margin-left: 6px;
+	color: #8c8f94;
+	opacity: 0.65;
+	text-decoration: none;
+	line-height: 0;
+	vertical-align: middle;
+	transition: color 0.15s ease, opacity 0.15s ease;
+	margin-top: -2px;
+
+	-webkit-user-drag: none; /* For Chrome, Safari, and Edge */
+	-webkit-user-select: none; /* Prevents text/element selection while dragging */
+	-moz-user-select: none;    /* For Firefox */
+	-ms-user-select: none;     /* For older IE/Edge */
+	user-select: none;
+
+	svg {
+		width: 16px;
+		height: 16px;
+		stroke-width: 3px;
+	}
+}
+
+.cimo-media-stats-hint:hover,
+.cimo-media-stats-hint:focus {
+	color: #2271b1;
+	opacity: 1;
+	outline: none;
+}
+
+.cimo-media-stats-hint:focus-visible {
+	box-shadow: 0 0 0 1px #2271b1;
+	border-radius: 2px;
 }
 
 .cimo-compression-savings-bytes {
