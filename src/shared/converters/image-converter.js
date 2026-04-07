@@ -363,6 +363,14 @@ class ImageConverter extends Converter {
 
 		if ( ! result || result.reason === 'no-optimizer' ) {
 			result = await this.convert()
+		} else if ( result.metadata && typeof result.metadata === 'object' ) {
+			result = {
+				...result,
+				metadata: {
+					...result.metadata,
+					smartOptimized: 1,
+				},
+			}
 		}
 		return result
 	}
