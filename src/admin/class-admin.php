@@ -97,6 +97,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 								],
 
 								// Image Optimization settings
+								'smart_optimization' => [
+									'type' => 'integer',
+								],
 								'webp_quality' => [
 									'type' => 'integer',
 								],
@@ -280,6 +283,11 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			// Sanitize thumbnail sizes
 			if ( isset( $options['thumbnail_sizes'] ) && is_array( $options['thumbnail_sizes'] ) ) {
 				$sanitized['thumbnail_sizes'] = array_map( 'sanitize_text_field', $options['thumbnail_sizes'] );
+			}
+
+			// Sanitize smart optimization
+			if ( isset( $options['smart_optimization'] ) ) {
+				$sanitized['smart_optimization'] = $options['smart_optimization'] ? 1 : 0;
 			}
 
 			// Sanitize webp quality

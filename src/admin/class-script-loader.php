@@ -88,6 +88,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'isLoggedIn' => is_user_logged_in(),
 					'optimizeAllMedia' => isset( $settings['optimize_all_media'] ) ? (int) $settings['optimize_all_media'] : 0,
 					'isPremium' => CIMO_BUILD === 'premium',
+					'smartOptimization' => isset( $settings['smart_optimization'] ) ? (int) $settings['smart_optimization'] : 1,
 					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
 					'maxImageDimension' => ! empty( $settings['max_image_dimension'] ) ? (int) $settings['max_image_dimension'] : 0,
 					'videoOptimizationEnabled' => isset( $settings['video_optimization_enabled'] ) ? (int) $settings['video_optimization_enabled'] : 1,

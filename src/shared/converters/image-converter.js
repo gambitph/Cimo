@@ -350,13 +350,18 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		let result = await applyFiltersAsync( 'cimo.imageConverter.optimize', {
-			file: this.file,
-			metadata: null,
-			reason: 'no-optimizer',
-		}, this )
+		const smartOptimization = String( window.cimoSettings?.smartOptimization ?? '1' ) !== '0'
+		let result = null
 
-		if ( result.reason === 'no-optimizer' || ! result.metadata ) {
+		if ( smartOptimization ) {
+			result = await applyFiltersAsync( 'cimo.imageConverter.optimize', {
+				file: this.file,
+				metadata: null,
+				reason: 'no-optimizer',
+			}, this )
+		}
+
+		if ( ! result || result.reason === 'no-optimizer' ) {
 			result = await this.convert()
 		}
 		return result
