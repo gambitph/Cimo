@@ -69,6 +69,17 @@ class Converter {
 	}
 
 	/**
+	 * Set the current progress value for this converter. Should be a value
+	 * between 0 and 1 inclusive. Consumers can set this to update progress
+	 * indicators.
+	 *
+	 * @param {number} value - Value between 0 and 1 inclusive.
+	 */
+	set progress( value ) {
+		this._progress = Math.min( 1, Math.max( 0, value ) )
+	}
+
+	/**
 	 * Whether to show a progress indicator for this converter.
 	 *
 	 * @return {boolean} - True if a progress indicator should be shown, false otherwise.
@@ -79,12 +90,40 @@ class Converter {
 
 	/**
 	 * Instance alias for the showProgress flag so consumers don't need to reach
-	 * into the constructor directly.
+	 * into the constructor directly. Can be overridden by subclasses to allow instance-level
+	 * control over progress display.
 	 *
 	 * @return {boolean} True if this instance should show progress, false otherwise.
 	 */
 	get showProgress() {
+		if ( typeof this.options.showProgress === 'boolean' ) {
+			return this.options.showProgress
+		}
 		return this.constructor.showProgress
+	}
+
+	/**
+	 * Delay before showing the progress indicator, in milliseconds. If the conversion is expected to be very fast
+	 * the delay allows the progress modal to be skipped.
+	 *
+	 * @return {number} Delay in milliseconds before showing the progress indicator.
+	 */
+	static get progressDelay() {
+		return 0
+	}
+
+	/**
+	 * Instance alias for the progressDelay so consumers don't need to reach
+	 * into the constructor directly. Can be overridden by subclasses to allow instance-level
+	 * control over progress delay.
+	 *
+	 * @return {number} Delay in milliseconds before showing the progress indicator.
+	 */
+	get progressDelay() {
+		if ( typeof this.options.progressDelay === 'number' ) {
+			return this.options.progressDelay
+		}
+		return this.constructor.progressDelay
 	}
 
 	/**

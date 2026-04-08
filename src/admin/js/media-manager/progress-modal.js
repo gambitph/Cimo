@@ -9,18 +9,34 @@ class ProgressModal {
 		this.interval = null
 		this.modal = null
 		this.progressBars = []
-		this._setupModal()
+		this.delayTimeout = null
 	}
 
 	open() {
-		if ( ! this.modal ) {
-			return
-		}
 		if ( this.converters.length === 0 ) {
 			return
 		}
-		this.modal.style.display = 'flex'
-		this._startInterval()
+
+		const delays = this.converters
+			.map( c => c?.progressDelay )
+			.filter( v => typeof v === 'number' && v > 0 )
+
+		// Only delay if all converter opt to delay, to allow
+		// big media files like video to show the progress modal immediately.
+		const shouldDelay = delays.length === this.converters.length
+		const delay = shouldDelay ? Math.max( ...delays ) : 0
+
+		const start = () => {
+			this._setupModal()
+			this.modal.style.display = 'flex'
+			this._startInterval()
+		}
+
+		if ( delay > 0 ) {
+			this.delayTimeout = setTimeout( start, delay )
+		} else {
+			start()
+		}
 	}
 
 	_handleCloseClick() {
@@ -37,6 +53,10 @@ class ProgressModal {
 	}
 
 	close() {
+		if ( this.delayTimeout ) {
+			clearTimeout( this.delayTimeout )
+			this.delayTimeout = null
+		}
 		if ( ! this.modal ) {
 			return
 		}

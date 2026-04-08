@@ -50,6 +50,8 @@ export const getFileConverter = _file => {
 				format,
 				quality: window.cimoSettings?.webpQuality || 0.8,
 				maxDimension: window.cimoSettings?.maxImageDimension || 0,
+				showProgress: true,
+				progressDelay: 500,
 			} )
 		}
 	}
