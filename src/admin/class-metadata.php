@@ -46,6 +46,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 								'convertedFilesize',
 								'conversionTime',
 								'compressionSavings',
+								'smartOptimized',
 							];
 							if ( ! is_array( $value ) ) {
 								// translators: The %s is the parameter name.
@@ -85,6 +86,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 								'convertedFilesize',
 								'conversionTime',
 								'compressionSavings',
+								'smartOptimized',
 							];
 							$sanitized = [];
 							if ( is_array( $value ) ) {
@@ -98,6 +100,8 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 												$entry[ $key ] = intval( $item[ $key ] );
 											} elseif ( in_array( $key, [ 'conversionTime', 'compressionSavings' ], true ) ) {
 												$entry[ $key ] = floatval( $item[ $key ] );
+											} elseif ( $key === 'smartOptimized' ) {
+												$entry[ $key ] = ! empty( $item[ $key ] ) ? 1 : 0;
 											} else {
 												$entry[ $key ] = sanitize_text_field( $item[ $key ] );
 											}
@@ -137,6 +141,7 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 				'convertedFilesize',
 				'conversionTime',
 				'compressionSavings',
+				'smartOptimized',
 			];
 			$sanitized_metadata = [];
 			foreach ( $metadata_array as $item ) {
@@ -149,6 +154,8 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 							$entry[ $key ] = intval( $item[ $key ] );
 						} elseif ( in_array( $key, [ 'conversionTime', 'compressionSavings' ], true ) ) {
 							$entry[ $key ] = floatval( $item[ $key ] );
+						} elseif ( $key === 'smartOptimized' ) {
+							$entry[ $key ] = ! empty( $item[ $key ] ) ? 1 : 0;
 						} else {
 							$entry[ $key ] = sanitize_text_field( $item[ $key ] );
 						}

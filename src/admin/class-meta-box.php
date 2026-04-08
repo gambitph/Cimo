@@ -185,11 +185,20 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 
 							// Converted format
 							echo '<li class="cimo-converted">';
-							echo '🏞️ ' . sprintf(
-								/* translators: %s: converted format */
-								esc_html__( 'Converted to %s', 'cimo-image-optimizer' ),
-								'<span class="cimo-value">' . esc_html( $converted_format ) . '</span>'
-							);
+							$converted_format_markup = '<span class="cimo-value">' . esc_html( $converted_format ) . '</span>';
+							if ( ! empty( $cimo['smartOptimized'] ) ) {
+								echo '🏞️ ' . sprintf(
+									/* translators: %s: converted format */
+									esc_html__( 'Smart optimized to %s', 'cimo-image-optimizer' ),
+									$converted_format_markup
+								);
+							} else {
+								echo '🏞️ ' . sprintf(
+									/* translators: %s: converted format */
+									esc_html__( 'Converted to %s', 'cimo-image-optimizer' ),
+									$converted_format_markup
+								);
+							}
 							echo '</li>';
 
 							// Conversion time

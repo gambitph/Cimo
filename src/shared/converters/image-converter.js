@@ -350,7 +350,9 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		const smartOptimization = String( window.cimoSettings?.smartOptimization ?? '1' ) !== '0'
+		const smartOptimization =
+			Boolean( window.cimoSettings?.isPremium ) &&
+			String( window.cimoSettings?.smartOptimization ?? '1' ) !== '0'
 		let result = null
 
 		if ( smartOptimization ) {
@@ -363,6 +365,14 @@ class ImageConverter extends Converter {
 
 		if ( ! result || result.reason === 'no-optimizer' ) {
 			result = await this.convert()
+		} else if ( result.metadata && typeof result.metadata === 'object' ) {
+			result = {
+				...result,
+				metadata: {
+					...result.metadata,
+					smartOptimized: 1,
+				},
+			}
 		}
 		return result
 	}
