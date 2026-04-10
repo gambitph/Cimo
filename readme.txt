@@ -2,7 +2,7 @@
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
 Requires at least: 6.7.5
-Tested up to: 6.9.4
+Tested up to: 7.0
 Requires PHP: 8.0
 Stable tag: 1.3.1
 License: GPLv2 or later
