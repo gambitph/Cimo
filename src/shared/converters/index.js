@@ -50,8 +50,11 @@ export const getFileConverter = _file => {
 				format,
 				quality: window.cimoSettings?.webpQuality || 0.8,
 				maxDimension: window.cimoSettings?.maxImageDimension || 0,
+				isSmartOptimization: String( window.cimoSettings?.smartOptimization ?? '0' ) !== '0',
+				// Show progress for image conversion for both smart and non-smart optimization,
+				// as long as the conversion takes more than 700ms.
 				showProgress: true,
-				progressDelay: 500,
+				progressDelay: 700,
 			} )
 		}
 	}
