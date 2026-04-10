@@ -1,5 +1,6 @@
 import { Converter } from './converter-abstract'
 import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
+import { __ } from '@wordpress/i18n'
 
 // Supported output formats
 const supportedFormats = [
@@ -291,6 +292,7 @@ class ImageConverter extends Converter {
 			if ( ! isSmartOptimization ) {
 				// Initialize the progress to 0.5
 				this.progress = 0.5
+				this._status = __( 'Optimizing…', 'cimo-image-optimizer' )
 				progressInterval = setInterval( () => {
 					const increment = ( Math.random() * 0.05 ) + 0.05 // 0.05 – 0.1
 					this.progress += increment
@@ -355,12 +357,14 @@ class ImageConverter extends Converter {
 				lastModified: Date.now(),
 			} )
 
-			// Clean up progress interval if it was set
-			if ( progressInterval ) {
-				clearInterval( progressInterval )
+			if ( ! isSmartOptimization ) {
+				if ( progressInterval ) {
+					clearInterval( progressInterval )
+				}
+				// Ensure progress is set to 1 at the end of the process.
+				this._status = __( 'Completed', 'cimo-image-optimizer' )
+				this.progress = 1
 			}
-			 // Ensure progress is set to 100% at the end
-			this.progress = 1
 
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
