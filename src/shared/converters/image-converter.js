@@ -1,5 +1,6 @@
 import { Converter } from './converter-abstract'
 import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
+import { __ } from '@wordpress/i18n'
 
 // Supported output formats
 const supportedFormats = [
@@ -223,6 +224,7 @@ class ImageConverter extends Converter {
 		const {
 			quality = this.options?.quality || 0.8,
 			forceSize = this.options?.forceSize || false,
+			isSmartOptimization = this.options?.isSmartOptimization || false,
 		} = options
 
 		let formatTo = options.format || this.options?.format || ''
@@ -285,6 +287,23 @@ class ImageConverter extends Converter {
 		const fileItem = { file }
 
 		try {
+			let progressInterval = null
+			// Let the smart optimization process handle the progress updates.
+			if ( ! isSmartOptimization ) {
+				// Initialize the progress to 0.5
+				this.progress = 0.5
+				this._status = __( 'Optimizing…', 'cimo-image-optimizer' )
+				progressInterval = setInterval( () => {
+					const increment = ( Math.random() * 0.05 ) + 0.05 // 0.05 – 0.1
+					this.progress += increment
+
+					if ( this.progress >= 0.9 ) {
+						this.progress = 0.9
+						clearInterval( progressInterval )
+					}
+				}, 500 )
+			}
+
 			const start = performance.now()
 
 			let convertedBlob
@@ -338,6 +357,15 @@ class ImageConverter extends Converter {
 				lastModified: Date.now(),
 			} )
 
+			if ( ! isSmartOptimization ) {
+				if ( progressInterval ) {
+					clearInterval( progressInterval )
+				}
+				// Ensure progress is set to 1 at the end of the process.
+				this._status = __( 'Completed', 'cimo-image-optimizer' )
+				this.progress = 1
+			}
+
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
 			return {
@@ -350,12 +378,10 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		const smartOptimization =
-			Boolean( window.cimoSettings?.isPremium ) &&
-			String( window.cimoSettings?.smartOptimization ?? '1' ) !== '0'
+		const isSmartOptimization = this.options?.isSmartOptimization || false
 		let result = null
 
-		if ( smartOptimization ) {
+		if ( isSmartOptimization ) {
 			result = await applyFiltersAsync( 'cimo.imageConverter.optimize', {
 				file: this.file,
 				metadata: null,
