@@ -38,6 +38,16 @@ export const getFileConverter = _file => {
 	}
 
 	if ( file.type.startsWith( 'image/' ) ) {
+		const max = parseFloat( window.cimoSettings?.maxImageDimension || 0 )
+		const wp = parseFloat( window.cimoSettings?.wpScalingThreshold || 0 )
+
+		// Determine the final max dimension to use for conversion,
+		// prioritizing the lower of the two thresholds if both are set.
+		// 0 means no max dimension.
+		const finalMaxDimension = max && wp
+			? Math.min( max, wp )
+			: max || wp || 0
+
 		// If the browser doesn't support webp, then we can't convert it.
 		if ( ! isFormatSupported( 'webp' ) ) {
 			return new NullConverter( file )
@@ -46,7 +56,7 @@ export const getFileConverter = _file => {
 			return new ImageConverter( file, {
 				format: 'webp',
 				quality: window.cimoSettings?.webpQuality || 0.8,
-				maxDimension: window.cimoSettings?.maxImageDimension || 0,
+				maxDimension: finalMaxDimension,
 			} )
 		}
 	}
