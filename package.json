@@ -39,7 +39,7 @@
 		"@mediabunny/mp3-encoder": "^1.25.0",
 		"browser-image-compression": "^2.0.2",
 		"classnames": "^2.5.1",
-		"heic2any": "^0.0.4",
+		"heic-to": "^1.4.2",
 		"mediabunny": "^1.25.0",
 		"mime": "^4.1.0",
 		"resemblejs": "^5.0.0",
