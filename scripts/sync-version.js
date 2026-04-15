@@ -77,6 +77,21 @@ function calculateMinVersion( latestVersion, availableVersions ) {
 	return latestVersion
 }
 
+// Compare WordPress-style versions (e.g. 6.8.2 vs 5.0). Returns negative if a < b, 0 if equal, positive if a > b.
+function compareWordPressVersions( a, b ) {
+	const partsA = String( a ).trim().split( '.' ).map( n => parseInt( n, 10 ) || 0 )
+	const partsB = String( b ).trim().split( '.' ).map( n => parseInt( n, 10 ) || 0 )
+	const len = Math.max( partsA.length, partsB.length )
+	for ( let i = 0; i < len; i++ ) {
+		const numA = partsA[ i ] ?? 0
+		const numB = partsB[ i ] ?? 0
+		if ( numA !== numB ) {
+			return numA - numB
+		}
+	}
+	return 0
+}
+
 // Main sync function
 async function syncVersions() {
 	try {
@@ -173,8 +188,12 @@ async function syncVersions() {
 		const testedUpToMatch = readmeTxt.match( /^Tested up to:\s*([^\r\n]+)/m )
 		if ( testedUpToMatch ) {
 			const currentTestedUpTo = testedUpToMatch[ 1 ].trim()
+			const readmeIsAhead = compareWordPressVersions( currentTestedUpTo, latestWordPressVersion ) > 0
 
-			if ( currentTestedUpTo !== latestWordPressVersion ) {
+			if ( readmeIsAhead ) {
+				// eslint-disable-next-line no-console
+				console.log( `✅ readme.txt tested up to (${ currentTestedUpTo }) is newer than fetched latest (${ latestWordPressVersion }); leaving unchanged` )
+			} else if ( currentTestedUpTo !== latestWordPressVersion ) {
 				// eslint-disable-next-line no-console
 				console.log( `🔄 Updating readme.txt tested up to from ${ currentTestedUpTo } to ${ latestWordPressVersion }` )
 
