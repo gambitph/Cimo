@@ -591,7 +591,7 @@ const AdminSettings = () => {
 								label={ __( 'Maximum Image Dimension', 'cimo-image-optimizer' ) }
 								type="number"
 								value={ settings.maxImageDimension }
-								placeholder="2560"
+								placeholder={ settings.disableWpScaling === 1 ? '2560' : undefined }
 								onChange={ value => handleInputChange( 'maxImageDimension', value ) }
 								help={ sprintf(
 									__( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to %s. We recommend a value of 1920px.', 'cimo-image-optimizer' ),

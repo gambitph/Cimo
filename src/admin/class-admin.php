@@ -118,6 +118,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 					'show_in_rest'      => [
 						'schema' => [
 							'type' => 'object',
+							'additionalProperties' => true, // If we upgrade or downgrade, the settings can possibly show as null. Prevent this.
 							'properties' => [
 								// General settings
 								'optimize_all_media' => [
