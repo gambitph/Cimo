@@ -170,7 +170,41 @@ class ProgressModal {
 		this.modal.appendChild( wrapper )
 		document.body.appendChild( this.modal )
 
+		this._ensureIndeterminateStyles()
 		this._renderProgressBars()
+	}
+
+	_ensureIndeterminateStyles() {
+		if ( document.getElementById( 'cimo-progress-indeterminate-styles' ) ) {
+			return
+		}
+		const style = document.createElement( 'style' )
+		style.id = 'cimo-progress-indeterminate-styles'
+		style.textContent = `
+			.cimo-progress-indeterminate-layer {
+				display: none;
+				position: absolute;
+				inset: 0;
+				overflow: hidden;
+				border-radius: inherit;
+				pointer-events: none;
+			}
+			.cimo-progress-indeterminate-bar {
+				position: absolute;
+				top: 0;
+				left: -35%;
+				width: 35%;
+				height: 100%;
+				border-radius: 5px;
+				background: linear-gradient(90deg, #00d8f0 0%, #2bc566 100%);
+				animation: cimo-indet-sweep 1.35s ease-in-out infinite;
+			}
+			@keyframes cimo-indet-sweep {
+				from { left: -35%; }
+				to { left: 100%; }
+			}
+		`
+		document.head.appendChild( style )
 	}
 
 	_renderProgressBars() {
@@ -279,22 +313,31 @@ class ProgressModal {
 				height: 8px;
 				width: 100%;
 				overflow: hidden;
+				position: relative;
 			`
+			const indeterminateLayer = document.createElement( 'div' )
+			indeterminateLayer.className = 'cimo-progress-indeterminate-layer'
+			const indeterminateBar = document.createElement( 'div' )
+			indeterminateBar.className = 'cimo-progress-indeterminate-bar'
+			indeterminateLayer.appendChild( indeterminateBar )
+
 			const bar = document.createElement( 'div' )
 			bar.className = 'cimo-progress-bar'
 			bar.style.cssText = `
 				background: linear-gradient(90deg, #00d8f0 0%, #2bc566 100%);
 				width: 0%;
 				height: 100%;
-				transition: width 0.5s linear;
+				transition: width 0.65s cubic-bezier(0.4, 0, 0.2, 1);
 				border-radius: 5px 0 0 5px;
 			`
 
 			bar.sizeLabelEl = sizeLabel
 			bar.statusLabelEl = statusLabel
 			bar.percentageLabelEl = percentageLabel
+			bar.indeterminateLayer = indeterminateLayer
 
 			barBg.appendChild( bar )
+			barBg.appendChild( indeterminateLayer )
 			barContainer.appendChild( label )
 			barContainer.appendChild( sizeLabel )
 			barContainer.appendChild( progressStatusFlex )
@@ -320,10 +363,19 @@ class ProgressModal {
 	}
 
 	_updateProgress() {
+		if ( ! this.modal ) {
+			return
+		}
+
 		let allDone = true
 		let hasError = false
 
 		this.converters.forEach( ( converter, i ) => {
+			const barEl = this.progressBars[ i ]
+			const isIndeterminate = converter.indeterminateProgress === true &&
+				converter.progress < 1 &&
+				! converter.errorMessage
+
 			let percent = converter.progress * 100
 
 			if (
@@ -345,18 +397,31 @@ class ProgressModal {
 				this.errorNote.style.display = 'block'
 			}
 
-			if ( this.progressBars[ i ] ) {
-				this.progressBars[ i ].statusLabelEl.style.cssText = `
+			if ( barEl ) {
+				barEl.statusLabelEl.style.cssText = `
 					color: ${ converter.errorMessage ? '#dc3545' : 'inherit' };
 				`
-				this.progressBars[ i ].statusLabelEl.innerText = converter.errorMessage || converter.status
-				this.progressBars[ i ].style.width = percent + '%'
-				this.progressBars[ i ].percentageLabelEl.innerText = parseInt( percent ) + '%'
+				barEl.statusLabelEl.innerText = converter.errorMessage || converter.status
+
+				if ( isIndeterminate ) {
+					barEl.style.display = 'none'
+					if ( barEl.indeterminateLayer ) {
+						barEl.indeterminateLayer.style.display = 'block'
+					}
+					barEl.percentageLabelEl.innerText = __( '…', 'cimo-image-optimizer' )
+				} else {
+					barEl.style.display = ''
+					if ( barEl.indeterminateLayer ) {
+						barEl.indeterminateLayer.style.display = 'none'
+					}
+					barEl.style.width = percent + '%'
+					barEl.percentageLabelEl.innerText = parseInt( percent ) + '%'
+				}
 			}
 		} )
 
 		// Optional: auto-close when all converters are done (progress 100%)
-		if ( allDone && this.modal.style.display === 'block' ) {
+		if ( allDone && this.modal && this.modal.style.display !== 'none' ) {
 			if ( ! hasError ) {
 				setTimeout( () => this.close(), 750 )
 			}

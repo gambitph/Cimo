@@ -15,6 +15,7 @@ class Converter {
 		this._progress = 0
 		this._status = __( 'Ready', 'cimo-image-optimizer' )
 		this._errorMessage = null
+		this._indeterminateProgress = options.indeterminateProgress === true
 	}
 
 	/**
@@ -77,6 +78,25 @@ class Converter {
 	 */
 	set progress( value ) {
 		this._progress = Math.min( 1, Math.max( 0, value ) )
+	}
+
+	/**
+	 * When true, the progress UI shows activity without a numeric percent until
+	 * this converter reaches completion (progress === 1).
+	 *
+	 * @return {boolean} - True if the progress is indeterminate, false otherwise.
+	 */
+	get indeterminateProgress() {
+		return this._indeterminateProgress === true
+	}
+
+	/**
+	 * Set the indeterminate progress value for this converter.
+	 *
+	 * @param {boolean} value - True if the progress is indeterminate, false otherwise.
+	 */
+	set indeterminateProgress( value ) {
+		this._indeterminateProgress = !! value
 	}
 
 	/**

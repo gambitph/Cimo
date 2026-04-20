@@ -287,21 +287,11 @@ class ImageConverter extends Converter {
 		const fileItem = { file }
 
 		try {
-			let progressInterval = null
 			// Let the smart optimization process handle the progress updates.
 			if ( ! isSmartOptimization ) {
-				// Initialize the progress to 0.5
-				this.progress = 0.5
+				this.indeterminateProgress = true
+				this.progress = 0
 				this._status = __( 'Optimizing…', 'cimo-image-optimizer' )
-				progressInterval = setInterval( () => {
-					const increment = ( Math.random() * 0.05 ) + 0.05 // 0.05 – 0.1
-					this.progress += increment
-
-					if ( this.progress >= 0.9 ) {
-						this.progress = 0.9
-						clearInterval( progressInterval )
-					}
-				}, 500 )
 			}
 
 			const start = performance.now()
@@ -358,16 +348,18 @@ class ImageConverter extends Converter {
 			} )
 
 			if ( ! isSmartOptimization ) {
-				if ( progressInterval ) {
-					clearInterval( progressInterval )
-				}
-				// Ensure progress is set to 1 at the end of the process.
+				this.indeterminateProgress = false
 				this._status = __( 'Completed', 'cimo-image-optimizer' )
 				this.progress = 1
 			}
 
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
+			if ( ! isSmartOptimization ) {
+				this.indeterminateProgress = false
+				this.progress = 0
+				this._status = __( 'Failed to convert', 'cimo-image-optimizer' )
+			}
 			return {
 				file,
 				metadata: null,
