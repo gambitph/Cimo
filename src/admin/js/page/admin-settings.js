@@ -593,7 +593,13 @@ const AdminSettings = () => {
 								value={ settings.maxImageDimension }
 								placeholder="2560"
 								onChange={ value => handleInputChange( 'maxImageDimension', value ) }
-								help={ __( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to use the WordPress maximum dimension (2560px). We recommend a value of 1920px.', 'cimo-image-optimizer' ) }
+								help={ sprintf(
+									__( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to %s. We recommend a value of 1920px.', 'cimo-image-optimizer' ),
+									window.cimoSettings?.wpScalingThreshold
+										? sprintf( __( "use WordPress's default auto-scaling at %spx", 'cimo-image-optimizer' ), window.cimoSettings.wpScalingThreshold )
+										: __( 'disable auto-scaling', 'cimo-image-optimizer' )
+								) }
+
 								__next40pxDefaultSize
 							/>
 						</div>
