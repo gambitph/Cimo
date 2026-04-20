@@ -103,8 +103,6 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		const progressModal = new ProgressModal( fileConverters, onCancel )
 		progressModal.open()
 
-		let hasError = false
-
 		// Process and optimize each media file here,
 		// e.g. converting to webp, resizing, compressing, etc.
 		const optimizedResults = await Promise.all(
@@ -114,11 +112,9 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 					if ( result.error ) {
 						// eslint-disable-next-line no-console
 						console.warn( result.error )
-						hasError = true
 					}
 					return result
 				} catch ( error ) {
-					hasError = true
 					// eslint-disable-next-line no-console
 					console.warn( error )
 					return { file: converter.file, metadata: null }
@@ -216,10 +212,8 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			}
 		}
 
-		// If there's an error, do not close the progress modal so the user can read the error.
-		if ( ! hasError ) {
-			progressModal.close()
-		}
+		// Close when optimization finishes, including when we fall back to the original file after an error.
+		progressModal.close()
 	}
 
 	// Add our custom drop listener
