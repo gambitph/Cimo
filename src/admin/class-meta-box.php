@@ -132,6 +132,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						$converted_format_raw = isset( $cimo['convertedFormat'] ) ? $cimo['convertedFormat'] : ( isset( $post->post_mime_type ) ? $post->post_mime_type : '' );
 						$converted_format = $converted_format_raw ? cimo_convert_mimetype_to_format( $converted_format_raw ) : '';
 						$media_type_label = cimo_get_media_type_label( $converted_format_raw );
+						$is_image_media = is_string( $converted_format_raw ) && strpos( strtolower( $converted_format_raw ), 'image/' ) === 0;
 						$converttime = isset( $cimo['conversionTime'] ) ? floatval( $cimo['conversionTime'] ) : null;
 						if ( $converttime !== null ) {
 							if ( $converttime < 1000 ) {
@@ -207,7 +208,9 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 							echo '<li class="cimo-bulk-optimization-number">';
 							echo '🏞️ ' . sprintf(
 								/* translators: %s: bulk optimization count */
-								esc_html__( '%s thumbnail(s) processed', 'cimo-image-optimizer' ),
+								$is_image_media
+									? esc_html__( '%s thumbnail(s) processed', 'cimo-image-optimizer' )
+									: esc_html__( '%s file(s) processed', 'cimo-image-optimizer' ),
 								'<span class="cimo-value">' . esc_html( $bulk_optimization_count ) . '</span>'
 							);
 							echo '</li>';
