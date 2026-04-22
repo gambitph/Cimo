@@ -54,7 +54,7 @@ export const getFileConverter = _file => {
 				// Show progress for image conversion for both smart and non-smart optimization,
 				// as long as the conversion takes more than 700ms.
 				showProgress: true,
-				progressDelay: 700,
+				progressDelay: 1000,
 			} )
 		}
 	}
