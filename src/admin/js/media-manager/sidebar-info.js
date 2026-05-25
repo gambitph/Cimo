@@ -136,6 +136,15 @@ function injectCimoMetadata( {
 		? ( 100 - ( customMetadata.compressionSavings * 100 ) ).toFixed( 2 )
 		: ( 100 * ( originalFilesize - convertedFilesize ) / originalFilesize ).toFixed( 2 )
 
+	// If optimizationSavings is not a valid number or is negative, do not display it
+	if (
+		optimizationSavings === 'NaN' ||
+		! Number.isFinite( Number( optimizationSavings ) ) ||
+		Number( optimizationSavings ) < 0
+	) {
+		return
+	}
+
 	const kbSaved = formatFilesize(
 		originalFilesize - convertedFilesize,
 		1,

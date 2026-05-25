@@ -123,6 +123,12 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 							$optimization_savings = number_format( 100 * ( $original_filesize - $converted_filesize ) / $original_filesize, 2 );
 						}
 
+						// If optimization savings is not a valid number or is negative, do not display it
+						if ( ! is_numeric( $optimization_savings ) || floatval( $optimization_savings ) < 0 ) {
+							echo '<p>' . esc_html__( 'Cimo did not optimize this attachment.', 'cimo-image-optimizer' ) . '</p>';
+							return;
+						}
+
 						$kb_saved = cimo_format_filesize( $original_filesize - $converted_filesize, 1, true );
 						$optimization_savings_class = ( $optimization_savings > 0 ) ? 'cimo-optimization-savings-up' : 'cimo-optimization-savings-down';
 
