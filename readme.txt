@@ -1,10 +1,10 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 6.7.5
+Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -208,6 +208,14 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.4.0 =
+
+* New: Smart Optimization (premium) - get even smaller image file sizes when uploading images #35
+* New: Video & audio can now be optimized in Bulk Optimization #37
+* New: Toggle optimization option - toggle Cimo's optimizer on/off when needed #36
+* Fixed: When uploading a video using a webkit-based browser, the progress bar would get stuck to ready #47
+* Fixed: When Wordpress Automatic Image Scaling is ON, the file size in metadata does not match with the final #43
 
 = 1.3.1 =
 
