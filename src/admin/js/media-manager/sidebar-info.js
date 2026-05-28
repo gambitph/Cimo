@@ -204,9 +204,23 @@ function injectCimoMetadata( {
 	}
 
 	if ( ! isBulkOptimized ) {
+		const formatLabel = convertMimetypeToFormat( customMetadata.convertedFormat )
+		const convertedFormatSpan = `<span class="cimo-value">${ escape( formatLabel ) }</span>`
+		const convertedLineText = customMetadata.smartOptimized
+			? sprintf(
+				/* translators: %s: image format name (e.g. WebP) */
+				__( 'Smart optimized to %s', 'cimo-image-optimizer' ),
+				convertedFormatSpan
+			)
+			: sprintf(
+				/* translators: %s: image format name (e.g. WebP) */
+				__( 'Converted to %s', 'cimo-image-optimizer' ),
+				convertedFormatSpan
+			)
+
 		html += `
 			<li class="cimo-converted">
-				🏞️ Converted to <span class="cimo-value">${ escape( convertMimetypeToFormat( customMetadata.convertedFormat ) ) }</span>
+				🏞️ ${ convertedLineText }
 			</li>
 		`
 

@@ -48,15 +48,23 @@ export const getFileConverter = _file => {
 			? Math.min( max, wp )
 			: max || wp || 0
 
-		// If the browser doesn't support webp, then we can't convert it.
-		if ( ! isFormatSupported( 'webp' ) ) {
-			return new NullConverter( file )
+		let format = 'webp'
+
+		// If webp is not supported, use the same format of the file.
+		if ( ! isFormatSupported( format ) ) {
+			format = file.type
 		}
+
 		if ( ImageConverter.supportsMimeType( file.type ) ) {
 			return new ImageConverter( file, {
-				format: 'webp',
+				format,
 				quality: window.cimoSettings?.webpQuality || 0.8,
 				maxDimension: finalMaxDimension,
+				isSmartOptimization: String( window.cimoSettings?.smartOptimization ?? '0' ) !== '0',
+				// Show progress for image conversion for both smart and non-smart optimization,
+				// as long as the conversion takes more than 700ms.
+				showProgress: true,
+				progressDelay: 1000,
 			} )
 		}
 	}

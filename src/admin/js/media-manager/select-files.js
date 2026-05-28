@@ -86,22 +86,18 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		const progressModal = new ProgressModal( fileConverters, onCancel )
 		progressModal.open()
 
-		let hasError = false
-
 		// Process and optimize each media file here,
 		// e.g. converting to webp, resizing, compressing, etc.
 		const optimizedResults = await Promise.all(
 			fileConverters.map( async converter => {
 				try {
-					const result = await converter.convert()
+					const result = await converter.optimize()
 					if ( result.error ) {
 						// eslint-disable-next-line no-console
 						console.warn( result.error )
-						hasError = true
 					}
 					return result
 				} catch ( error ) {
-					hasError = true
 					// eslint-disable-next-line no-console
 					console.warn( error )
 					return { file: converter.file, metadata: null }
@@ -131,10 +127,8 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 		changeEvent.__cimo_converted = true // eslint-disable-line camelcase
 		event.target.dispatchEvent( changeEvent )
 
-		// If there's an error, do not close the progress modal so the user can read the error.
-		if ( ! hasError ) {
-			progressModal.close()
-		}
+		// Close when optimization finishes, including when we fall back to the original file after an error.
+		progressModal.close()
 	}
 
 	if ( ! targetDocument.body.__cimo_selectfiles_listener_attached ) {

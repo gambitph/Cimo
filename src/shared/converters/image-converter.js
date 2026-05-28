@@ -1,5 +1,6 @@
 import { Converter } from './converter-abstract'
 import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
+import { __ } from '@wordpress/i18n'
 
 // Supported output formats
 const supportedFormats = [
@@ -215,15 +216,15 @@ class ImageConverter extends Converter {
 
 	/**
 	 * Convert an image file to the desired format and options.
-	 * @param {boolean} [force=false] - Force conversion even if the file is already in the desired format.
-	 * @param {Object}  [options]     - Options for the conversion.
+	 * @param {Object} [options] - Options for the conversion.
 	 * @return {Promise<{file: File|Blob, metadata?: Object}>} Promise resolving to the converted file and optional metadata.
 	 */
-	async convert( force = false, options = {} ) {
+	async convert( options = {} ) {
 		const file = this.file
 		const {
 			quality = this.options?.quality || 0.8,
 			forceSize = this.options?.forceSize || false,
+			isSmartOptimization = this.options?.isSmartOptimization || false,
 		} = options
 
 		let formatTo = options.format || this.options?.format || ''
@@ -239,15 +240,7 @@ class ImageConverter extends Converter {
 			}
 		}
 
-		// Skip if already the desired format
 		const formatInfo = supportedFormats.find( f => f.value === formatTo )
-		if ( ! force && formatInfo && file.type === formatInfo.mimeType ) {
-			return {
-				file,
-				metadata: null,
-				reason: 'same-format',
-			}
-		}
 
 		// Check if the browser supports the desired output format
 		const testCanvas = document.createElement( 'canvas' )
@@ -294,6 +287,13 @@ class ImageConverter extends Converter {
 		const fileItem = { file }
 
 		try {
+			// Let the smart optimization process handle the progress updates.
+			if ( ! isSmartOptimization ) {
+				this.indeterminateProgress = true
+				this.progress = 0
+				this._status = __( 'Optimizing…', 'cimo-image-optimizer' )
+			}
+
 			const start = performance.now()
 
 			let convertedBlob
@@ -347,8 +347,19 @@ class ImageConverter extends Converter {
 				lastModified: Date.now(),
 			} )
 
+			if ( ! isSmartOptimization ) {
+				this.indeterminateProgress = false
+				this._status = __( 'Completed', 'cimo-image-optimizer' )
+				this.progress = 1
+			}
+
 			return { file: outFile, metadata: conversionMetadata }
 		} catch ( error ) {
+			if ( ! isSmartOptimization ) {
+				this.indeterminateProgress = false
+				this.progress = 0
+				this._status = __( 'Failed to convert', 'cimo-image-optimizer' )
+			}
 			return {
 				file,
 				metadata: null,
@@ -359,7 +370,29 @@ class ImageConverter extends Converter {
 	}
 
 	async optimize() {
-		return await applyFiltersAsync( 'cimo.imageConverter.optimize', this )
+		const isSmartOptimization = this.options?.isSmartOptimization || false
+		let result = null
+
+		if ( isSmartOptimization ) {
+			result = await applyFiltersAsync( 'cimo.imageConverter.optimize', {
+				file: this.file,
+				metadata: null,
+				reason: 'no-optimizer',
+			}, this )
+		}
+
+		if ( ! result || result.reason === 'no-optimizer' ) {
+			result = await this.convert()
+		} else if ( result.metadata && typeof result.metadata === 'object' ) {
+			result = {
+				...result,
+				metadata: {
+					...result.metadata,
+					smartOptimized: 1,
+				},
+			}
+		}
+		return result
 	}
 }
 

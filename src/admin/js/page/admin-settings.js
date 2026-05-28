@@ -27,6 +27,7 @@ const AdminSettings = () => {
 		thumbnailSizes: [], // Stores DISABLED thumbnail sizes
 
 		// Image optimization settings
+		smartOptimization: 1,
 		webpQuality: 80,
 		maxImageDimension: '',
 
@@ -96,6 +97,7 @@ const AdminSettings = () => {
 				thumbnailSizes: cimoOptions.thumbnail_sizes || [],
 
 				// Image Optimization settings
+				smartOptimization: cimoOptions.smart_optimization !== undefined ? cimoOptions.smart_optimization : 1,
 				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
 				maxImageDimension: cimoOptions.max_image_dimension || '',
 
@@ -191,6 +193,7 @@ const AdminSettings = () => {
 		setSettings( settings => {
 			return {
 				...settings,
+				smartOptimization: 1,
 				webpQuality: 80,
 				maxImageDimension: 1920,
 			}
@@ -201,6 +204,7 @@ const AdminSettings = () => {
 		setSettings( settings => {
 			return {
 				...settings,
+				smartOptimization: 1,
 				webpQuality: '',
 				maxImageDimension: '',
 			}
@@ -310,6 +314,7 @@ const AdminSettings = () => {
 						thumbnail_sizes: settings.thumbnailSizes,
 
 						// Image Optimization settings
+						smart_optimization: settings.smartOptimization,
 						webp_quality: parseInt( settings.webpQuality ) || 0,
 						max_image_dimension: parseInt( settings.maxImageDimension ) || 0,
 
@@ -656,21 +661,46 @@ const AdminSettings = () => {
 							</Button>
 						</div>
 
-						<div className="cimo-setting-field">
-							<RangeControl
-								id="webpQuality"
-								label={ __( 'WebP Image Quality', 'cimo-image-optimizer' ) }
-								value={ settings.webpQuality || '' }
-								onChange={ value => handleInputChange( 'webpQuality', value || '' ) }
-								min="1"
-								max="100"
-								step="1"
-								__next40pxDefaultSize
-								allowReset
-								initialPosition={ 80 }
-								help={ __( 'Set the quality / compression level for generated .webp images. Default is 80%. Higher values mean better quality and larger file size; lower values reduce file size with more compression but lower quality.', 'cimo-image-optimizer' ) }
+						{ /* Smart Optimization */ }
+						<div className="cimo-setting-field cimo-smart-optimization-toggle">
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={
+									<span>
+										{ __( 'Smart Optimization', 'cimo-image-optimizer' ) }
+										{ buildType === 'free' && (
+											<span className="cimo-premium-tag">
+												{ __( 'Premium', 'cimo-image-optimizer' ) }
+											</span>
+										) }
+									</span>
+								}
+								checked={ buildType === 'free' ? false : ( settings.smartOptimization === 1 ) }
+								disabled={ buildType === 'free' }
+								onChange={ checked => handleInputChange( 'smartOptimization', checked ? 1 : 0 ) }
+								help={ __( 'Smart Optimization uses our advanced algorithms to choose the best compression and quality settings per image. This adds a small overhead to the upload process, but the results are even smaller file sizes and faster loading times.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
+
+						{ /* WebP Image Quality */ }
+						{ ( buildType === 'free' || settings.smartOptimization === 0 ) && (
+							<div className="cimo-setting-field cimo-webp-quality-range-control">
+								<RangeControl
+									id="webpQuality"
+									label={ __( 'WebP Image Quality', 'cimo-image-optimizer' ) }
+									value={ settings.webpQuality || '' }
+									onChange={ value => handleInputChange( 'webpQuality', value || '' ) }
+									min="1"
+									max="100"
+									step="1"
+									__next40pxDefaultSize
+									allowReset
+									initialPosition={ 80 }
+									help={ __( 'Set the quality / compression level for generated .webp images. Default is 80%. Higher values mean better quality and larger file size; lower values reduce file size with more compression but lower quality.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+						) }
+
 						{ /* Maximum Image Dimension */ }
 						<div className="cimo-setting-field">
 							<TextControl
