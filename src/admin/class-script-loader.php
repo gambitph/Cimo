@@ -77,6 +77,10 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			// Get current settings
 			$settings = get_option( 'cimo_options', [] );
 
+			// Expose threshold for WP Core's big image scaling.
+			// Can be false when auto scaling is disabled.
+			$threshold = apply_filters( 'big_image_size_threshold', 2560 );
+
 			// Localize script with REST API URL, nonce, and settings
 			wp_localize_script(
 				'cimo-script',
@@ -100,6 +104,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'svgUpload' => isset( $settings['svg_upload'] ) ? (int) $settings['svg_upload'] : 0,
 					'svgOptimizationEnabled' => isset( $settings['svg_optimization_enabled'] ) ? (int) $settings['svg_optimization_enabled'] : 1,
 					'stealthModeEnabled' => isset( $settings['stealth_mode_enabled'] ) ? (int) $settings['stealth_mode_enabled'] : 0,
+					'wpScalingThreshold' => $threshold,
 				]
 			);
 

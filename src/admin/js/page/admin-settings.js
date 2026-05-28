@@ -591,8 +591,15 @@ const AdminSettings = () => {
 								label={ __( 'Maximum Image Dimension', 'cimo-image-optimizer' ) }
 								type="number"
 								value={ settings.maxImageDimension }
+								placeholder={ settings.disableWpScaling === 1 ? '2560' : undefined }
 								onChange={ value => handleInputChange( 'maxImageDimension', value ) }
-								help={ __( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to disable resizing. We recommend a value of 1920px.', 'cimo-image-optimizer' ) }
+								help={ sprintf(
+									__( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to %s. We recommend a value of 1920px.', 'cimo-image-optimizer' ),
+									window.cimoSettings?.wpScalingThreshold
+										? sprintf( __( "use WordPress's default auto-scaling at %spx", 'cimo-image-optimizer' ), window.cimoSettings.wpScalingThreshold )
+										: __( 'disable auto-scaling', 'cimo-image-optimizer' )
+								) }
+
 								__next40pxDefaultSize
 							/>
 						</div>
