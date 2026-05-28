@@ -19,6 +19,9 @@ const AdminSettings = () => {
 	const [ settings, setSettings ] = useState( {
 		// General settings
 		optimizeAllMedia: 0,
+		showOptimizationToggle: 0,
+		showOptimizationToggleFrontend: 0,
+		persistOptimizationToggle: 0,
 		disableWpScaling: 1,
 		disableThumbnailGeneration: 0,
 		thumbnailSizes: [], // Stores DISABLED thumbnail sizes
@@ -86,6 +89,9 @@ const AdminSettings = () => {
 			const fetchedSettings = {
 				// General Settings
 				optimizeAllMedia: cimoOptions.optimize_all_media !== undefined ? cimoOptions.optimize_all_media : 0,
+				showOptimizationToggle: cimoOptions.show_optimization_toggle !== undefined ? cimoOptions.show_optimization_toggle : 0,
+				showOptimizationToggleFrontend: cimoOptions.show_optimization_toggle_frontend !== undefined ? cimoOptions.show_optimization_toggle_frontend : 0,
+				persistOptimizationToggle: cimoOptions.persist_optimization_toggle !== undefined ? cimoOptions.persist_optimization_toggle : 0,
 				disableWpScaling: cimoOptions.disable_wp_scaling !== undefined ? cimoOptions.disable_wp_scaling : 1,
 				disableThumbnailGeneration: cimoOptions.disable_thumbnail_generation !== undefined ? cimoOptions.disable_thumbnail_generation : 0,
 				thumbnailSizes: cimoOptions.thumbnail_sizes || [],
@@ -158,6 +164,9 @@ const AdminSettings = () => {
 			return {
 				...settings,
 				optimizeAllMedia: 0,
+				showOptimizationToggle: 0,
+				showOptimizationToggleFrontend: 0,
+				persistOptimizationToggle: 0,
 				disableWpScaling: 1,
 				disableThumbnailGeneration: 1,
 				thumbnailSizes: [],
@@ -170,6 +179,9 @@ const AdminSettings = () => {
 			return {
 				...settings,
 				optimizeAllMedia: 0,
+				showOptimizationToggle: 0,
+				showOptimizationToggleFrontend: 0,
+				persistOptimizationToggle: 0,
 				disableWpScaling: 1,
 				disableThumbnailGeneration: 0,
 				thumbnailSizes: [],
@@ -294,6 +306,9 @@ const AdminSettings = () => {
 					cimo_options: {
 						// General settings
 						optimize_all_media: settings.optimizeAllMedia,
+						show_optimization_toggle: settings.showOptimizationToggle,
+						show_optimization_toggle_frontend: settings.showOptimizationToggleFrontend,
+						persist_optimization_toggle: settings.persistOptimizationToggle,
 						disable_wp_scaling: settings.disableWpScaling,
 						disable_thumbnail_generation: settings.disableThumbnailGeneration,
 						thumbnail_sizes: settings.thumbnailSizes,
@@ -474,7 +489,7 @@ const AdminSettings = () => {
 							</Button>
 						</div>
 
-						{ /* Optimize All Media Uploads*/ }
+						{ /* Optimize All Media Uploads */ }
 						<div className="cimo-setting-field">
 							<ToggleControl
 								__nextHasNoMarginBottom
@@ -488,12 +503,83 @@ const AdminSettings = () => {
 										) }
 									</span>
 								}
-								checked={ settings.optimizeAllMedia === 1 }
+								checked={ buildType === 'premium' ? settings.optimizeAllMedia === 1 : 0 }
 								disabled={ buildType === 'free' }
 								onChange={ checked => handleInputChange( 'optimizeAllMedia', checked ? 1 : 0 ) }
 								help={ __( 'Enable to optimize all files uploaded via any input type="file" on your website, including those in the admin pages, plugin forms and custom HTML upload forms in the frontend of your stie. When disabled, only uploads handled by Cimo\'s official integrations will be optimized.', 'cimo-image-optimizer' ) }
 							/>
 						</div>
+
+						{ buildType === 'premium' && <hr className="cimo-divider" /> }
+
+						{ /* Show Optimization Toggle */ }
+						<div className="cimo-setting-field">
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={
+									<span>
+										{ __( 'Show Optimization Toggle', 'cimo-image-optimizer' ) }
+										{ buildType === 'free' && (
+											<span className="cimo-premium-tag">
+												{ __( 'Premium', 'cimo-image-optimizer' ) }
+											</span>
+										) }
+									</span>
+								}
+								checked={ buildType === 'premium' ? settings.showOptimizationToggle === 1 : 0 }
+								disabled={ buildType === 'free' }
+								onChange={ checked => handleInputChange( 'showOptimizationToggle', checked ? 1 : 0 ) }
+								help={ __( 'Enable to show a small floating toggle near the lower right-hand corner of your screen in the WordPress backend. This can be used to temporarily disable media optimization for the current tab.', 'cimo-image-optimizer' ) }
+							/>
+						</div>
+
+						{ /* Show in Frontend */ }
+						{ settings.showOptimizationToggle === 1 && buildType === 'premium' &&
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={
+										<span>
+											{ __( 'Show in Frontend', 'cimo-image-optimizer' ) }
+											{ buildType === 'free' && (
+												<span className="cimo-premium-tag">
+													{ __( 'Premium', 'cimo-image-optimizer' ) }
+												</span>
+											) }
+										</span>
+									}
+									checked={ buildType === 'premium' ? settings.showOptimizationToggleFrontend === 1 : 0 }
+									disabled={ buildType === 'free' }
+									onChange={ checked => handleInputChange( 'showOptimizationToggleFrontend', checked ? 1 : 0 ) }
+									help={ __( 'Enable to show the optimization toggle also in frontend. Website visitors will also be able to see the floating toggle for visitor-facing forms and whenever there is a file upload input.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+						}
+
+						{ /* Persist Optimization Toggle */ }
+						{ settings.showOptimizationToggle === 1 && buildType === 'premium' &&
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={
+										<span>
+											{ __( 'Remember Toggle On/Off After Page Reload', 'cimo-image-optimizer' ) }
+											{ buildType === 'free' && (
+												<span className="cimo-premium-tag">
+													{ __( 'Premium', 'cimo-image-optimizer' ) }
+												</span>
+											) }
+										</span>
+									}
+									checked={ buildType === 'premium' ? settings.persistOptimizationToggle === 1 : 0 }
+									disabled={ buildType === 'free' }
+									onChange={ checked => handleInputChange( 'persistOptimizationToggle', checked ? 1 : 0 ) }
+									help={ __( 'If enabled, your optimization toggle will remain the same even after you refresh the page or visit other pages. If disabled, the toggle will always reset to ON after reloading the page.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
+						}
+
+						{ buildType === 'premium' && <hr className="cimo-divider" /> }
 
 						{ /* WordPress Auto-Scaling */ }
 						<div className="cimo-setting-field">
@@ -621,8 +707,15 @@ const AdminSettings = () => {
 								label={ __( 'Maximum Image Dimension', 'cimo-image-optimizer' ) }
 								type="number"
 								value={ settings.maxImageDimension }
+								placeholder={ settings.disableWpScaling === 1 ? '2560' : undefined }
 								onChange={ value => handleInputChange( 'maxImageDimension', value ) }
-								help={ __( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to disable resizing. We recommend a value of 1920px.', 'cimo-image-optimizer' ) }
+								help={ sprintf(
+									__( 'Maximum width or height in pixels for uploaded images. Images exceeding this dimension will be automatically resized while preserving aspect ratio. Leave empty to %s. We recommend a value of 1920px.', 'cimo-image-optimizer' ),
+									window.cimoSettings?.wpScalingThreshold
+										? sprintf( __( "use WordPress's default auto-scaling at %spx", 'cimo-image-optimizer' ), window.cimoSettings.wpScalingThreshold )
+										: __( 'disable auto-scaling', 'cimo-image-optimizer' )
+								) }
+
 								__next40pxDefaultSize
 							/>
 						</div>
@@ -644,7 +737,7 @@ const AdminSettings = () => {
 								<span aria-hidden="true">
 									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-images-icon lucide-images"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16" /><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2" /><circle cx="13" cy="7" r="1" fill="currentColor" /><rect x="8" y="2" width="14" height="14" rx="2" /></svg>
 								</span>
-								{ __( 'Bulk Image Optimization', 'cimo-image-optimizer' ) }
+								{ __( 'Bulk Optimization', 'cimo-image-optimizer' ) }
 							</h2>
 							{ buildType === 'free' && (
 								<span

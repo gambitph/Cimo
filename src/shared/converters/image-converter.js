@@ -318,7 +318,7 @@ class ImageConverter extends Converter {
 				return {
 					file,
 					metadata: null,
-					reason: 'resulting-image-bigger-than-input',
+					reason: 'resulting-media-bigger-than-input',
 					error: `Resulting image is bigger than the input (input: ${ file.size } bytes, output: ${ convertedBlob.size } bytes), skipping conversion.`,
 				}
 			}

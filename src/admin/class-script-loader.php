@@ -77,6 +77,10 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			// Get current settings
 			$settings = get_option( 'cimo_options', [] );
 
+			// Expose threshold for WP Core's big image scaling.
+			// Can be false when auto scaling is disabled.
+			$threshold = apply_filters( 'big_image_size_threshold', 2560 );
+
 			// Localize script with REST API URL, nonce, and settings
 			wp_localize_script(
 				'cimo-script',
@@ -90,6 +94,10 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'canManageOptions' => current_user_can( 'manage_options' ),
 					'optimizeAllMedia' => isset( $settings['optimize_all_media'] ) ? (int) $settings['optimize_all_media'] : 0,
 					'isPremium' => CIMO_BUILD === 'premium',
+					'optimizeAllMedia' => isset( $settings['optimize_all_media'] ) ? (int) $settings['optimize_all_media'] : 0,
+					'showOptimizationToggle' => isset( $settings['show_optimization_toggle'] ) ? (int) $settings['show_optimization_toggle'] : 0,
+					'showOptimizationToggleFrontend' => isset( $settings['show_optimization_toggle_frontend'] ) ? (int) $settings['show_optimization_toggle_frontend'] : 0,
+					'persistOptimizationToggle' => isset( $settings['persist_optimization_toggle'] ) ? (int) $settings['persist_optimization_toggle'] : 0,
 					'smartOptimization' => CIMO_BUILD === 'premium'
 						? ( isset( $settings['smart_optimization'] ) ? (int) $settings['smart_optimization'] : 1 )
 						: 0,
@@ -103,6 +111,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'svgUpload' => isset( $settings['svg_upload'] ) ? (int) $settings['svg_upload'] : 0,
 					'svgOptimizationEnabled' => isset( $settings['svg_optimization_enabled'] ) ? (int) $settings['svg_optimization_enabled'] : 1,
 					'stealthModeEnabled' => isset( $settings['stealth_mode_enabled'] ) ? (int) $settings['stealth_mode_enabled'] : 0,
+					'wpScalingThreshold' => $threshold,
 				]
 			);
 

@@ -118,6 +118,7 @@ function injectCimoMetadata( {
 
 	const convertedFormatRaw = customMetadata.convertedFormat || model.get( 'mime' ) || ''
 	const mediaTypeLabel = getMediaTypeLabel( convertedFormatRaw )
+	const isImageMedia = typeof convertedFormatRaw === 'string' && convertedFormatRaw.startsWith( 'image/' )
 
 	let html = `
 		<div class="cimo-media-manager-metadata-title-container">
@@ -134,6 +135,15 @@ function injectCimoMetadata( {
 	const optimizationSavings = customMetadata.compressionSavings
 		? ( 100 - ( customMetadata.compressionSavings * 100 ) ).toFixed( 2 )
 		: ( 100 * ( originalFilesize - convertedFilesize ) / originalFilesize ).toFixed( 2 )
+
+	// If optimizationSavings is not a valid number or is negative, do not display it
+	if (
+		optimizationSavings === 'NaN' ||
+		! Number.isFinite( Number( optimizationSavings ) ) ||
+		Number( optimizationSavings ) < 0
+	) {
+		return
+	}
 
 	const kbSaved = formatFilesize(
 		originalFilesize - convertedFilesize,
@@ -185,7 +195,7 @@ function injectCimoMetadata( {
 	if ( isBulkOptimized ) {
 		html += `
 			<li class="cimo-bulk-optimization-number">
-				🏞️ <span class="cimo-value">${ escape( Object.keys( customMetadata.bulk_optimization ).length.toString() ) }</span> thumbnail(s) processed
+				🏞️ <span class="cimo-value">${ escape( Object.keys( customMetadata.bulk_optimization ).length.toString() ) }</span> ${ escape( isImageMedia ? 'thumbnail(s) processed' : 'file(s) processed' ) }
 			</li>
 			<li class="cimo-bulk-optimization-number">
 				⚡️ Bulk optimized
