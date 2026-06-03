@@ -252,7 +252,7 @@ function injectCimoMetadata( {
 
 	if ( showPremiumHint ) {
 		const premiumUrl = buildPricingUrl( 'attachment-modal' )
-		html += `<p class="cimo-media-premium-hint"><a href="${ escape( premiumUrl ) }" target="_blank" rel="noopener noreferrer">${ escape( __( 'Apply this to your entire library →', 'cimo-image-optimizer' ) ) }</a></p>`
+		html += `<p class="cimo-media-premium-hint"><a href="${ escape( premiumUrl ) }" target="_blank" rel="noopener noreferrer">${ escape( __( 'Unlock Smart Optimization for even smaller files →', 'cimo-image-optimizer' ) ) }</a></p>`
 	}
 
 	customContent.innerHTML = html
