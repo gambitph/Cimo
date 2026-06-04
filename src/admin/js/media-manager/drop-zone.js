@@ -155,7 +155,7 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		// inside the DropZoneComponent.
 		//
 		// @see https://github.com/WordPress/gutenberg/blob/f8140c4fcc8db2d6078ad76fd433c79df3543860/packages/components/src/drop-zone/index.tsx#L59
-		if ( target?.classList.contains( 'components-drop-zone' ) || target?.hasAttribute( 'data-is-drop-zone' ) || target?.classList.contains( 'uploader-editor-content' ) ) {
+		if ( target?.classList.contains( 'components-drop-zone' ) || target?.getAttribute( 'data-is-drop-zone' ) === 'true' || target?.classList.contains( 'uploader-editor-content' ) ) {
 			// Create a drop event with conditional bubbling
 			// Use bubbles: false when in iframe to prevent doubling, but true for main document
 			const isInIframe = targetDocument !== document
