@@ -25,6 +25,7 @@ const ALLOWED_LOCATIONS = applyFilters( 'cimo.dropZone.allowedLocations', [
 	'.editor-styles-wrapper', // Allowed to drop in the block editor when adding new image blocks
 	'.uploader-window', // Allowed to drop in the admin Media > Library grid view
 	'.uploader-editor', // Allowed to drop in the WooCommerce description editor
+	'.block-library-utils__media-control', // Allowed to drop in the block editor image block media control
 ] )
 
 // Add event listener to the Media Manager's drop zone
@@ -140,7 +141,7 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		await saveMetadata( conversionMetadata )
 
 		// Find the correct target to dispatch the event to
-		let target = event.target
+		let target = event.target.closest( '.components-drop-zone, [data-is-drop-zone="true"]' ) || event.target
 		// This specifically handles the WooCommerce/classic description editor
 		if ( event.target?.closest( '.uploader-editor-content' ) ) {
 			target = event.target.closest( '.uploader-editor-content' )
@@ -154,7 +155,7 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 		// inside the DropZoneComponent.
 		//
 		// @see https://github.com/WordPress/gutenberg/blob/f8140c4fcc8db2d6078ad76fd433c79df3543860/packages/components/src/drop-zone/index.tsx#L59
-		if ( target?.classList.contains( 'components-drop-zone' ) || target?.classList.contains( 'uploader-editor-content' ) ) {
+		if ( target?.classList.contains( 'components-drop-zone' ) || target?.hasAttribute( 'data-is-drop-zone' ) || target?.classList.contains( 'uploader-editor-content' ) ) {
 			// Create a drop event with conditional bubbling
 			// Use bubbles: false when in iframe to prevent doubling, but true for main document
 			const isInIframe = targetDocument !== document
