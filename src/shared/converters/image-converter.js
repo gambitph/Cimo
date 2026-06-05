@@ -9,6 +9,16 @@ const supportedFormats = [
 	{ value: 'png', mimeType: 'image/png' },
 ]
 
+// Get the supported format object based on a string input (either MIME type or format value)
+const getSupportedFormat = ( formatString = '' ) => {
+	const requestedFormat = typeof formatString === 'string' ? formatString : ''
+	return (
+		requestedFormat.startsWith( 'image/' )
+			? supportedFormats.find( f => f.mimeType === requestedFormat )
+			: supportedFormats.find( f => f.value === requestedFormat )
+	) || supportedFormats[ 0 ]
+}
+
 /**
  * ImageConverter
  * Client-side image converter using Canvas APIs.
@@ -178,7 +188,7 @@ class ImageConverter extends Converter {
 				// Draw image with cropping to maintain aspect ratio
 				ctx.drawImage( img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height )
 
-				const format = supportedFormats.find( f => f.value === outputFormat )
+				const format = getSupportedFormat( outputFormat )
 				// Only use quality for lossy formats
 				// const q = ( outputFormat === 'webp' || outputFormat === 'jpg' ) ? quality : undefined
 
@@ -227,10 +237,6 @@ class ImageConverter extends Converter {
 			isSmartOptimization = this.options?.isSmartOptimization || false,
 		} = options
 
-		let formatTo = options.format || this.options?.format || ''
-		formatTo = ( formatTo.startsWith( 'image/' ) ? supportedFormats.find( f => f.mimeType === formatTo )?.value : formatTo ) ||
-			'webp'
-
 		// Not an image; return original file unchanged.
 		if ( ! file.type || ! file.type.startsWith( 'image/' ) ) {
 			return {
@@ -240,14 +246,15 @@ class ImageConverter extends Converter {
 			}
 		}
 
-		const formatInfo = supportedFormats.find( f => f.value === formatTo )
+		const formatString = options.format || this.options?.format || ''
+		const format = getSupportedFormat( formatString )
 
 		// Check if the browser supports the desired output format
 		const testCanvas = document.createElement( 'canvas' )
-		if ( formatInfo && ! testCanvas.toDataURL( formatInfo.mimeType ).startsWith( `data:${ formatInfo.mimeType }` ) ) {
+		if ( format && ! testCanvas.toDataURL( format.mimeType ).startsWith( `data:${ format.mimeType }` ) ) {
 			// If not supported, skip conversion and return the original file
 			// eslint-disable-next-line no-console
-			console.error( '[Cimo] ' + formatTo + ' is not supported by the browser, please use another modern browser' )
+			console.error( '[Cimo] ' + format.value + ' is not supported by the browser, please use another modern browser' )
 			return {
 				file,
 				metadata: null,
@@ -297,7 +304,7 @@ class ImageConverter extends Converter {
 			const start = performance.now()
 
 			let convertedBlob
-			if ( formatTo === 'png' ) {
+			if ( format.value === 'png' ) {
 				const { default: imageCompression } = await import( /* webpackChunkName: "browser-image-compression" */ 'browser-image-compression' )
 				convertedBlob = await imageCompression( fileItem.file, {
 					useWebWorker: true,
@@ -306,7 +313,7 @@ class ImageConverter extends Converter {
 					// initialQuality: quality, // Use default
 				} )
 			} else {
-				convertedBlob = await this.convertImage( fileItem, formatTo, {
+				convertedBlob = await this.convertImage( fileItem, format.value, {
 					quality,
 					maxDimension: this.options?.maxDimension || 0,
 				} )
@@ -324,7 +331,7 @@ class ImageConverter extends Converter {
 			}
 
 			// Get the file extension for the new format
-			const extension = formatTo === 'jpeg' ? 'jpg' : formatTo
+			const extension = format.value === 'jpeg' ? 'jpg' : format.value
 			// Prepend a unique identified to the filename
 			// const prefix = Math.random().toString( 36 ).substring( 2, 10 )
 			const newName = file.name.replace( /\.[^/.]+$/, '' ) + '.' + extension
@@ -333,7 +340,7 @@ class ImageConverter extends Converter {
 				filename: newName,
 				originalFormat: file.type,
 				originalFilesize: file.size,
-				convertedFormat: formatInfo.mimeType,
+				convertedFormat: format.mimeType,
 				convertedFilesize: convertedBlob.size,
 				conversionTime: end - start,
 				compressionSavings: file.size > 0 ? convertedBlob.size / file.size : null,
@@ -343,7 +350,7 @@ class ImageConverter extends Converter {
 			// This ensures cross-context compatibility (iframe vs main window)
 			const fileConstructor = file.constructor
 			const outFile = new fileConstructor( [ convertedBlob ], newName, {
-				type: formatInfo.mimeType,
+				type: format.mimeType,
 				lastModified: Date.now(),
 			} )
 
