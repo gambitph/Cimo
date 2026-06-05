@@ -11,11 +11,16 @@ const supportedFormats = [
 
 // Get the supported format object based on a string input (either MIME type or format value)
 const getSupportedFormat = ( formatString = '' ) => {
-	const requestedFormat = typeof formatString === 'string' ? formatString : ''
+	const requestedFormat = typeof formatString === 'string' ? formatString.trim().toLowerCase() : ''
+	const normalizedFormat = requestedFormat === 'image/jpg'
+		? 'image/jpeg'
+		: requestedFormat === 'jpeg'
+			? 'jpg'
+			: requestedFormat
 	return (
-		requestedFormat.startsWith( 'image/' )
-			? supportedFormats.find( f => f.mimeType === requestedFormat )
-			: supportedFormats.find( f => f.value === requestedFormat )
+		normalizedFormat.startsWith( 'image/' )
+			? supportedFormats.find( f => f.mimeType === normalizedFormat )
+			: supportedFormats.find( f => f.value === normalizedFormat )
 	) || supportedFormats[ 0 ]
 }
 
