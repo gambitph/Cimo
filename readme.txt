@@ -94,10 +94,10 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 
 If you upgrade to [Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt), you will get the following:
 
-* **Bulk Optimization** – optimize your existing media in your Media Library in one click, no server processing as well
-* **Optimize Files Uploaded via Form Plugins** – automatically optimize images, videos, and audio uploaded through popular form plugins (Gravity Forms, WPForms, Ninja Forms, Formidable, Fluent Forms, etc.)
-* **Video Optimization** – automatically optimize and optionally downscale the resolution of videos as you upload them
-* **Audio Optimization** – automatically optimize audio files as you upload them
+* **Smart Optimization** – uses advanced algorithms to automatically select the optimal compression settings for each image, for the best results without manual tweaking.
+* **Bulk Optimization** – optimize your existing images, videos and audio in your Media Library in one click, no server processing as well
+* **Optimize All Media Uploaded via Form Plugins** – automatically optimize images, videos, and audio uploaded through popular form plugins (Gravity Forms, WPForms, Ninja Forms, Formidable, Fluent Forms, etc.)
+* **Video & Audio Optimization** – automatically optimize and optionally downscale the resolution of videos and audio quality as you upload them
 * **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
 * **Stealth Mode** – completely hides all Cimo branding and interface elements, while all optimization features continue to work seamlessly in the background.
 
