@@ -39,6 +39,10 @@ const stripFilenameSuffix = filename => {
  * @return {Object|null} Matching upload notice, if any.
  */
 export const getCachedUploadNotice = filename => {
+	if ( ! filename ) {
+		return null
+	}
+
 	const cache = window.cimoUploadNoticeCache || {}
 
 	// Get the filename which may have a suffix, and try to find a notice for it first.
@@ -80,6 +84,10 @@ export const getCachedUploadNotice = filename => {
  * @param {string} message  - Notice message to display in the media manager.
  */
 export const setCachedUploadNotice = ( filename, message ) => {
+	if ( ! filename ) {
+		return
+	}
+
 	// Keep notices in memory only; refreshing the page clears them.
 	if ( ! window.cimoUploadNoticeCache ) {
 		window.cimoUploadNoticeCache = {}
