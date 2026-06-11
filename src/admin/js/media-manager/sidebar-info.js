@@ -1,6 +1,7 @@
 import { domReady } from '~cimo/shared/dom-ready'
 import { getCachedMetadata } from '~cimo/shared/metadata-saver'
 import { buildPricingUrl } from '~cimo/shared/pricing-url'
+import { getCachedUploadNotice } from '~cimo/shared/upload-notice-cache'
 import { escape } from '~cimo/shared/util'
 import { __, sprintf } from '@wordpress/i18n'
 import { applyFilters } from '@wordpress/hooks'
@@ -62,6 +63,39 @@ function getMediaTypeLabel( mimetype ) {
 		default:
 			return 'Media'
 	}
+}
+
+/**
+ * Inject a temporary upload notice into the Media Library sidebar.
+ *
+ * @param {Object}  options           - Injection options.
+ * @param {Object}  options.model     - WordPress media attachment model.
+ * @param {Element} options.container - Sidebar container where the notice should appear.
+ */
+function injectCimoUploadNotice( {
+	model,
+	container,
+} ) {
+	if ( ! model || ! container ) {
+		return
+	}
+
+	if ( container.querySelector( '.cimo-media-upload-notice' ) ) {
+		return
+	}
+
+	// Ask the temporary cache for a notice that belongs to this attachment filename.
+	const notice = getCachedUploadNotice( model.get( 'filename' ) )
+
+	if ( ! notice?.message ) {
+		return
+	}
+
+	// Append plain text only; the notice message comes from a converter result error.
+	const noticeElement = document.createElement( 'div' )
+	noticeElement.className = 'cimo-media-upload-notice'
+	noticeElement.textContent = notice.message
+	container.appendChild( noticeElement )
 }
 
 function injectCimoMetadata( {
@@ -285,6 +319,11 @@ domReady( () => {
 
 				const container = dom.querySelector( '.attachment-info' )
 
+				injectCimoUploadNotice( {
+					model: view.model,
+					container,
+				} )
+
 				injectCimoMetadata( {
 					model: view.model,
 					container,
@@ -306,6 +345,11 @@ domReady( () => {
 					const container = this.el.querySelector(
 						'.attachment-info > .details'
 					)
+
+					injectCimoUploadNotice( {
+						model: this.model,
+						container,
+					} )
 
 					injectCimoMetadata( {
 						model: this.model,
