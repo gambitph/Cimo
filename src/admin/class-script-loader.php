@@ -79,7 +79,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 
 			// Expose threshold for WP Core's big image scaling.
 			// Can be false when auto scaling is disabled.
-			$threshold = apply_filters( 'big_image_size_threshold', 2560 );
+			$threshold = apply_filters( 'big_image_size_threshold', 2560, array( 0, 0 ), '', 0 );
 
 			// Localize script with REST API URL, nonce, and settings
 			wp_localize_script(
