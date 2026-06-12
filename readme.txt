@@ -4,7 +4,7 @@ Tags: image, optimization, compress, convert, webp
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -208,6 +208,10 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.4.1 =
+
+* Fixed: PHP error notice because of invalid big_image_size_threshold usage
 
 = 1.4.0 =
 
