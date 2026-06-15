@@ -286,6 +286,9 @@ const AdminSettings = () => {
 					cimo_rating_dismissed: '1',
 				},
 			} )
+			// Keep the current admin menu in sync without waiting for a page reload.
+			document.querySelectorAll( '#adminmenu a[href*="page=cimo-settings"] .update-plugins' )
+				.forEach( indicator => indicator.remove() )
 		} catch ( error ) {
 			setIsRatingDismissed( false )
 		}
@@ -404,20 +407,8 @@ const AdminSettings = () => {
 			</div>
 
 			{ ( () => {
-				const savedStr = window.cimoAdmin?.stats?.total_storage_saved
-				let showRating = false
-				if ( typeof savedStr === 'string' ) {
-					const match = savedStr.match( /^([\d.]+)\s*([a-zA-Z]+)/ )
-					if ( match ) {
-						const num = parseFloat( match[ 1 ] )
-						const unit = match[ 2 ].toUpperCase()
-						if ( unit === 'MB' && num > 5 ) {
-							showRating = true
-						}
-					}
-				}
-
-				if ( showRating && ! isRatingDismissed ) {
+				// Show rating notice if user has saved at least 5MB and has not dismissed the notice before.
+				if ( window.cimoAdmin?.showRatingNotice === '1' && ! isRatingDismissed ) {
 					return (
 						<div className="cimo-header cimo-rating-notice">
 							<div className="cimo-rating-notice-content">

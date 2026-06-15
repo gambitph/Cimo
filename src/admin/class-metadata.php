@@ -266,6 +266,11 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 
 			// Update the attachment metadata.
 			update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
+
+			// Trigger a stats update after adding a new metadata.
+			if ( class_exists( 'Cimo_Stats' ) ) {
+				Cimo_Stats::get_stats();
+			}
 		}
 
 		/**

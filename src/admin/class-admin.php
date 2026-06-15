@@ -37,10 +37,16 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 		 */
 		public function add_admin_menu() {
 			$settings = get_option( 'cimo_options', [] );
+			$menu_title = __( 'Cimo', 'cimo-image-optimizer' );
+
+			// Use cached stats here so every admin page load does not scan attachment metadata.
+			if ( class_exists( 'Cimo_Stats' ) && Cimo_Stats::should_show_rating_notice() ) {
+				$menu_title .= ' <span class="update-plugins count-1"><span class="plugin-count">' . number_format_i18n( 1 ) . '</span></span>';
+			}
 
 			add_options_page(
 				__( 'Cimo Settings', 'cimo-image-optimizer' ),
-				__( 'Cimo', 'cimo-image-optimizer' ),
+				$menu_title,
 				'manage_options',
 				CIMO_SETTINGS_SLUG,
 				[ $this, 'admin_page_callback' ]
@@ -269,6 +275,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 
 			// Get statistics data
 			$stats = Cimo_Stats::get_formatted_stats();
+			$show_rating_notice = Cimo_Stats::should_show_rating_notice();
 
 			// Get image sizes
 			$image_sizes = $this->get_all_image_sizes();
@@ -286,6 +293,7 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				'stats' => $stats,
 				'imageSizes' => $formatted_sizes,
 				'ratingDismissed' => '1' === get_option( 'cimo_rating_dismissed', '0' ) ? '1' : '0',
+				'showRatingNotice' => $show_rating_notice ? '1' : '0',
 				'isPremium' => CIMO_BUILD === 'premium',
 				'uploadsUrl' => wp_upload_dir()['baseurl'],
 			] );

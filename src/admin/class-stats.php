@@ -12,6 +12,7 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 	class Cimo_Stats {
 		const OPTION_KEY = 'cimo_stats_data';
 		const CIMO_META_STRING = 's:4:"cimo";';
+		const RATING_NOTICE_THRESHOLD_BYTES = 5242880; // 5 MB.
 
 		/**
 		 * Get all media optimization statistics
@@ -153,6 +154,37 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 				'total_storage_saved' => self::format_bytes( $bytes_saved ),
 				'last_processed_post_id' => $stats['last_processed_post_id'] ?? 0,
 			];
+		}
+
+		/**
+		 * Check if the rating notice should be shown using cached stats only.
+		 *
+		 * This intentionally avoids calling get_stats() so admin menu rendering
+		 * does not trigger attachment metadata compute on every admin page load.
+		 */
+		public static function should_show_rating_notice() {
+			if ( '1' === get_option( 'cimo_rating_dismissed', '0' ) ) {
+				return false;
+			}
+
+			return self::get_cached_saved_bytes() >= self::RATING_NOTICE_THRESHOLD_BYTES;
+		}
+
+		/**
+		 * Get cached total saved bytes without recomputing stats.
+		 */
+		private static function get_cached_saved_bytes() {
+			$stats = get_option( self::OPTION_KEY );
+
+			if ( ! is_array( $stats ) ) {
+				return 0;
+			}
+
+			$kb_before = (float) ( $stats['total_original_size'] ?? 0 );
+			$kb_after  = (float) ( $stats['total_optimized_size'] ?? 0 );
+			$kb_saved  = max( 0, $kb_before - $kb_after );
+
+			return (int) round( $kb_saved * 1024 );
 		}
 
 		/**
