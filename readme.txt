@@ -28,7 +28,7 @@ From WordPress' point of view, it's as if you optimized your image BEFORE your u
 * No extra bandwidth
 * No external image-processing services
 
-> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). Image optimization currently doesn't work in Safari, images would just upload as they normally would, please use any of the browsers listed.
+> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.
 
 Image Optimization options:
 
@@ -111,7 +111,7 @@ Video & Audio optimization are also performed as you upload your files, even bef
 * **Zero Server Load**: No background processes or server-side optimization
 * **Instant Results**: No waiting for external APIs or server processing
 * **Privacy-First**: Images never leave the user's device until uploaded
-* **Browser Compatibility**: Works in Chrome, Firefox, Edge, Opera (Safari support not currently available)
+* **Browser Compatibility**: Works in Chrome, Firefox, Edge, Opera (Safari: optimized and uploaded as JPG, WebP conversion not supported)
 
 == Perfect For ==
 
@@ -146,7 +146,7 @@ When you upload an image into your Media Manager (let's say a .jpg), you'll noti
 
 = Does Cimo work in all browsers? =
 
-Cimo works in all modern browsers including Chrome, Firefox, Edge, and Opera. This currently does not work with Safari, please use one of the browsers mentioned. If you use Safari, the image will just upload as it normally would.
+Cimo works in all modern browsers including Chrome, Firefox, Edge, and Opera. In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.```
 
 = Does Cimo really have no limits? =
 
