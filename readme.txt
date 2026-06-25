@@ -198,7 +198,7 @@ These settings work great for most websites and provide excellent performance.
 Yes! The settings page includes a statistics dashboard showing:
 - Total storage saved
 - Percentage reduction
-- Number of  optimized
+- Number of media files optimized
 - Original vs optimized file sizes
 
 == Screenshots ==
