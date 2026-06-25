@@ -28,7 +28,7 @@ From WordPress' point of view, it's as if you optimized your image BEFORE your u
 * No extra bandwidth
 * No external image-processing services
 
-> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). In Safari, images will be optimized and uploaded as JPG, but WebP conversion is not supported.
+> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.
 
 Image Optimization options:
 
