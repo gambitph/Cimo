@@ -146,7 +146,7 @@ When you upload an image into your Media Manager (let's say a .jpg), you'll noti
 
 = Does Cimo work in all browsers? =
 
-Cimo works in all modern browsers including Chrome, Firefox, Edge, and Opera. In Safari, images will be optimized and uploaded as JPG, but WebP conversion is not supported. For WebP conversion, please use any of the browsers listed.
+Cimo works in all modern browsers including Chrome, Firefox, Edge, and Opera. In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.```
 
 = Does Cimo really have no limits? =
 
