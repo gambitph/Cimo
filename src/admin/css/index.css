@@ -56,6 +56,20 @@
 	}
 }
 
+.cimo-media-upload-notice {
+	float: left;
+	clear: both;
+	box-sizing: border-box;
+	width: 100%;
+	margin: 1.5em 0 0;
+	padding: 10px 12px;
+	border-left: 4px solid #dba617;
+	background: #fff8e5;
+	color: #3c434a;
+	font-size: 13px;
+	line-height: 1.45;
+}
+
 .cimo-compression-savings {
 	font-size: 21px;
     font-weight: 700;

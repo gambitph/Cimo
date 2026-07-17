@@ -14,6 +14,11 @@ const PLUGIN_NAME = 'cimo'
 const BUILD_DIR = 'build-plugin'
 const DIST_DIR = 'dist'
 const IS_PREMIUM_BUILD = process.env.BUILD_TYPE === 'premium'
+const PREMIUM_COMPOSER_RUNTIME_PATHS = [
+	'vendor/autoload.php',
+	'vendor/composer',
+	'vendor/enshrined/svg-sanitize',
+]
 
 // Get version from cimo.php plugin header
 const cimoPhp = fs.readFileSync( 'cimo.php', 'utf8' )
@@ -184,6 +189,29 @@ function copyBuiltDir( src, dest ) {
 	}
 }
 
+function copyPremiumComposerRuntime( buildDir ) {
+	if ( ! IS_PREMIUM_BUILD ) {
+		return
+	}
+
+	for ( const runtimePath of PREMIUM_COMPOSER_RUNTIME_PATHS ) {
+		if ( ! fs.existsSync( runtimePath ) ) {
+			throw new Error(
+				`Missing Composer runtime file required for premium build: ${ runtimePath }`
+			)
+		}
+
+		const stat = fs.statSync( runtimePath )
+		const destPath = path.join( buildDir, runtimePath )
+
+		if ( stat.isDirectory() ) {
+			copyDir( runtimePath, destPath )
+		} else {
+			copyFile( runtimePath, destPath )
+		}
+	}
+}
+
 // Add security index.php files to directories
 function addSecurityFiles( dir ) {
 	if ( ! fs.existsSync( dir ) ) {
@@ -303,6 +331,15 @@ async function packagePlugin() {
 	// eslint-disable-next-line no-console
 	console.log( '📁 Copying built files...' )
 	copyBuiltFiles( 'build', path.join( BUILD_DIR, 'build' ) )
+
+	// Copy Composer runtime files for premium build
+	// Only do this in premium since the SVG sanitizer used
+	// for SVG optimization is a premium-only feature.
+	if ( IS_PREMIUM_BUILD ) {
+		// eslint-disable-next-line no-console
+		console.log( '📁 Copying Composer runtime files...' )
+	}
+	copyPremiumComposerRuntime( BUILD_DIR )
 
 	// Add security index.php files
 	// eslint-disable-next-line no-console
