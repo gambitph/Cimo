@@ -4,6 +4,20 @@
 	"editor.detectIndentation": false,
 	"files.eol": "\n",
 	"editor.formatOnSave": false,
+	"search.useIgnoreFiles": false,
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/vendor": true,
+		"**/build": true,
+		"**/dist": true,
+		"**/*.map": true,
+		"**/.git": true
+	},
+	"files.watcherExclude": {
+		"**/node_modules/**": true,
+		"**/build/**": true,
+		"**/dist/**": true
+	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit",
 		"source.fixAll.stylelint": "explicit",
