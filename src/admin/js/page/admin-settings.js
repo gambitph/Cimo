@@ -1139,10 +1139,10 @@ const AdminSettings = () => {
 							<div className="cimo-sidebar-heading-icon">
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-crown-icon lucide-crown"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /><path d="M5 21h14" /></svg>
 							</div>
-							<h2>{ __( 'Unlock Full Optimization', 'cimo-image-optimizer' ) }</h2>
+							<h2>{ __( 'Optimize beyond uploads', 'cimo-image-optimizer' ) }</h2>
 						</div>
 						<p className="cimo-premium-intro">
-							{ __( 'Get even smaller file sizes, optimize existing media files, control user uploads, while keeping your server free from image processing.', 'cimo-image-optimizer' ) }
+							{ __( 'New uploads are already covered. Premium bulk-optimizes your whole library, applies smarter compression, and more! Still in the browser, not on your server.', 'cimo-image-optimizer' ) }
 						</p>
 						<h3 className="screen-reader-text" style={ {
 							position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(1px, 1px, 1px, 1px)',
@@ -1202,7 +1202,7 @@ const AdminSettings = () => {
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								{ __( 'Unlock full optimization', 'cimo-image-optimizer' ) }
+								{ __( 'Get Premium', 'cimo-image-optimizer' ) }
 							</Button>
 							<div className="cimo-premium-guarantee">
 								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 13.5l2.5 2.5L16 9" /></svg>
