@@ -87,6 +87,22 @@
 	line-height: 1.1;
 }
 
+.cimo-premium-savings-estimate {
+	display: inline-block;
+	margin-top: 10px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: #3c83f6;
+	text-decoration: none;
+
+	&:hover,
+	&:focus {
+		color: #1d4ed8;
+		text-decoration: underline;
+	}
+}
+
 .cimo-stat-icon {
 	background: #3c83f61a;
 	color: #3c83f6;

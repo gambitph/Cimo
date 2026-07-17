@@ -145,6 +145,8 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 
 			return [
 				'media_optimized' => number_format( (int) ( $stats['media_optimized_num'] ?? 0 ) ),
+				'media_optimized_num' => (int) ( $stats['media_optimized_num'] ?? 0 ),
+				'total_original_size_kb' => $kb_before,
 				'before' => self::format_bytes( $bytes_before ),
 				'after' => self::format_bytes( $bytes_after ),
 				'saved' => self::format_bytes( $bytes_saved ),
@@ -158,7 +160,7 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 		/**
 		 * Format bytes into human readable format
 		 */
-		private static function format_bytes( $bytes, $decimals = 2 ) {
+		public static function format_bytes( $bytes, $decimals = 2 ) {
 			if ( ! is_numeric( $bytes ) || $bytes == 0 ) {
 				return '0 Bytes';
 			}

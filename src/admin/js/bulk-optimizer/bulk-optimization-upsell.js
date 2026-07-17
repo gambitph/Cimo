@@ -1,33 +1,15 @@
 /**
  * Free Bulk Optimization upsell — shows real progress stats, non-working controls.
  */
-import { useEffect, useState } from '@wordpress/element'
 import { __ } from '@wordpress/i18n'
 import { Button } from '@wordpress/components'
-import apiFetch from '@wordpress/api-fetch'
-import { countBulkProgressStats } from '~cimo/shared/bulk-stats'
 import { buildPricingUrl } from '~cimo/shared/pricing-url'
 import { BulkOptimizerStats } from './bulk-optimizer-stats'
+import { useSharedBulkProgressStats } from './use-bulk-progress-stats'
 
 const BulkOptimizationUpsell = () => {
-	const [ isLoading, setIsLoading ] = useState( true )
-	const [ stats, setStats ] = useState( {
-		optimized: 0, unoptimized: 0, skipped: 0,
-	} )
+	const { isLoading, stats } = useSharedBulkProgressStats()
 	const pricingHref = buildPricingUrl( 'bulk' )
-
-	useEffect( () => {
-		apiFetch( { path: '/cimo/v1/attachments' } )
-			.then( data => {
-				setStats( countBulkProgressStats( data ) )
-			} )
-			.catch( () => {
-				setStats( {
-					optimized: 0, unoptimized: 0, skipped: 0,
-				} )
-			} )
-			.finally( () => setIsLoading( false ) )
-	}, [] )
 
 	return (
 		<div className="cimo-bulk-optimizer-progress-bar-container cimo-bulk-optimizer-upsell">
