@@ -120,6 +120,180 @@ if ( ! class_exists( 'Cimo_Bulk_Library' ) ) {
 
 			return $filtered_attachments;
 		}
+
+		/**
+		 * Count bulk progress the same way shared JS bulk-stats does (server-side).
+		 * Video/audio browser canPlay checks are skipped; format allowlists still apply.
+		 *
+		 * @return array{optimized: int, unoptimized: int, skipped: int, total: int}
+		 */
+		public static function count_progress_stats() {
+			$stats = [
+				'optimized'   => 0,
+				'unoptimized' => 0,
+				'skipped'     => 0,
+				'total'       => 0,
+			];
+
+			foreach ( self::get_all_attachments() as $attachment ) {
+				$piece = self::tally_attachment( $attachment );
+				$stats['optimized'] += $piece['optimized'];
+				$stats['unoptimized'] += $piece['unoptimized'];
+				$stats['skipped'] += $piece['skipped'];
+			}
+
+			$stats['total'] = $stats['optimized'] + $stats['unoptimized'];
+			return $stats;
+		}
+
+		/**
+		 * @param array $attachment Attachment from get_all_attachments().
+		 * @return array{optimized: int, unoptimized: int, skipped: int}
+		 */
+		private static function tally_attachment( $attachment ) {
+			$stats = [
+				'optimized'   => 0,
+				'unoptimized' => 0,
+				'skipped'     => 0,
+			];
+
+			$mime_type = self::resolve_mime_type( $attachment );
+			if ( ! self::supports_bulk_stats_mime_type( $mime_type ) ) {
+				return $stats;
+			}
+
+			$is_image = is_string( $mime_type ) && strpos( $mime_type, 'image/' ) === 0;
+
+			$bump = static function( $status ) use ( &$stats ) {
+				if ( $status === 'skipped' ) {
+					$stats['skipped']++;
+				} elseif ( $status ) {
+					$stats['optimized']++;
+				} else {
+					$stats['unoptimized']++;
+				}
+			};
+
+			if ( ! empty( $attachment['file'] ) ) {
+				$bump( self::get_attachment_size_status( 'full', $attachment ) );
+			}
+
+			if ( $is_image && ! empty( $attachment['sizes'] ) && is_array( $attachment['sizes'] ) ) {
+				foreach ( $attachment['sizes'] as $size_key => $size ) {
+					if ( ! empty( $size['file'] ) ) {
+						$bump( self::get_attachment_size_status( $size_key, $attachment ) );
+					}
+				}
+			}
+
+			return $stats;
+		}
+
+		/**
+		 * @param array $attachment
+		 * @return string
+		 */
+		private static function resolve_mime_type( $attachment ) {
+			if ( ! empty( $attachment['mimeType'] ) && is_string( $attachment['mimeType'] ) ) {
+				return $attachment['mimeType'];
+			}
+			$file = isset( $attachment['file'] ) ? (string) $attachment['file'] : '';
+			if ( $file === '' ) {
+				return '';
+			}
+			$filetype = wp_check_filetype( $file );
+			return ! empty( $filetype['type'] ) ? (string) $filetype['type'] : '';
+		}
+
+		/**
+		 * Mirrors JS supportsBulkStatsMimeType (without browser canPlay).
+		 *
+		 * @param string $mime_type
+		 * @return bool
+		 */
+		private static function supports_bulk_stats_mime_type( $mime_type ) {
+			if ( ! is_string( $mime_type ) || $mime_type === '' ) {
+				return false;
+			}
+
+			if ( strpos( $mime_type, 'image/' ) === 0 ) {
+				return in_array( $mime_type, [
+					'image/jpeg',
+					'image/png',
+					'image/webp',
+					'image/jpg',
+					'image/heic',
+				], true );
+			}
+
+			if ( strpos( $mime_type, 'video/' ) === 0 ) {
+				return in_array( $mime_type, [
+					'video/mp4',
+					'video/x-m4v',
+					'video/webm',
+					'video/ogg',
+					'video/quicktime',
+				], true );
+			}
+
+			if ( strpos( $mime_type, 'audio/' ) === 0 ) {
+				return in_array( $mime_type, [
+					'audio/mpeg',
+					'audio/mp3',
+					'audio/wav',
+					'audio/x-wav',
+					'audio/wave',
+					'audio/ogg',
+					'audio/opus',
+					'audio/vorbis',
+					'audio/aac',
+					'audio/adts',
+					'audio/flac',
+					'audio/x-flac',
+					'audio/mp4',
+					'audio/x-m4a',
+				], true );
+			}
+
+			return false;
+		}
+
+		/**
+		 * Mirrors JS getAttachmentSizeStatus.
+		 *
+		 * @param string $size
+		 * @param array  $attachment
+		 * @return string|false
+		 */
+		private static function get_attachment_size_status( $size, $attachment ) {
+			if ( empty( $attachment['cimo'] ) || ! is_array( $attachment['cimo'] ) ) {
+				return false;
+			}
+
+			$cimo = $attachment['cimo'];
+			if ( ! empty( $cimo['optimized_during_upload'] ) ) {
+				return 'optimized-on-upload';
+			}
+			if ( empty( $cimo['bulk_optimization'] ) || ! is_array( $cimo['bulk_optimization'] ) ) {
+				return 'optimized-on-upload';
+			}
+
+			$bulk = $cimo['bulk_optimization'];
+			if ( empty( $bulk[ $size ] ) ) {
+				return false;
+			}
+
+			$entry = $bulk[ $size ];
+			$status = is_array( $entry ) ? ( $entry['status'] ?? null ) : $entry;
+			if ( $status === 'skip' ) {
+				return 'skipped';
+			}
+			if ( $status === 'bulk' ) {
+				return 'bulk-optimized';
+			}
+
+			return false;
+		}
 	}
 
 	new Cimo_Bulk_Library();

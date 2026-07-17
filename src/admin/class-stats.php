@@ -176,6 +176,55 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 		}
 
 		/**
+		 * Estimate additional bytes Premium bulk optimization could save.
+		 * Same formula as the free settings upsell JS helper.
+		 *
+		 * @param int $unoptimized_count Unoptimized media units from bulk progress.
+		 * @return int Estimated savings in bytes.
+		 */
+		public static function estimate_additional_savings_bytes( $unoptimized_count ) {
+			$stats = self::get_stats();
+			$optimized = (int) ( $stats['media_optimized_num'] ?? 0 );
+			$original_kb = (float) ( $stats['total_original_size'] ?? 0 );
+			$optimized_kb = (float) ( $stats['total_optimized_size'] ?? 0 );
+			$unoptimized = (int) $unoptimized_count;
+
+			if ( $optimized <= 0 || $unoptimized <= 0 || $original_kb <= 0 ) {
+				return 0;
+			}
+
+			$kb_saved = max( 0, $original_kb - $optimized_kb );
+			$reduction = ( $kb_saved / $original_kb ) * 100;
+			if ( $reduction <= 0 ) {
+				return 0;
+			}
+
+			$avg_original_kb = $original_kb / $optimized;
+			$unoptimized_original_kb = $avg_original_kb * $unoptimized;
+			$savings_kb = $unoptimized_original_kb * ( $reduction / 100 );
+
+			return (int) max( 0, round( $savings_kb * 1024 ) );
+		}
+
+		/**
+		 * Human-readable additional savings estimate for free upsells, or empty string.
+		 *
+		 * @return string e.g. "12.4 MB" or "".
+		 */
+		public static function get_additional_savings_estimate_label() {
+			if ( ! class_exists( 'Cimo_Bulk_Library' ) ) {
+				return '';
+			}
+			$progress = Cimo_Bulk_Library::count_progress_stats();
+			$bytes = self::estimate_additional_savings_bytes( $progress['unoptimized'] ?? 0 );
+			if ( $bytes <= 0 ) {
+				return '';
+			}
+			// Match JS formatSavingsBytes default of 1 decimal.
+			return self::format_bytes( $bytes, 1 );
+		}
+
+		/**
 		 * Update stats for when an attachment has been bulk optimized.
 		 *
 		 * @param int $attachment_id The attachment ID.

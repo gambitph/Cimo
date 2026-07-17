@@ -149,15 +149,26 @@ if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 
 			$nonce = wp_create_nonce( 'cimo_dismiss_library_premium_notice_ajax' );
 			$pricing = Cimo_Admin::pricing_url( 'library-admin-notice', 'admin' );
+			$savings_label = Cimo_Stats::get_additional_savings_estimate_label();
 			?>
 			<div class="notice notice-info is-dismissible cimo-library-premium-notice" data-nonce="<?php echo esc_attr( $nonce ); ?>">
 				<p>
-					<strong><?php esc_html_e( 'Cimo Premium: Optimize your entire media library', 'cimo-image-optimizer' ); ?></strong>
+					<strong><?php esc_html_e( 'Your Media Library still has unoptimized images', 'cimo-image-optimizer' ); ?></strong>
 				</p>
 				<p>
-					<?php esc_html_e( 'You\'re optimizing images on upload. Extend this to bulk optimize your existing images and user uploads without using your server.', 'cimo-image-optimizer' ); ?>
+					<?php
+					if ( $savings_label !== '' ) {
+						printf(
+							/* translators: %s is a human-readable size, e.g. "12.4 MB" */
+							esc_html__( 'You\'re optimizing images on upload. Upgrade to Cimo premium to bulk optimize your entire media library and save %s more.', 'cimo-image-optimizer' ),
+							'<strong>' . esc_html( $savings_label ) . '</strong>'
+						);
+					} else {
+						esc_html_e( 'You\'re optimizing images on upload. Upgrade to Cimo premium to bulk optimize your entire media library.', 'cimo-image-optimizer' );
+					}
+					?>
 				</p>
-				<p>
+				<p style="margin-top: 16px;">
 					<a href="<?php echo esc_url( $pricing ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Optimize entire library →', 'cimo-image-optimizer' ); ?></a>
 				</p>
 			</div>
