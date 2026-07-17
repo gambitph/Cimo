@@ -153,8 +153,26 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 				'percentage_saved' => $percentage_saved,
 				'compression_ratio' => $compression_ratio,
 				'total_storage_saved' => self::format_bytes( $bytes_saved ),
+				'bytes_saved' => $bytes_saved,
 				'last_processed_post_id' => $stats['last_processed_post_id'] ?? 0,
 			];
+		}
+
+		/**
+		 * Bytes saved across all optimized media (from stored stats option).
+		 * Avoids a full recompute — suitable for admin-wide notice checks.
+		 *
+		 * @return int
+		 */
+		public static function get_bytes_saved() {
+			$stats = get_option( self::OPTION_KEY );
+			if ( ! is_array( $stats ) ) {
+				return 0;
+			}
+			$kb_before = (float) ( $stats['total_original_size'] ?? 0 );
+			$kb_after  = (float) ( $stats['total_optimized_size'] ?? 0 );
+			$kb_saved  = max( 0, $kb_before - $kb_after );
+			return (int) round( $kb_saved * 1024 );
 		}
 
 		/**
@@ -222,6 +240,38 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 			}
 			// Match JS formatSavingsBytes default of 1 decimal.
 			return self::format_bytes( $bytes, 1 );
+		}
+
+		/**
+		 * Update stats when an attachment is optimized on upload.
+		 * Reads/writes the option only — does not run the metadata scan.
+		 *
+		 * @param int $attachment_id  The attachment ID.
+		 * @param int $original_size  Original file size in bytes.
+		 * @param int $optimized_size Optimized file size in bytes.
+		 */
+		public static function update_stats_upload_optimized( $attachment_id, $original_size, $optimized_size ) {
+			$stats = get_option( self::OPTION_KEY );
+			if ( ! is_array( $stats ) ) {
+				$stats = [
+					'last_processed_post_id' => 0,
+					'media_optimized_num'    => 0,
+					'total_original_size'    => 0,
+					'total_optimized_size'   => 0,
+				];
+			}
+
+			$stats['media_optimized_num'] = (int) ( $stats['media_optimized_num'] ?? 0 ) + 1;
+			$stats['total_original_size'] = (float) ( $stats['total_original_size'] ?? 0 ) + ( (int) $original_size / 1024 );
+			$stats['total_optimized_size'] = (float) ( $stats['total_optimized_size'] ?? 0 ) + ( (int) $optimized_size / 1024 );
+
+			// Advance the cursor so a later incremental scan does not double-count this file.
+			$attachment_id = (int) $attachment_id;
+			if ( $attachment_id > (int) ( $stats['last_processed_post_id'] ?? 0 ) ) {
+				$stats['last_processed_post_id'] = $attachment_id;
+			}
+
+			update_option( self::OPTION_KEY, $stats, false );
 		}
 
 		/**

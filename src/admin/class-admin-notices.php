@@ -10,12 +10,162 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 	class Cimo_Admin_Notices {
+		const RATING_SNOOZE_TRANSIENT = 'cimo_rating_snooze';
+		const RATING_MIN_BYTES = 5242880; // 5 MB
+
 		public function __construct() {
+			add_action( 'admin_notices', [ $this, 'show_rating_notice' ] );
+			add_action( 'wp_ajax_cimo_rating_snooze', [ $this, 'ajax_rating_snooze' ] );
+			add_action( 'wp_ajax_cimo_rating_dismiss', [ $this, 'ajax_rating_dismiss' ] );
+
 			if ( CIMO_BUILD === 'free' ) {
 				add_action( 'admin_notices', [ $this, 'show_activation_notice' ] );
 				add_action( 'admin_notices', [ $this, 'show_library_premium_notice' ], 15 );
 				add_action( 'wp_ajax_cimo_dismiss_activation_ajax', [ $this, 'ajax_dismiss_activation_notice' ] );
 				add_action( 'wp_ajax_cimo_dismiss_library_premium_notice', [ $this, 'ajax_dismiss_library_premium_notice' ] );
+			}
+		}
+
+		/**
+		 * Site-wide ask for a WP.org review once the site has saved ≥ 5 MB.
+		 */
+		public function show_rating_notice() {
+			if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			if ( '1' === get_option( 'cimo_rating_dismissed', '0' ) ) {
+				return;
+			}
+
+			if ( get_transient( self::RATING_SNOOZE_TRANSIENT ) ) {
+				return;
+			}
+
+			$bytes_saved = Cimo_Stats::get_bytes_saved();
+			if ( $bytes_saved < self::RATING_MIN_BYTES ) {
+				return;
+			}
+
+			$savings_label = Cimo_Stats::format_bytes( $bytes_saved, 1 );
+			$review_url = 'https://wordpress.org/support/plugin/cimo-image-optimizer/reviews/#new-post';
+			$nonce = wp_create_nonce( 'cimo_rating_notice' );
+			?>
+			<div class="notice notice-info cimo-rating-admin-notice" data-nonce="<?php echo esc_attr( $nonce ); ?>">
+				<p>
+					<?php
+					printf(
+						/* translators: %s is a human-readable size, e.g. "12.4 MB" */
+						esc_html__( 'You\'ve saved %s by optimizing media with Cimo, mind leaving a quick review?', 'cimo-image-optimizer' ),
+						'<strong>' . esc_html( $savings_label ) . '</strong>'
+					);
+					?>
+				</p>
+				<p class="cimo-rating-admin-notice-actions" style="margin-top: 16px;">
+					<a
+						href="<?php echo esc_url( $review_url ); ?>"
+						class="button button-primary"
+						target="_blank"
+						rel="noopener noreferrer"
+					><?php esc_html_e( 'Rate Now', 'cimo-image-optimizer' ); ?></a>
+					<button type="button" class="button button-secondary cimo-rating-snooze">
+						<?php esc_html_e( 'Remind me later', 'cimo-image-optimizer' ); ?>
+					</button>
+					<button type="button" class="button-link cimo-rating-dismiss">
+						<?php esc_html_e( 'Don\'t ask again', 'cimo-image-optimizer' ); ?>
+					</button>
+				</p>
+			</div>
+			<script>
+			(function() {
+				document.addEventListener('DOMContentLoaded', function() {
+					var notice = document.querySelector('.cimo-rating-admin-notice');
+					if (!notice || notice.getAttribute('data-bound') === '1') {
+						return;
+					}
+					notice.setAttribute('data-bound', '1');
+					var nonce = notice.getAttribute('data-nonce');
+					var busy = false;
+
+					function postAction(action, onSuccess) {
+						if (busy) {
+							return;
+						}
+						busy = true;
+						fetch(ajaxurl, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+							body: 'action=' + encodeURIComponent(action) + '&nonce=' + encodeURIComponent(nonce)
+						}).then(function(response) {
+							if (!response.ok) {
+								throw new Error('Network response was not ok');
+							}
+							onSuccess();
+						}).catch(function(error) {
+							console.error('Cimo rating notice error:', error);
+							busy = false;
+						});
+					}
+
+					notice.addEventListener('click', function(event) {
+						if (event.target.classList.contains('cimo-rating-snooze')) {
+							event.preventDefault();
+							postAction('cimo_rating_snooze', function() {
+								notice.remove();
+							});
+						} else if (event.target.classList.contains('cimo-rating-dismiss')) {
+							event.preventDefault();
+							postAction('cimo_rating_dismiss', function() {
+								notice.remove();
+							});
+						}
+					});
+				});
+			})();
+			</script>
+			<style>
+				.cimo-rating-admin-notice-actions {
+					display: flex;
+					flex-wrap: wrap;
+					align-items: center;
+					gap: 8px 12px;
+				}
+				.cimo-rating-admin-notice-actions .cimo-rating-dismiss {
+					margin-left: 4px;
+				}
+			</style>
+			<?php
+		}
+
+		/**
+		 * Snooze the rating notice for 30 days.
+		 */
+		public function ajax_rating_snooze() {
+			$this->verify_rating_notice_request();
+			set_transient( self::RATING_SNOOZE_TRANSIENT, 1, 30 * DAY_IN_SECONDS );
+			wp_send_json_success();
+		}
+
+		/**
+		 * Permanently dismiss the rating notice.
+		 */
+		public function ajax_rating_dismiss() {
+			$this->verify_rating_notice_request();
+			update_option( 'cimo_rating_dismissed', '1', false );
+			delete_transient( self::RATING_SNOOZE_TRANSIENT );
+			wp_send_json_success();
+		}
+
+		/**
+		 * Shared auth for rating notice AJAX actions.
+		 */
+		private function verify_rating_notice_request() {
+			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+			if ( ! $nonce || ! wp_verify_nonce( $nonce, 'cimo_rating_notice' ) ) {
+				wp_die( esc_html__( 'Security check failed.', 'cimo-image-optimizer' ) );
+			}
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'Insufficient permissions.', 'cimo-image-optimizer' ) );
 			}
 		}
 

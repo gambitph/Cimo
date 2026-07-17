@@ -285,7 +285,6 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			wp_localize_script( 'cimo-admin-page', 'cimoAdmin', [
 				'stats' => $stats,
 				'imageSizes' => $formatted_sizes,
-				'ratingDismissed' => '1' === get_option( 'cimo_rating_dismissed', '0' ) ? '1' : '0',
 				'isPremium' => CIMO_BUILD === 'premium',
 				'uploadsUrl' => wp_upload_dir()['baseurl'],
 			] );

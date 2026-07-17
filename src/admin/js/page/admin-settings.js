@@ -61,12 +61,6 @@ const AdminSettings = () => {
 	const [ saveMessage, setSaveMessage ] = useState( '' )
 	const [ isLoading, setIsLoading ] = useState( true )
 	const [ hasUnsavedChanges, setHasUnsavedChanges ] = useState( false )
-	const [ isRatingDismissed, setIsRatingDismissed ] = useState( () => {
-		if ( typeof window === 'undefined' ) {
-			return false
-		}
-		return window.cimoAdmin?.ratingDismissed === '1'
-	} )
 
 	// Load settings and image sizes on component mount
 	useEffect( () => {
@@ -277,23 +271,6 @@ const AdminSettings = () => {
 		} )
 	}
 
-	const handleDismissRating = useCallback( async () => {
-		setIsRatingDismissed( true )
-
-		try {
-			await apiFetch( {
-				path: '/wp/v2/settings',
-				method: 'POST',
-				data: {
-					// eslint-disable-next-line camelcase
-					cimo_rating_dismissed: '1',
-				},
-			} )
-		} catch ( error ) {
-			setIsRatingDismissed( false )
-		}
-	}, [] )
-
 	const handleSubmit = async e => {
 		e.preventDefault()
 		setIsSaving( true )
@@ -407,62 +384,6 @@ const AdminSettings = () => {
 						</div>
 					</div>
 				</div>
-
-				{ ( () => {
-					const savedStr = window.cimoAdmin?.stats?.total_storage_saved
-					let showRating = false
-					if ( typeof savedStr === 'string' ) {
-						const match = savedStr.match( /^([\d.]+)\s*([a-zA-Z]+)/ )
-						if ( match ) {
-							const num = parseFloat( match[ 1 ] )
-							const unit = match[ 2 ].toUpperCase()
-							if ( unit === 'MB' && num > 5 ) {
-								showRating = true
-							}
-						}
-					}
-
-					if ( showRating && ! isRatingDismissed ) {
-						return (
-							<div className="cimo-header cimo-rating-notice">
-								<div className="cimo-rating-notice-content">
-									<h3 className="cimo-rating-title">
-										{ __( 'Loving the instant storage & server resource savings?', 'cimo-image-optimizer' ) }
-									</h3>
-									<p className="cimo-rating-description">
-										{ sprintf(
-										// translators: %s is replaced with the total storage saved (e.g. "1.5 GB")
-											__( "You've saved over %s! If Cimo is helping your site, please consider leaving us a 5-star rating and help others discover Cimo!", 'cimo-image-optimizer' ),
-											window.cimoAdmin.stats.total_storage_saved
-										) }
-									</p>
-									<div className="cimo-rating-buttons">
-										<Button
-											variant="primary"
-											href="https://wordpress.org/support/plugin/cimo-image-optimizer/reviews/#new-post"
-											target="_blank"
-											rel="noopener noreferrer"
-											className="cimo-rating-rate-now"
-											__next40pxDefaultSize
-										>
-											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-star-icon lucide-star"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>
-											{ __( 'Rate Now', 'cimo-image-optimizer' ) }
-										</Button>
-										<Button
-											variant="secondary"
-											className="cimo-rating-no-thanks"
-											onClick={ handleDismissRating }
-											__next40pxDefaultSize
-										>
-											{ __( "Don\'t show this again, I've already rated", 'cimo-image-optimizer' ) }
-										</Button>
-									</div>
-								</div>
-							</div>
-						)
-					}
-					return null
-				} )() }
 
 				<form onSubmit={ handleSubmit } className="cimo-settings-form">
 					<div className="cimo-settings-section-wrapper">
