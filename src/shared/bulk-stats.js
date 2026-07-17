@@ -38,7 +38,7 @@ const BULK_AUDIO_MIME_TYPES = new Set( [
 /**
  * @param {'audio'|'video'} tagName
  * @param {string}          mimeType
- * @return {boolean}
+ * @return {boolean} Whether the browser reports it can play this MIME type.
  */
 function canBrowserPlayMediaType( tagName, mimeType ) {
 	if ( ! mimeType || typeof document === 'undefined' ) {
@@ -50,7 +50,7 @@ function canBrowserPlayMediaType( tagName, mimeType ) {
 
 /**
  * @param {string} file Path or URL.
- * @return {string|null}
+ * @return {string|null} Lowercase extension, or null if none.
  */
 export function getFileExtension( file ) {
 	if ( ! file || typeof file !== 'string' || ! file.includes( '.' ) ) {
@@ -64,7 +64,7 @@ export function getFileExtension( file ) {
  * Resolve attachment MIME type the same way Premium BulkCollection does.
  *
  * @param {Object} attachment
- * @return {string}
+ * @return {string} Resolved MIME type, or empty string when unknown.
  */
 export function resolveAttachmentMimeType( attachment ) {
 	const ext = attachment?.file ? getFileExtension( attachment.file ) : null
@@ -76,7 +76,7 @@ export function resolveAttachmentMimeType( attachment ) {
  * Matches Premium BulkCollection.supportsAttachmentMimeType (incl. HEIC + browser play checks).
  *
  * @param {string} mimeType
- * @return {boolean}
+ * @return {boolean} True when the MIME type counts toward bulk progress stats.
  */
 export function supportsBulkStatsMimeType( mimeType ) {
 	if ( ! mimeType || typeof mimeType !== 'string' ) {
@@ -104,7 +104,7 @@ export function supportsBulkStatsMimeType( mimeType ) {
  *
  * @param {string} size       Size key ('full', 'thumbnail', …).
  * @param {Object} attachment Attachment from /cimo/v1/attachments.
- * @return {string|false}
+ * @return {string|false} Status label, or false when still unoptimized.
  */
 export function getAttachmentSizeStatus( size, attachment ) {
 	if ( ! attachment?.cimo ) {
@@ -138,7 +138,7 @@ export function getAttachmentSizeStatus( size, attachment ) {
  *
  * @param {Object}   attachment
  * @param {Function} [supportsMimeType] (mimeType) => boolean — defaults to supportsBulkStatsMimeType
- * @return {{ optimized: number, unoptimized: number, skipped: number }}
+ * @return {{ optimized: number, unoptimized: number, skipped: number }} Counts for this attachment.
  */
 export function tallyAttachment( attachment, supportsMimeType = supportsBulkStatsMimeType ) {
 	const stats = {
@@ -182,7 +182,7 @@ export function tallyAttachment( attachment, supportsMimeType = supportsBulkStat
  *
  * @param {Object[]} attachments
  * @param {Function} [supportsMimeType]
- * @return {{ optimized: number, unoptimized: number, skipped: number, total: number }}
+ * @return {{ optimized: number, unoptimized: number, skipped: number, total: number }} Aggregated bulk progress stats.
  */
 export function countBulkProgressStats( attachments, supportsMimeType = supportsBulkStatsMimeType ) {
 	const stats = {

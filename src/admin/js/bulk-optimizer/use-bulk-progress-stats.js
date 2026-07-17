@@ -15,7 +15,7 @@ const BulkProgressStatsContext = createContext( null )
 
 /**
  * @param {boolean} enabled When false, skips the network request.
- * @return {{ isLoading: boolean, stats: typeof emptyStats }}
+ * @return {{ isLoading: boolean, stats: typeof emptyStats }} Loading flag and counted bulk progress stats.
  */
 export function useBulkProgressStats( enabled = true ) {
 	const [ isLoading, setIsLoading ] = useState( !! enabled )
@@ -77,7 +77,7 @@ export function BulkProgressStatsProvider( {
 }
 
 /**
- * @return {{ isLoading: boolean, stats: typeof emptyStats }}
+ * @return {{ isLoading: boolean, stats: typeof emptyStats }} Shared context stats, or empty defaults outside the provider.
  */
 export function useSharedBulkProgressStats() {
 	const ctx = useContext( BulkProgressStatsContext )
