@@ -332,6 +332,7 @@ class ImageConverter extends Converter {
 					metadata: null,
 					reason: 'resulting-media-bigger-than-input',
 					error: `Resulting image is bigger than the input (input: ${ file.size } bytes, output: ${ convertedBlob.size } bytes), skipping conversion.`,
+					notice: __( 'Media is not resized because the uploaded media is already optimized.', 'cimo-image-optimizer' ),
 				}
 			}
 

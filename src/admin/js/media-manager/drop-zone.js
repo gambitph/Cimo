@@ -9,6 +9,7 @@ import { domReady } from '~cimo/shared/dom-ready'
 import { getFileConverter, requiresFileConversion } from '~cimo/shared/converters'
 import { watchForEditorIframe } from '~cimo/shared/util'
 import { saveMetadata } from '~cimo/shared/metadata-saver'
+import { cacheConverterNotice } from '~cimo/shared/upload-notice-cache'
 import { ProgressModal } from './progress-modal'
 import { applyFilters } from '@wordpress/hooks'
 
@@ -114,6 +115,7 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			fileConverters.map( async converter => {
 				try {
 					const result = await converter.optimize()
+					cacheConverterNotice( result )
 					if ( result.error ) {
 						// eslint-disable-next-line no-console
 						console.warn( result.error )
