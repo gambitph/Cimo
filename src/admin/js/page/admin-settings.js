@@ -10,6 +10,7 @@ import { applyFilters } from '@wordpress/hooks'
 import apiFetch from '@wordpress/api-fetch'
 import { __, sprintf } from '@wordpress/i18n'
 import { buildPricingUrl } from '~cimo/shared/pricing-url'
+import { BulkOptimizationUpsell } from '~cimo/admin/js/bulk-optimizer/bulk-optimization-upsell'
 import cimoLogo from './assets/logo-long.webp'
 
 const buildType = applyFilters( 'cimo.admin.settings.buildType', 'free' )
@@ -750,11 +751,16 @@ const AdminSettings = () => {
 						</div>
 
 						{ buildType === 'free' && (
-							<PremiumPlaceholder
-								label={ __( 'Bulk optimize existing media in your Media Library.', 'cimo-image-optimizer' ) }
-								learnMoreUrl="https://docs.wpcimo.com/article/788-bulk-optimization"
-								pricingUtmContent="bulk"
-							/>
+							<>
+								<p>
+									{ __( 'Bulk optimize existing media in your Media Library.', 'cimo-image-optimizer' ) }
+									{ ' ' }
+									<a href="https://docs.wpcimo.com/article/788-bulk-optimization" target="_blank" rel="noopener noreferrer">
+										{ __( 'Learn more', 'cimo-image-optimizer' ) }
+									</a>
+								</p>
+								<BulkOptimizationUpsell />
+							</>
 						) }
 						{ buildType === 'premium' && <>
 							<p>

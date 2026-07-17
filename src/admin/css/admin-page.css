@@ -643,8 +643,23 @@
 	}
 }
 
-.cimo-is-premium .cimo-settings-bulk-optimization {
+/* Bulk Optimization first (after info) in free and premium */
+.cimo-settings-bulk-optimization {
 	order: 1;
+}
+
+.cimo-bulk-optimizer-upsell .cimo-bulk-optimize-button {
+	background: #3c83f6;
+	background-image: linear-gradient(to right, #9833ff, #4d2fe5);
+	color: #fff;
+	border: none;
+	justify-content: center;
+
+	&:hover {
+		background: #226be0 !important;
+		background-image: linear-gradient(to right, #8114ef, #3516d2) !important;
+		color: #fff;
+	}
 }
 
 .cimo-smart-optimization-toggle {
