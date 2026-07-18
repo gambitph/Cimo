@@ -303,7 +303,15 @@ if ( ! class_exists( 'Cimo_Admin_Notices' ) ) {
 			?>
 			<div class="notice notice-info is-dismissible cimo-library-premium-notice" data-nonce="<?php echo esc_attr( $nonce ); ?>">
 				<p>
-					<strong><?php esc_html_e( 'Your Media Library still has unoptimized images', 'cimo-image-optimizer' ); ?></strong>
+					<strong>
+						<?php
+						if ( $savings_label !== '' ) {
+							esc_html_e( 'Your Media Library still has unoptimized images', 'cimo-image-optimizer' );
+						} else {
+							esc_html_e( 'Bulk optimize your entire Media Library', 'cimo-image-optimizer' );
+						}
+						?>
+					</strong>
 				</p>
 				<p>
 					<?php
