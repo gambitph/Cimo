@@ -1,11 +1,10 @@
 /**
- * Fetch /cimo/v1/attachments and count bulk progress stats (free + shared).
+ * Fetch /cimo/v1/bulk-progress for free admin upsell stats.
  */
 import {
 	createContext, useContext, useEffect, useMemo, useState,
 } from '@wordpress/element'
 import apiFetch from '@wordpress/api-fetch'
-import { countBulkProgressStats } from '~cimo/shared/bulk-stats'
 
 const emptyStats = {
 	optimized: 0, unoptimized: 0, skipped: 0, total: 0,
@@ -14,8 +13,26 @@ const emptyStats = {
 const BulkProgressStatsContext = createContext( null )
 
 /**
+ * Normalize a bulk-progress REST payload into stats, or emptyStats on bad data.
+ *
+ * @param {*} data
+ * @return {typeof emptyStats} Stats object.
+ */
+function normalizeBulkProgressStats( data ) {
+	if ( ! data || typeof data !== 'object' ) {
+		return emptyStats
+	}
+	return {
+		optimized: Number( data.optimized ) || 0,
+		unoptimized: Number( data.unoptimized ) || 0,
+		skipped: Number( data.skipped ) || 0,
+		total: Number( data.total ) || 0,
+	}
+}
+
+/**
  * @param {boolean} enabled When false, skips the network request.
- * @return {{ isLoading: boolean, stats: typeof emptyStats }} Loading flag and counted bulk progress stats.
+ * @return {{ isLoading: boolean, stats: typeof emptyStats }} Loading flag and bulk progress stats.
  */
 export function useBulkProgressStats( enabled = true ) {
 	const [ isLoading, setIsLoading ] = useState( !! enabled )
@@ -31,10 +48,10 @@ export function useBulkProgressStats( enabled = true ) {
 		let cancelled = false
 		setIsLoading( true )
 
-		apiFetch( { path: '/cimo/v1/attachments' } )
+		apiFetch( { path: '/cimo/v1/bulk-progress' } )
 			.then( data => {
 				if ( ! cancelled ) {
-					setStats( countBulkProgressStats( data ) )
+					setStats( normalizeBulkProgressStats( data ) )
 				}
 			} )
 			.catch( () => {
@@ -59,7 +76,7 @@ export function useBulkProgressStats( enabled = true ) {
 }
 
 /**
- * Provides one shared attachments fetch for free admin upsells.
+ * Provides one shared bulk-progress fetch for free admin upsells.
  *
  * @param {Object}  props
  * @param {boolean} [props.enabled=true]

@@ -2,7 +2,7 @@
 /**
  * Shared bulk Media Library helpers (free + premium).
  *
- * Provides the attachment list used for bulk progress stats ("X of Y optimized").
+ * Provides the attachment list and aggregated bulk progress stats ("X of Y optimized").
  */
 
 // Exit if accessed directly.
@@ -20,13 +20,28 @@ if ( ! class_exists( 'Cimo_Bulk_Library' ) ) {
 		 * Register REST routes shared by free and premium.
 		 */
 		public function register_rest_routes() {
+			$permission_callback = [ $this, 'rest_permission_callback' ];
+
 			register_rest_route( 'cimo/v1', '/attachments', [
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'rest_get_all_attachments' ],
-				'permission_callback' => function() {
-					return current_user_can( 'upload_files' ) && current_user_can( 'edit_posts' ) && current_user_can( 'edit_others_posts' );
-				},
+				'permission_callback' => $permission_callback,
 			] );
+
+			register_rest_route( 'cimo/v1', '/bulk-progress', [
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'rest_get_bulk_progress' ],
+				'permission_callback' => $permission_callback,
+			] );
+		}
+
+		/**
+		 * Whether the current user may access bulk library REST routes.
+		 *
+		 * @return bool
+		 */
+		public function rest_permission_callback() {
+			return current_user_can( 'upload_files' ) && current_user_can( 'edit_posts' ) && current_user_can( 'edit_others_posts' );
 		}
 
 		/**
@@ -36,6 +51,15 @@ if ( ! class_exists( 'Cimo_Bulk_Library' ) ) {
 		 */
 		public function rest_get_all_attachments() {
 			return rest_ensure_response( self::get_all_attachments() );
+		}
+
+		/**
+		 * REST: aggregated bulk progress counts for free UI upsells.
+		 *
+		 * @return WP_REST_Response
+		 */
+		public function rest_get_bulk_progress() {
+			return rest_ensure_response( self::count_progress_stats() );
 		}
 
 		/**
