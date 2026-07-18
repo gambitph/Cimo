@@ -4,8 +4,16 @@
  * Formula:
  *   avgOriginal = totalOriginalSize / mediaOptimizedCount
  *   unoptimizedOriginal = avgOriginal * unoptimizedCount
- *   savings = unoptimizedOriginal * (percentageSaved / 100)
+ *   savings = unoptimizedOriginal * (percentageSaved / 100) * SIZE_VARIANTS_FACTOR
+ *
+ * SIZE_VARIANTS_FACTOR (1.3): bulk also optimizes intermediate sizes
+ * (thumbnail, medium, large, etc.), which typically add ~30% disk on top
+ * of the full-size original. Applied as a simple uplift rather than
+ * weighting each size by real filesize.
  */
+
+/** Intermediate sizes typically add ~30% disk vs full size alone. */
+const SIZE_VARIANTS_FACTOR = 1.3
 
 /**
  * @param {Object} params
@@ -32,7 +40,7 @@ export function estimateAdditionalSavingsBytes( {
 
 	const avgOriginalKb = originalKb / optimized
 	const unoptimizedOriginalKb = avgOriginalKb * unoptimized
-	const savingsKb = unoptimizedOriginalKb * ( reduction / 100 )
+	const savingsKb = unoptimizedOriginalKb * ( reduction / 100 ) * SIZE_VARIANTS_FACTOR
 
 	return Math.max( 0, Math.round( savingsKb * 1024 ) )
 }

@@ -197,6 +197,10 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 		 * Estimate additional bytes Premium bulk optimization could save.
 		 * Same formula as the free settings upsell JS helper.
 		 *
+		 * Includes a 1.3x uplift: bulk also optimizes intermediate sizes
+		 * (thumbnail, medium, large, etc.), which typically add ~30% disk
+		 * on top of the full-size original.
+		 *
 		 * @param int $unoptimized_count Unoptimized media units from bulk progress.
 		 * @return int Estimated savings in bytes.
 		 */
@@ -217,9 +221,12 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 				return 0;
 			}
 
+			// Intermediate sizes typically add ~30% disk vs full size alone.
+			$size_variants_factor = 1.3;
+
 			$avg_original_kb = $original_kb / $optimized;
 			$unoptimized_original_kb = $avg_original_kb * $unoptimized;
-			$savings_kb = $unoptimized_original_kb * ( $reduction / 100 );
+			$savings_kb = $unoptimized_original_kb * ( $reduction / 100 ) * $size_variants_factor;
 
 			return (int) max( 0, round( $savings_kb * 1024 ) );
 		}
