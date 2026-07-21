@@ -8,9 +8,7 @@
 import { domReady } from '~cimo/shared/dom-ready'
 import { getFileConverter, requiresFileConversion } from '~cimo/shared/converters'
 import { watchForEditorIframe } from '~cimo/shared/util'
-import { saveMetadata } from '~cimo/shared/metadata-saver'
-import { cacheConverterNotice } from '~cimo/shared/upload-notice-cache'
-import { ProgressModal } from './progress-modal'
+import { optimizeFileConverters } from '../optimize-files'
 import { applyFilters } from '@wordpress/hooks'
 
 /**
@@ -99,48 +97,18 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			uploaderWindow.style.display = 'none'
 		}
 
-		// Cancel the conversion if the user closes the progress modal.
-		const onCancel = () => {
-			// This is enough to cancel the entire process since the promises below will finish resolving.
-			fileConverters.forEach( converter => converter.cancel() )
-		}
-
-		// Show the progress modal
-		const progressModal = new ProgressModal( fileConverters, onCancel )
-		progressModal.open()
-
 		// Process and optimize each media file here,
 		// e.g. converting to webp, resizing, compressing, etc.
-		const optimizedResults = await Promise.all(
-			fileConverters.map( async converter => {
-				try {
-					const result = await converter.optimize()
-					cacheConverterNotice( result )
-					if ( result.error ) {
-						// eslint-disable-next-line no-console
-						console.warn( result.error )
-					}
-					return result
-				} catch ( error ) {
-					// eslint-disable-next-line no-console
-					console.warn( error )
-					return { file: converter.file, metadata: null }
-				}
-			} )
-		)
+		const optimizedResults = await optimizeFileConverters( fileConverters )
 
 		// Extract files and metadata from results
 		const optimizedFiles = optimizedResults.map( result => result.file )
-		const conversionMetadata = optimizedResults.map( result => result.metadata )
 
 		// Create a DataTransfer to hold the optimized file
 		const dataTransfer = new DataTransfer()
 		optimizedFiles.forEach( file => {
 			dataTransfer.items.add( file )
 		} )
-
-		// Save the metadata to the server.
-		await saveMetadata( conversionMetadata )
 
 		// Find the correct target to dispatch the event to
 		let target = event.target.closest( '.components-drop-zone, [data-is-drop-zone="true"]' ) || event.target
@@ -218,9 +186,6 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 				target.dispatchEvent( dropEvent )
 			}
 		}
-
-		// Close when optimization finishes, including when we fall back to the original file after an error.
-		progressModal.close()
 	}
 
 	// Add our custom drop listener
