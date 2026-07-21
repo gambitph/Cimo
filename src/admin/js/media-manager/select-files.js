@@ -9,15 +9,7 @@ import { domReady } from '~cimo/shared/dom-ready'
 import { getFileConverter, requiresFileConversion } from '~cimo/shared/converters'
 import { watchForEditorIframe } from '~cimo/shared/util'
 import { optimizeFileConverters } from '../optimize-files'
-import { applyFilters } from '@wordpress/hooks'
-
-// Allowed locations to be able to select files.
-const ALLOWED_LOCATIONS = applyFilters( 'cimo.selectFiles.allowedLocations', [
-	'.components-form-file-upload', // Allow uploads to the image block
-	'.media-frame', // Allow uploads from the Media Manager
-	'.media-upload-form', // Allow uploads from the admin Media > Add Media File
-	'.moxie-shim', // Allow uploads from the admin Media > Library grid view
-] )
+import { closestAllowedLocation, getSelectFilesAllowedLocations } from './allowed-locations'
 
 // Add event listener to the Media Manager's drop zone
 function addSelectFilesListenerToFileUploads( targetDocument ) {
@@ -54,12 +46,8 @@ function addSelectFilesListenerToFileUploads( targetDocument ) {
 			return
 		}
 
-		// TODO: We need filter this so that we will only override this on file
-		// selects that we want to, like the media manager picker or the image
-		// block uploader.
 		// Allow these locations to be able to select files.
-		const isAllowed = ALLOWED_LOCATIONS.some( selector => event.target.closest( selector ) )
-		if ( ! isAllowed ) {
+		if ( ! closestAllowedLocation( event.target, getSelectFilesAllowedLocations() ) ) {
 			return
 		}
 
