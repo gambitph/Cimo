@@ -2,54 +2,15 @@
 
 Cimo can optimize media in the browser before your plugin or theme uploads it.
 
-## Enqueue Cimo
-
-Admin screens and the block editor already enqueue Cimo. For frontend upload
-forms or custom screens where Cimo is not already loaded, call
-`cimo_enqueue_assets()`.
-
-```php
-add_action( 'wp_enqueue_scripts', function () {
-	if ( is_page( 'my-upload-form' ) && function_exists( 'cimo_enqueue_assets' ) ) {
-		cimo_enqueue_assets();
-	}
-} );
-```
-
-## Optimize Files Directly
-
-Use `window.cimo.optimizeFiles()` when your code already controls the upload
-process and can replace the selected files before uploading.
-
-```js
-const results = await window.cimo.optimizeFiles( files, { showProgress: true } )
-
-const filesToUpload = results.map( result => result.file )
-```
-
-The API accepts a single `File`, a `FileList`, or an array of `File` objects.
-It returns:
-
-```js
-[
-	{
-		file: File,
-		metadata: Object || null,
-	},
-]
-```
-
-`showProgress` defaults to `true`. Set it to `false` if your UI already shows
-upload or optimization progress.
-
-If Cimo optimization is disabled or a file type is unsupported, the original
-file is returned with `metadata: null`.
-
 ## Automatic Selector Interception
 
 Use PHP selector filters when your markup uses normal file inputs or drop zones
 and you want Cimo to intercept them automatically before your existing upload
 handler runs.
+
+Register selector filters before calling `cimo_enqueue_assets()`.
+`cimo_enqueue_assets()` localizes the filtered selector lists while enqueueing,
+so filters added afterward will not apply to the current page load.
 
 ```php
 add_filter( 'cimo/select_files/allowed_locations', function ( $locations ) {
@@ -73,6 +34,54 @@ For file inputs, register a selector for a wrapper around
 ```
 
 For drops, register a selector for the drop target.
+
+## Enqueue Cimo
+
+Admin screens and the block editor already enqueue Cimo. For frontend upload
+forms or custom screens where Cimo is not already loaded, call
+`cimo_enqueue_assets()` after registering any selector filters needed for that
+page.
+
+```php
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_page( 'my-upload-form' ) && function_exists( 'cimo_enqueue_assets' ) ) {
+		cimo_enqueue_assets();
+	}
+} );
+```
+
+## Optimize Files Directly
+
+Use `window.cimo.optimizeFiles()` when your code already controls the upload
+process and can replace the selected files before uploading.
+
+```js
+async function handleFiles( files ) {
+	const results = await window.cimo.optimizeFiles( files, { showProgress: true } )
+	const filesToUpload = results.map( result => result.file )
+
+	// Continue with your plugin/theme upload flow.
+	uploadFiles( filesToUpload )
+}
+```
+
+The API accepts a single `File`, a `FileList`, or an array of `File` objects.
+It returns:
+
+```js
+[
+	{
+		file: File,
+		metadata: Object || null,
+	},
+]
+```
+
+`showProgress` defaults to `true`. Set it to `false` if your UI already shows
+upload or optimization progress.
+
+If Cimo optimization is disabled or a file type is unsupported, the original
+file is returned with `metadata: null`.
 
 ## Which Approach To Use
 
