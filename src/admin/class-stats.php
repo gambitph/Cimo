@@ -259,14 +259,10 @@ if ( ! class_exists( 'Cimo_Stats' ) ) {
 		 */
 		public static function update_stats_upload_optimized( $attachment_id, $original_size, $optimized_size ) {
 			$stats = get_option( self::OPTION_KEY );
-			if ( ! is_array( $stats ) ) {
-				$stats = [
-					'last_processed_post_id' => 0,
-					'media_optimized_num'    => 0,
-					'total_original_size'    => 0,
-					'total_optimized_size'   => 0,
-				];
-			}
+			if ( ! is_array( $stats ) || empty( $stats['last_processed_post_id'] ) ) {
+	            self::get_stats();
+	            return;
+             }
 
 			$stats['media_optimized_num'] = (int) ( $stats['media_optimized_num'] ?? 0 ) + 1;
 			$stats['total_original_size'] = (float) ( $stats['total_original_size'] ?? 0 ) + ( (int) $original_size / 1024 );
