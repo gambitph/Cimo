@@ -99,19 +99,23 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 
 			const webpAttachment = modal.locator( `.attachment[data-id="${ media.id }"]` )
 			await expect( webpAttachment ).toBeVisible( { timeout: 15_000 } )
+			await webpAttachment.click()
 
-			// Double-clicking an attachment selects and inserts it in one
-			// step; fall back to a single click + the Select button if the
-			// modal is still open afterwards.
-			await webpAttachment.dblclick()
-			if ( await modal.isVisible() ) {
-				await webpAttachment.click()
-				const selectButton = modal.getByRole( 'button', {
-					name: /Select|Insert/i,
-				} )
-				await expect( selectButton ).toBeEnabled( { timeout: 10_000 } )
-				await selectButton.click()
-			}
+			// eslint-disable-next-line no-console
+			console.log( 'DEBUG attachment:', JSON.stringify(
+				await webpAttachment.evaluate( ( el: HTMLElement ) => ( {
+					className: el.className,
+					ariaChecked: el.getAttribute( 'aria-checked' ),
+				} ) )
+			) )
+			// eslint-disable-next-line no-console
+			console.log( 'DEBUG modal html:', ( await modal.locator( '.media-frame-toolbar' ).innerHTML() ).slice( 0, 2000 ) )
+
+			const selectButton = modal.getByRole( 'button', {
+				name: /Select|Insert/i,
+			} )
+			await expect( selectButton ).toBeEnabled( { timeout: 10_000 } )
+			await selectButton.click()
 		}
 
 		await expect(

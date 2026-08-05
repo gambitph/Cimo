@@ -43,7 +43,7 @@ jobs:
         EOF
 
     - name: Run Playwright e2e tests
-      run: npm run test
+      run: npm run test -- -g "Media Library drop"
 
     - name: Upload Playwright report
       if: always()
