@@ -3,5 +3,9 @@ vendor/
 build/
 dist/
 *.min.js
+e2e/
+playwright-report/
+test-results/
+wp-auth.json
 
 
