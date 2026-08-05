@@ -87,36 +87,30 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 
 		const media = await expectNewMediaIsWebp( requestUtils, afterId )
 
-		// Select the uploaded attachment in the modal if still open. The
-		// upload lands on the "Upload files" tab, but the attachment only
-		// becomes a selectable grid item under "Media Library" — switch
-		// there first.
+		// Insert the uploaded attachment into the image block. Playwright
+		// clicks on `.attachment` / `.check` do not reliably update
+		// wp.media's Backbone selection (Select stays disabled), so drive
+		// selection through the media frame API instead.
 		if ( await modal.isVisible() ) {
-			const libraryTab = modal.getByRole( 'tab', { name: /Media Library/i } )
-			if ( await libraryTab.count() ) {
-				await libraryTab.click()
-			}
+			await page.evaluate( async ( id ) => {
+				// wp.media is always present while the media modal is open.
+				const wpMedia = ( window as any ).wp?.media
+				if ( ! wpMedia?.frame ) {
+					throw new Error( 'wp.media.frame is not available' )
+				}
 
-			const webpAttachment = modal.locator( `.attachment[data-id="${ media.id }"]` )
-			await expect( webpAttachment ).toBeVisible( { timeout: 15_000 } )
-			await expect( webpAttachment.locator( '.attachment-preview' ) ).toBeVisible( { timeout: 15_000 } )
+				const attachment = wpMedia.attachment( id )
+				await new Promise( ( resolve, reject ) => {
+					const result = attachment.fetch()
+					result.done( resolve )
+					result.fail( reject )
+				} )
+				wpMedia.frame.state().get( 'selection' ).reset( [ attachment ] )
+			}, media.id )
 
-			// This library's Attachment view only toggles selection via its
-			// `.check` checkbox button — clicking elsewhere on the grid item
-			// doesn't register. Fall back to a plain click if `.check` isn't
-			// rendered (e.g. a different WP media view).
-			const checkButton = webpAttachment.locator( '.check' )
-			if ( await checkButton.count() ) {
-				await checkButton.click()
-			} else {
-				await webpAttachment.click()
-			}
-
-			// Scope to the toolbar: the attachment's own `.check` button's
-			// accessible name toggles to "Deselect", which also matches a
-			// loose /Select|Insert/i search if not scoped away from it.
 			const selectButton = modal.locator( '.media-toolbar' ).getByRole( 'button', {
-				name: /Select|Insert/i,
+				name: 'Select',
+				exact: true,
 			} )
 			await expect( selectButton ).toBeEnabled( { timeout: 10_000 } )
 			await selectButton.click()
@@ -156,21 +150,38 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		const afterId = await requestUtils.getMaxMediaId()
 
 		// Open the Page / Document sidebar (featured image lives there).
-		const pageTab = page.getByRole( 'button', { name: 'Page', exact: true } )
-		const documentTab = page.getByRole( 'button', {
-			name: 'Document',
-			exact: true,
-		} )
-		if ( await pageTab.count() ) {
-			await pageTab.click()
-		} else if ( await documentTab.count() ) {
-			await documentTab.click()
-		} else {
-			await page.getByRole( 'button', { name: 'Settings', exact: true } ).click()
-			await page.getByRole( 'tab', { name: /Page|Document/i } ).click()
+		// Skip clicking tabs that are already selected — Playwright can hang
+		// waiting for a stable click on an already-active tab.
+		const featured = page.locator( '.editor-post-featured-image' )
+		if ( ! await featured.isVisible() ) {
+			const settingsButton = page.getByRole( 'button', {
+				name: 'Settings',
+				exact: true,
+			} )
+			if ( await settingsButton.count() ) {
+				const pressed = await settingsButton.getAttribute( 'aria-pressed' )
+				if ( pressed !== 'true' ) {
+					await settingsButton.click()
+				}
+			}
+
+			const pageTab = page.getByRole( 'button', { name: 'Page', exact: true } )
+			const documentTab = page.getByRole( 'button', {
+				name: 'Document',
+				exact: true,
+			} )
+			const sidebarTab = ( await pageTab.count() )
+				? pageTab
+				: ( await documentTab.count() )
+					? documentTab
+					: page.getByRole( 'tab', { name: /Page|Document/i } )
+
+			const selected = await sidebarTab.getAttribute( 'aria-selected' )
+			if ( selected !== 'true' ) {
+				await sidebarTab.click()
+			}
 		}
 
-		const featured = page.locator( '.editor-post-featured-image' )
 		await expect( featured ).toBeVisible( { timeout: 15_000 } )
 
 		// Cimo's interceptor re-dispatches the converted file onto Gutenberg's
