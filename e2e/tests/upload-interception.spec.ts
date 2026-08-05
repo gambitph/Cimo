@@ -8,7 +8,7 @@ import {
 	expectNewMediaIsWebp,
 } from 'e2e/test-utils'
 
-test.describe.configure( { timeout: 90_000 } )
+test.describe.configure( { timeout: 120_000 } )
 
 test.describe( 'Upload interception (JPG → WebP)', () => {
 	let pageId: string | null = null
@@ -87,16 +87,25 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 
 		const media = await expectNewMediaIsWebp( requestUtils, afterId )
 
-		// Select the uploaded attachment in the modal if still open.
-		const webpAttachment = modal.locator( `.attachment[data-id="${ media.id }"]` )
-		if ( await modal.isVisible() && await webpAttachment.count() ) {
+		// Select the uploaded attachment in the modal if still open. The
+		// upload lands on the "Upload files" tab, but the attachment only
+		// becomes a selectable grid item under "Media Library" — switch
+		// there first.
+		if ( await modal.isVisible() ) {
+			const libraryTab = modal.getByRole( 'tab', { name: /Media Library/i } )
+			if ( await libraryTab.count() ) {
+				await libraryTab.click()
+			}
+
+			const webpAttachment = modal.locator( `.attachment[data-id="${ media.id }"]` )
+			await expect( webpAttachment ).toBeVisible( { timeout: 15_000 } )
 			await webpAttachment.click()
+
 			const selectButton = modal.getByRole( 'button', {
 				name: /Select|Insert/i,
 			} )
-			if ( await selectButton.isEnabled() ) {
-				await selectButton.click()
-			}
+			await expect( selectButton ).toBeEnabled( { timeout: 10_000 } )
+			await selectButton.click()
 		}
 
 		await expect(
@@ -149,7 +158,17 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 
 		const featured = page.locator( '.editor-post-featured-image' )
 		await expect( featured ).toBeVisible( { timeout: 15_000 } )
-		await dropFile( featured )
+
+		// Cimo's interceptor re-dispatches the converted file onto Gutenberg's
+		// actual DropZone element (`.components-drop-zone`), which is nested
+		// inside `.editor-post-featured-image`. Dropping on the outer
+		// container directly doesn't reach it, so target the inner drop
+		// zone when present.
+		const innerDropZone = featured.locator(
+			'.components-drop-zone, [data-is-drop-zone="true"]'
+		).first()
+		const dropTarget = ( await innerDropZone.count() ) ? innerDropZone : featured
+		await dropFile( dropTarget )
 
 		await expectNewMediaIsWebp( requestUtils, afterId )
 		await expect(
