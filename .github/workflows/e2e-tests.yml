@@ -55,4 +55,4 @@ jobs:
 
     - name: Print WordPress logs on failure
       if: failure()
-      run: npx wp-env logs
+      run: npx wp-env logs tests --no-watch
