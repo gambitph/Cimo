@@ -100,25 +100,29 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 			const webpAttachment = modal.locator( `.attachment[data-id="${ media.id }"]` )
 			await expect( webpAttachment ).toBeVisible( { timeout: 15_000 } )
 			await expect( webpAttachment.locator( '.attachment-preview' ) ).toBeVisible( { timeout: 15_000 } )
-			await webpAttachment.click()
+
+			// eslint-disable-next-line no-console
+			console.log( 'DEBUG attachment html:', await webpAttachment.innerHTML() )
+
+			const checkTarget = webpAttachment.locator( '.check' )
+			if ( await checkTarget.count() ) {
+				await checkTarget.click()
+			} else {
+				await webpAttachment.click()
+			}
 
 			const selectButton = modal.getByRole( 'button', {
 				name: /Select|Insert/i,
 			} )
+			const disabledAfterClick = await selectButton.isDisabled()
+			// eslint-disable-next-line no-console
+			console.log( 'DEBUG after check-click, btnDisabled=', disabledAfterClick )
 
-			for ( let i = 0; i < 6; i++ ) {
-				const state = await webpAttachment.evaluate( ( el: HTMLElement ) => ( {
-					className: el.className,
-					ariaChecked: el.getAttribute( 'aria-checked' ),
-				} ) )
-				const btnDisabled = await selectButton.isDisabled()
+			if ( disabledAfterClick ) {
+				await webpAttachment.focus()
+				await page.keyboard.press( 'Enter' )
 				// eslint-disable-next-line no-console
-				console.log( `DEBUG t+${ i * 1000 }ms:`, JSON.stringify( state ), 'btnDisabled=', btnDisabled )
-				if ( ! btnDisabled ) {
-					break
-				}
-				// eslint-disable-next-line no-await-in-loop
-				await page.waitForTimeout( 1000 )
+				console.log( 'DEBUG after Enter keypress, btnDisabled=', await selectButton.isDisabled() )
 			}
 
 			await expect( selectButton ).toBeEnabled( { timeout: 10_000 } )
