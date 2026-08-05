@@ -99,24 +99,12 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 
 			const webpAttachment = modal.locator( `.attachment[data-id="${ media.id }"]` )
 			await expect( webpAttachment ).toBeVisible( { timeout: 15_000 } )
-
-			// eslint-disable-next-line no-console
-			console.log( 'DEBUG attachment html:', ( await webpAttachment.innerHTML() ).slice( 0, 2000 ) )
-
-			const clickTarget = webpAttachment.locator( '.attachment-preview' ).first()
-			if ( await clickTarget.count() ) {
-				await clickTarget.click()
-			} else {
-				await webpAttachment.click()
-			}
-
-			// eslint-disable-next-line no-console
-			console.log( 'DEBUG attachment after click:', JSON.stringify(
-				await webpAttachment.evaluate( ( el: HTMLElement ) => ( {
-					className: el.className,
-					ariaChecked: el.getAttribute( 'aria-checked' ),
-				} ) )
-			) )
+			// The <li> itself renders (and passes the visibility check) before
+			// its content (thumbnail, etc.) is filled in; clicking too early
+			// lands on an inert placeholder that doesn't toggle selection.
+			// Wait for its actual content to be there first.
+			await expect( webpAttachment.locator( '.attachment-preview' ) ).toBeVisible( { timeout: 15_000 } )
+			await webpAttachment.click()
 
 			const selectButton = modal.getByRole( 'button', {
 				name: /Select|Insert/i,
