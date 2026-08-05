@@ -20,24 +20,22 @@ export async function dropFile(
 ) {
 	const buffer = fs.readFileSync( filePath )
 	const fileName = path.basename( filePath )
-	const base64 = buffer.toString( 'base64' )
+	// A plain array of byte values (rather than a base64 string, which also
+	// requires `fetch()`/`atob()` that can run afoul of the block editor
+	// iframe's CSP) serializes reliably as the evaluateHandle arg.
+	const bytes = Array.from( buffer )
 
-	// Decode the base64 payload into bytes directly (no `fetch()` of a data:
-	// URL) so this also works inside contexts with a restrictive CSP, such as
-	// the block editor's iframe.
+	// Note: Locator#evaluateHandle calls pageFunction as (element, arg), not
+	// just (arg) — the element itself is unused here, but the parameter is
+	// required so `arg` correctly receives our payload.
 	const dataTransfer = await target.evaluateHandle(
-		( { data, name, type } ) => {
-			const byteString = atob( data )
-			const bytes = new Uint8Array( byteString.length )
-			for ( let i = 0; i < byteString.length; i++ ) {
-				bytes[ i ] = byteString.charCodeAt( i )
-			}
-			const file = new File( [ bytes ], name, { type } )
+		( element, { data, name, type } ) => {
+			const file = new File( [ new Uint8Array( data ) ], name, { type } )
 			const dt = new DataTransfer()
 			dt.items.add( file )
 			return dt
 		},
-		{ data: base64, name: fileName, type: mimeType }
+		{ data: bytes, name: fileName, type: mimeType }
 	)
 
 	await target.dispatchEvent( 'dragenter', { dataTransfer } )
