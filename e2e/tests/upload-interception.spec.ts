@@ -101,30 +101,23 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 			await expect( webpAttachment ).toBeVisible( { timeout: 15_000 } )
 			await expect( webpAttachment.locator( '.attachment-preview' ) ).toBeVisible( { timeout: 15_000 } )
 
-			// eslint-disable-next-line no-console
-			console.log( 'DEBUG attachment html:', await webpAttachment.innerHTML() )
-
-			const checkTarget = webpAttachment.locator( '.check' )
-			if ( await checkTarget.count() ) {
-				await checkTarget.click()
+			// This library's Attachment view only toggles selection via its
+			// `.check` checkbox button — clicking elsewhere on the grid item
+			// doesn't register. Fall back to a plain click if `.check` isn't
+			// rendered (e.g. a different WP media view).
+			const checkButton = webpAttachment.locator( '.check' )
+			if ( await checkButton.count() ) {
+				await checkButton.click()
 			} else {
 				await webpAttachment.click()
 			}
 
-			const selectButton = modal.getByRole( 'button', {
+			// Scope to the toolbar: the attachment's own `.check` button's
+			// accessible name toggles to "Deselect", which also matches a
+			// loose /Select|Insert/i search if not scoped away from it.
+			const selectButton = modal.locator( '.media-toolbar' ).getByRole( 'button', {
 				name: /Select|Insert/i,
 			} )
-			const disabledAfterClick = await selectButton.isDisabled()
-			// eslint-disable-next-line no-console
-			console.log( 'DEBUG after check-click, btnDisabled=', disabledAfterClick )
-
-			if ( disabledAfterClick ) {
-				await webpAttachment.focus()
-				await page.keyboard.press( 'Enter' )
-				// eslint-disable-next-line no-console
-				console.log( 'DEBUG after Enter keypress, btnDisabled=', await selectButton.isDisabled() )
-			}
-
 			await expect( selectButton ).toBeEnabled( { timeout: 10_000 } )
 			await selectButton.click()
 		}
