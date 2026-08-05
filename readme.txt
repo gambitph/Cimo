@@ -1,7 +1,7 @@
 === Cimo - Free Instant Image Optimizer & WebP Converter ===
 Contributors: bfintal, gambitph
 Tags: image, optimization, compress, convert, webp
-Requires at least: 7.0
+Requires at least: 7.0.2
 Tested up to: 7.0
 Requires PHP: 8.0
 Stable tag: 1.4.1
@@ -14,19 +14,13 @@ Unlimited free image compression and WebP conversion, done instantly as you uplo
 
 **Optimize all your images instantly and for free.**
 
-[Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) is a game-changer for media optimization. It optimizes, resizes, and converts your images instantly as you upload — even before the files are added to your Media Library.
+[Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) optimizes, resizes, and converts your images to WebP instantly as you upload them — right in your browser, before the files are ever added to your Media Library. From WordPress' point of view, it's as if the image was already optimized before you uploaded it, keeping your site's load speed fast without compromising quality.
 
 [Visit Cimo's website](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) to learn more about how Cimo does things.
 
-From WordPress' point of view, it's as if you optimized your image BEFORE your uploaded it. Now, this is next-next-gen image optimization.
-
-[Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) works like magic, drag your large image file, and an optimized image will automatically appear in your Media Library. This ensures your website load speed is perfectly optimized by keeping image sizes minimal, without compromising quality.
-
 * Unlimited usage - upload as many images as you want
 * Instant optimization - virtually no waiting time
-* No extra server load
-* No extra bandwidth
-* No external image-processing services
+* No extra server load, bandwidth, or external image-processing services
 
 > **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.
 
@@ -46,26 +40,11 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 
 = Why use Cimo? =
 
-1. **Completely Free & Unlimited** – Image optimization and compression are completely free with no quotas, no limits, and no paywalls. Optimize as many images as you want, forever.
-2. **Instant, Lightning-Fast Processing** – Images are optimized instantly in your browser as you upload, with no waiting for server-side or external processing.
-3. **Privacy-First** – Your images never leave your device until they’re uploaded to WordPress. No third-party servers, no external processing, complete control over your media.
-4. **Zero Server Load** – All optimization happens in your browser, so your website and server stay fast and responsive.
-5. **Smart Optimization** – Advanced compression algorithms deliver the best quality-to-size ratio, with automatic WebP conversion for maximum efficiency.
-6. **Future-Proof Format** – Automatic WebP conversion ensures your images use the most efficient format, reducing file sizes by up to 80%.
-7. **Instant Results** – Experience faster uploads, smaller file sizes, and optimized images that load faster on your website.
-8. **Universal Compatibility** – Works seamlessly with the WordPress Block Editor, Elementor, Beaver Builder, and all major page builders.
-9. **Developer Friendly** – Clean, lightweight code that won’t interfere with other plugins or slow down your WordPress admin.
-
-= Features =
-
-* **Unlimited optimization** – compress and optimize without quotas
-* **WebP conversion** – next‑gen format without external services
-* **Client‑side processing** – faster uploads, no server load
-* **Privacy‑first** – nothing sent to third‑party servers
-* **Lightweight** – no API keys, no background jobs, no server processing
-* **Advanced settings** – full control over quality, dimensions, and thumbnail generation
-* **Statistics dashboard** – track storage savings and optimization performance
-* **Smart presets** – one-click recommended or default configurations
+1. **Completely Free & Unlimited** – no quotas, no limits, no paywalls. Optimize as many images as you want, forever.
+2. **Instant, Browser-Based Processing** – images are optimized as you upload, with zero server load and no external services.
+3. **Privacy-First** – your images never leave your device until they're uploaded to WordPress.
+4. **Future-Proof Format** – automatic WebP conversion reduces file sizes by up to 80%, with full control over quality, dimensions, and thumbnail generation.
+5. **Universal Compatibility** – works seamlessly with the WordPress Block Editor, Elementor, Beaver Builder, and all major page builders.
 
 = Works with =
 
@@ -105,27 +84,12 @@ Free already optimizes images as you upload. [Cimo Premium](https://wpcimo.com/p
 
 Video & Audio optimization are also performed as you upload your files, even before the files are added to your Media Library.
 
-== Technical Details ==
-
-* **Client-Side Processing**: All optimization happens in the user's browser
-* **Zero Server Load**: No background processes or server-side optimization
-* **Instant Results**: No waiting for external APIs or server processing
-* **Privacy-First**: Images never leave the user's device until uploaded
-* **Browser Compatibility**: Works in Chrome, Firefox, Edge, Opera (Safari: optimized and uploaded as JPG, WebP conversion not supported)
-
 == Perfect For ==
 
-* Website owners who want to reduce image file sizes without quality loss
-* Administrators who have content writers who always upload big images without converting them
-* Designers who always forget to convert images first before uploading to the site
-* Content creators who upload many images and want faster uploads
-* Developers building sites that need optimized images for better performance
-* Agencies managing multiple client sites with image optimization needs
-* Anyone wanting to convert images to WebP format automatically
+* Website owners and content creators who upload large images without optimizing them first
+* Developers and agencies building or managing sites that need fast, optimized images
+* Anyone wanting automatic WebP conversion without a manual workflow
 * Sites where server-side image processing isn't available or desired
-* Users who want client-side image optimization for better privacy
-* Performance-focused websites that need instant image optimization
-* Developers who want zero server load from image processing
 * Privacy-conscious users who don't want images sent to third-party servers
 
 == Installation ==
@@ -208,6 +172,14 @@ Yes! The settings page includes a statistics dashboard showing:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.4.2 =
+
+* New: Free settings page shows real bulk optimization progress #66
+* New: Media Library notice when video optimization is skipped (premium) #48 #49
+* Fixed: Improved error message for bulk optimization on non-HTTPS sites #54
+* Fixed: Smart Optimization for HEIC images (premium) #60
+* Fixed: SVG sanitizer loading issue (premium) #55
 
 = 1.4.1 =
 
