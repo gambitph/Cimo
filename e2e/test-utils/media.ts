@@ -22,11 +22,18 @@ export async function dropFile(
 	const fileName = path.basename( filePath )
 	const base64 = buffer.toString( 'base64' )
 
+	// Decode the base64 payload into bytes directly (no `fetch()` of a data:
+	// URL) so this also works inside contexts with a restrictive CSP, such as
+	// the block editor's iframe.
 	const dataTransfer = await target.evaluateHandle(
-		async ( { data, name, type } ) => {
+		( { data, name, type } ) => {
+			const byteString = atob( data )
+			const bytes = new Uint8Array( byteString.length )
+			for ( let i = 0; i < byteString.length; i++ ) {
+				bytes[ i ] = byteString.charCodeAt( i )
+			}
+			const file = new File( [ bytes ], name, { type } )
 			const dt = new DataTransfer()
-			const blob = await fetch( `data:${ type };base64,${ data }` ).then( r => r.blob() )
-			const file = new File( [ blob ], name, { type } )
 			dt.items.add( file )
 			return dt
 		},

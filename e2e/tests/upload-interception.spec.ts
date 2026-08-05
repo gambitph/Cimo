@@ -81,9 +81,7 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 			await uploadTab.click()
 		}
 
-		const dropTarget = modal.locator(
-			'.media-frame-uploader, .uploader-inline, .upload-ui'
-		).first()
+		const dropTarget = modal.getByRole( 'tabpanel', { name: /Upload files/i } )
 		await expect( dropTarget ).toBeVisible( { timeout: 15_000 } )
 		await dropFile( dropTarget )
 
@@ -145,7 +143,7 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		} else if ( await documentTab.count() ) {
 			await documentTab.click()
 		} else {
-			await page.getByLabel( /Settings/i ).click()
+			await page.getByRole( 'button', { name: 'Settings', exact: true } ).click()
 			await page.getByRole( 'tab', { name: /Page|Document/i } ).click()
 		}
 
