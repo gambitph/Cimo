@@ -14,6 +14,7 @@
 		"build:premium": "cd pro__premium_only && npm run build",
 		"start:premium": "cd pro__premium_only && npm run start",
 		"build:e2e": "node scripts/update-build-type.js free && wp-scripts build",
+		"build:e2e:premium": "node scripts/update-build-type.js premium && npx wp-scripts build --config pro__premium_only/webpack.config.js",
 		"lint:js": "wp-scripts lint-js",
 		"lint:js:fix": "wp-scripts lint-js --fix",
 		"lint:css": "wp-scripts lint-style",
@@ -24,6 +25,7 @@
 		"sync-version": "node scripts/sync-version.js",
 		"test": "npm run test:e2e",
 		"test:e2e": "playwright test",
+		"test:e2e:premium": "playwright test -c playwright.premium.config.js",
 		"test:debug": "playwright test --ui"
 	},
 	"browserslist": [

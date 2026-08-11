@@ -51,8 +51,11 @@ Roadmap / version targeting: [org project #12](https://github.com/orgs/gambitph/
 ### Testing
 
 Playwright for UI / e2e (`e2e/`, `@wp-playground/cli` — no Docker).
-Run with `npm run test:e2e` (or `npm run test:debug` for the UI) after `npm run build:e2e`.
+Run free with `npm run test:e2e` after `npm run build:e2e`.
+With `pro__premium_only/` mounted, run premium with `npm run test:e2e:premium` after `npm run build:e2e:premium`.
 See [`e2e/readme.md`](./e2e/readme.md).
+Free-repo CI runs the free suite only.
+Premium-repo CI runs free then premium.
 There is no PHPUnit suite today - prefer Playwright for regressions that matter to upload and settings flows.
 
 ## Free / premium

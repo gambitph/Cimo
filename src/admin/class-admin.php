@@ -259,10 +259,12 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			
 			// Enqueue JavaScript
 			$script_asset = include $build_dir . 'admin-page.asset.php';
+			// Depend on cimo-script so premium filters (BulkOptimizer, buildType peers)
+			// register before admin-settings.js evaluates applyFilters at module load.
 			wp_enqueue_script(
 				'cimo-admin-page',
 				$build_url . 'admin-page.js',
-				array_merge( $script_asset['dependencies'], $dependencies['js'] ),
+				array_merge( $script_asset['dependencies'], $dependencies['js'], [ 'cimo-script' ] ),
 				$script_asset['version'],
 				true
 			);

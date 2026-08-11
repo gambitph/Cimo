@@ -34,6 +34,7 @@ Thumbs.db
 wp-auth.json
 e2e/.auth/
 playwright-report/
+playwright-report-premium/
 test-results/
 blob-report/
 .playwright-browsers/
