@@ -23,6 +23,27 @@ export const SAMPLE_MP4 = path.resolve( __dirname, '../fixtures/sample.mp4' )
 /** Short high-bitrate MP3 fixture for premium audio upload optimization. */
 export const SAMPLE_MP3 = path.resolve( __dirname, '../fixtures/sample.mp3' )
 
+/** Pre-converted WebP (from sample.jpg) for already-WebP upload paths. */
+export const SAMPLE_WEBP = path.resolve( __dirname, '../fixtures/sample.webp' )
+
+/** Larger WebP for re-encode / quality comparisons. */
+export const SAMPLE_LARGE_WEBP = path.resolve(
+	__dirname,
+	'../fixtures/sample-large.webp'
+)
+
+/** Oversized JPEG (>2560px) for WordPress big-image scaling tests. */
+export const SAMPLE_OVERSIZED_JPG = path.resolve(
+	__dirname,
+	'../fixtures/sample-oversized.jpg'
+)
+
+/** Verbose SVG fixture for premium SVG optimize tests. */
+export const SAMPLE_SVG = path.resolve( __dirname, '../fixtures/sample.svg' )
+
+/** HEIC fixture for premium HEIC → WebP upload tests. */
+export const SAMPLE_HEIC = path.resolve( __dirname, '../fixtures/sample.heic' )
+
 type DropFileSpec = {
 	path: string;
 	mimeType?: string;
@@ -188,14 +209,16 @@ export async function deletePage( requestUtils: RequestUtils, pageId: number ) {
 }
 
 /**
- * Assert that a new media item was uploaded as WebP after `afterId`.
+ * Assert that a new media item with the given MIME was uploaded after `afterId`.
  */
-export async function expectNewMediaIsWebp(
+export async function expectNewMediaMime(
 	requestUtils: RequestUtils,
 	afterId: number,
-	options: { timeout?: number } = {}
+	mime: string | RegExp,
+	options: { timeout?: number; urlPattern?: RegExp } = {}
 ) {
 	const timeout = options.timeout ?? 60_000
+	const mimeLabel = mime instanceof RegExp ? mime.toString() : mime
 
 	await expect.poll(
 		async () => {
@@ -203,22 +226,43 @@ export async function expectNewMediaIsWebp(
 			if ( ! created.length ) {
 				return null
 			}
-			const newest = created[ 0 ]
-			return {
-				id: newest.id,
-				mime: newest.mime_type,
-				url: newest.source_url,
+			const mimeType = created[ 0 ].mime_type
+			if ( mime instanceof RegExp ) {
+				return mime.test( mimeType ) ? mimeType : null
 			}
+			return mimeType === mime ? mimeType : null
 		},
-		{ timeout, message: 'Expected a new WebP media attachment after upload' }
-	).toMatchObject( {
-		mime: 'image/webp',
-	} )
+		{
+			timeout,
+			message: `Expected a new ${ mimeLabel } media attachment after upload`,
+		}
+	).not.toBeNull()
 
 	const created = await getMediaCreatedAfter( requestUtils, afterId )
 	const newest = created[ 0 ]
-	expect( newest.source_url ).toMatch( /\.webp(\?|$)/i )
+	if ( mime instanceof RegExp ) {
+		expect( newest.mime_type ).toMatch( mime )
+	} else {
+		expect( newest.mime_type ).toBe( mime )
+	}
+	if ( options.urlPattern ) {
+		expect( newest.source_url ).toMatch( options.urlPattern )
+	}
 	return newest
+}
+
+/**
+ * Assert that a new media item was uploaded as WebP after `afterId`.
+ */
+export async function expectNewMediaIsWebp(
+	requestUtils: RequestUtils,
+	afterId: number,
+	options: { timeout?: number } = {}
+) {
+	return await expectNewMediaMime( requestUtils, afterId, 'image/webp', {
+		timeout: options.timeout,
+		urlPattern: /\.webp(\?|$)/i,
+	} )
 }
 
 /**
@@ -249,13 +293,20 @@ export async function expectNewMediaCount(
 }
 
 /**
- * Upload via Media → Add New file picker and wait for WebP conversion.
+ * Upload via Media → Add New file picker.
+ * By default raster images (non-WebP) wait for WebP conversion.
+ * Pass `expectedMime` to assert a different outcome (e.g. optimization off).
  */
 export async function uploadSampleViaMediaNew(
 	page: Page,
 	requestUtils: RequestUtils,
 	filePath: string = SAMPLE_JPG,
-	mimeType: string = 'image/jpeg'
+	mimeType: string = 'image/jpeg',
+	options: {
+		expectedMime?: string | RegExp;
+		timeout?: number;
+		urlPattern?: RegExp;
+	} = {}
 ) {
 	await page.goto( '/wp-admin/media-new.php' )
 	await waitForCimoReady( page )
@@ -267,15 +318,79 @@ export async function uploadSampleViaMediaNew(
 	await expect( fileInput ).toBeAttached( { timeout: 15_000 } )
 	await fileInput.setInputFiles( filePath )
 
-	if ( mimeType.startsWith( 'image/' ) && mimeType !== 'image/webp' ) {
-		return await expectNewMediaIsWebp( requestUtils, afterId )
+	if ( options.expectedMime ) {
+		return await expectNewMediaMime(
+			requestUtils,
+			afterId,
+			options.expectedMime,
+			{
+				timeout: options.timeout ?? 120_000,
+				urlPattern: options.urlPattern,
+			}
+		)
+	}
+
+	if (
+		mimeType.startsWith( 'image/' ) &&
+		mimeType !== 'image/webp' &&
+		mimeType !== 'image/svg+xml'
+	) {
+		return await expectNewMediaIsWebp( requestUtils, afterId, {
+			timeout: options.timeout,
+		} )
 	}
 
 	await expect.poll( async () => {
 		return ( await getMediaCreatedAfter( requestUtils, afterId ) ).length
-	}, { timeout: 120_000 } ).toBeGreaterThan( 0 )
+	}, { timeout: options.timeout ?? 120_000 } ).toBeGreaterThan( 0 )
 
 	return ( await getMediaCreatedAfter( requestUtils, afterId ) )[ 0 ]
+}
+
+/**
+ * Wait until Cimo attachment meta marks the media as optimized during upload.
+ */
+export async function waitForOptimizedUploadMeta(
+	requestUtils: RequestUtils,
+	mediaId: number,
+	timeout = 180_000
+) {
+	await expect.poll(
+		async () => {
+			const attachments = await requestUtils.rest( {
+				path: '/cimo/v1/attachments',
+			} ) as Array<{
+				id: number
+				cimo: {
+					optimized_during_upload?: boolean
+					originalFilesize?: number
+					convertedFilesize?: number
+					compressionSavings?: number
+				} | null
+			}>
+			const item = attachments.find( ( entry ) => entry.id === mediaId )
+			if ( ! item?.cimo?.optimized_during_upload ) {
+				return null
+			}
+			return item.cimo
+		},
+		{
+			timeout,
+			message: `Expected Cimo upload optimization metadata for media ${ mediaId }`,
+		}
+	).not.toBeNull()
+
+	const attachments = await requestUtils.rest( {
+		path: '/cimo/v1/attachments',
+	} ) as Array<{
+		id: number
+		cimo: {
+			optimized_during_upload?: boolean
+			originalFilesize?: number
+			convertedFilesize?: number
+		} | null
+	}>
+	return attachments.find( ( entry ) => entry.id === mediaId )?.cimo
 }
 
 /**

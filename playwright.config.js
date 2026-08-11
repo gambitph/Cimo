@@ -29,7 +29,7 @@ const PLAYGROUND_BLUEPRINT = path.join( __dirname, 'e2e/playground-blueprint.jso
 
 module.exports = defineConfig( {
 	testDir: './e2e/tests',
-	testIgnore: [ '**/premium/**' ],
+	testIgnore: [ '**/premium/**', '**/elementor/**' ],
 	globalSetup: require.resolve( './e2e/config/global-setup.js' ),
 	fullyParallel: false,
 	forbidOnly: !! process.env.CI,

@@ -34,6 +34,27 @@ test.describe( 'Freemium admin chrome', () => {
 		).toBeDisabled()
 
 		await expect( page.locator( '.cimo-premium-feature-label' ).first() ).toBeVisible()
+
+		await expect(
+			page.getByRole( 'heading', { name: /Low Quality Image Placeholder Settings/i } )
+		).toBeVisible()
+		await expect(
+			page.getByRole( 'heading', { name: /Video Optimization Settings/i } )
+		).toBeVisible()
+		await expect(
+			page.getByRole( 'heading', { name: /Audio Optimization Settings/i } )
+		).toBeVisible()
+		await expect(
+			page.getByRole( 'heading', { name: /SVG Optimization Settings/i } )
+		).toBeVisible()
+		await expect(
+			page.getByRole( 'heading', { name: /Stealth Mode/i } )
+		).toBeVisible()
+
+		await expect( page.locator( '.cimo-settings-premium-placeholder' ).first() ).toBeVisible()
+		await expect(
+			page.getByRole( 'checkbox', { name: /Show Optimization Toggle/i } )
+		).toBeDisabled()
 	} )
 
 	test( 'plugins screen exposes Settings and Upgrade links', async ( {

@@ -26,8 +26,11 @@
 		"test": "npm run test:e2e",
 		"test:e2e": "playwright test",
 		"test:e2e:premium": "playwright test -c playwright.premium.config.js",
+		"test:e2e:elementor": "node scripts/fetch-elementor-fixture.js && playwright test -c playwright.elementor.config.js",
 		"test:debug": "playwright test --ui",
-		"test:debug:premium": "playwright test -c playwright.premium.config.js --ui"
+		"test:debug:premium": "playwright test -c playwright.premium.config.js --ui",
+		"test:debug:elementor": "node scripts/fetch-elementor-fixture.js && playwright test -c playwright.elementor.config.js --ui",
+		"e2e:fetch-elementor": "node scripts/fetch-elementor-fixture.js"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"

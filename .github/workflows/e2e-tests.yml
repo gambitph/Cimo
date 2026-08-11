@@ -45,3 +45,52 @@ jobs:
           path: playwright-report/
           retention-days: 14
           if-no-files-found: ignore
+
+  e2e-elementor:
+    name: Playwright e2e Elementor (Playground CLI)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build plugin for e2e testing
+        run: npm run build:e2e
+
+      # Fetches gitignored elementor.zip, then runs the Elementor smoke.
+      # PWDEBUG=console keeps browser console / page errors in the job log for triage.
+      - name: Run Playwright Elementor e2e suite
+        env:
+          PWDEBUG: console
+          DEBUG: pw:webserver
+        run: npm run test:e2e:elementor
+
+      - name: Upload Elementor Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-elementor
+          path: playwright-report-elementor/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload Elementor failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-elementor-test-results
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore
