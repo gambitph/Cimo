@@ -1,0 +1,34 @@
+---
+description: Maintainability and anti-slop standards when changing Cimo code
+alwaysApply: true
+---
+
+# Maintainability & anti-slop
+
+Prefer deepening existing seams over inventing parallel structure. Goal: one place to change a behaviour; freemium gates and shared heuristics stay single-sourced.
+
+## Before you paste
+
+When adding or extending behaviour, check the nearest sibling first. If the change would clone a block (converter wiring, media-manager upload hooks, settings field + REST save pairs, upsell/pricing URL builders, `CIMO_BUILD` gates), extract or reuse a shared helper **before** adding the nth copy.
+
+## Deepen, don’t layer
+
+Keep the runtime spine:
+
+- **Upload path:** media-manager hooks → shared converters → metadata saver
+- **Settings path:** React settings UI → REST/options → localized `window.cimoAdmin` / script loader
+- **Freemium:** free tree + `CIMO_BUILD` gates; premium only under `pro__premium_only/`
+
+New behaviour goes into an existing module cluster (converter, media-manager surface, settings section, shared util, premium module) when one fits. Do not add a second converter registry, parallel upload interceptor, or ad-hoc AJAX twin beside an existing REST route without an explicit extract.
+
+God-file rule of thumb: prefer extracting a coherent cluster over growing `admin-settings.js`, a media-manager entry, or a fat PHP admin class with another pasted case.
+
+## Single source for shared heuristics
+
+Heuristics that exist on both PHP and JS (settings defaults, “is premium” flags, pricing/upsell URLs, optimization labels) share one definition of truth — localized data, shared module, or a documented sync. Do not hand-sync a second map “for convenience.”
+
+Ship or silence: do not advertise a premium feature, format, or setting in free UI/copy unless the free build truly exposes it (or clearly marks it as premium upsell).
+
+## Completion check
+
+Before finishing a change that adds a converter, setting, upload hook, or freemium gate: every list/map/UI/REST surface that must know about it is updated, no phantom options remain, and no new duplicate helper was introduced beside an existing one. Keep premium logic out of the free tree.
