@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 import {
 	test,
 	expect,
@@ -6,6 +8,7 @@ import {
 	SAMPLE_JPG,
 	SAMPLE_LARGE_JPG,
 	SAMPLE_PNG,
+	openPopupAndGetByteLength,
 } from '../../test-utils'
 
 test.describe.configure( { timeout: 180_000 } )
@@ -424,5 +427,139 @@ test.describe( 'Premium bulk optimizer', () => {
 		await expect( attachmentRow( page, png.id ) ).toBeVisible()
 		await expect( attachmentRows( page, jpg.id ) ).toHaveCount( 0 )
 		await expect( attachmentRows( page, large.id ) ).toHaveCount( 0 )
+	} )
+
+	test( 'view links open current, optimized, and original file sizes', async ( {
+		admin,
+		page,
+		requestUtils,
+	} ) => {
+		const media = await requestUtils.uploadMedia( SAMPLE_LARGE_JPG )
+		const attachmentId = media.id as number
+		const fixtureSize = fs.statSync( SAMPLE_LARGE_JPG ).size
+
+		await gotoCimoSettings( admin, page )
+		await readUnoptimizedCount( page )
+		await openFileList( page )
+		await selectFilterTab( page, 'unoptimized' )
+
+		const row = attachmentRow( page, attachmentId )
+		await expect( row ).toBeVisible()
+
+		const before = await openPopupAndGetByteLength(
+			page,
+			row.locator( '.cimo-bulk-optimizer-action-view-image' )
+		)
+		expect( before.size ).toBeGreaterThan( 0 )
+		// Uploaded original should match the fixture closely (allow minor WP rewrite).
+		expect( Math.abs( before.size - fixtureSize ) ).toBeLessThan( 2048 )
+
+		await row.locator( '.cimo-bulk-optimizer-action-optimize' ).click()
+		await waitForSingleOptimizeDone( page, attachmentId )
+
+		await selectFilterTab( page, 'optimized' )
+		const optimizedRow = attachmentRow( page, attachmentId )
+		await expect( optimizedRow ).toBeVisible()
+		await expect(
+			optimizedRow.locator( '.cimo-bulk-optimizer-action-view-image' )
+		).toBeVisible()
+		const viewOriginal = optimizedRow.locator(
+			'.cimo-bulk-optimizer-action-view-original'
+		)
+		await expect( viewOriginal ).toBeVisible()
+
+		const optimized = await openPopupAndGetByteLength(
+			page,
+			optimizedRow.locator( '.cimo-bulk-optimizer-action-view-image' )
+		)
+
+		const originalHref = await viewOriginal.getAttribute( 'href' )
+		expect( originalHref ).toBeTruthy()
+		const originalSize = await page.evaluate( async ( url ) => {
+			const response = await fetch( url as string, { credentials: 'same-origin' } )
+			if ( ! response.ok ) {
+				throw new Error( `Failed to fetch original: ${ response.status }` )
+			}
+			return ( await response.arrayBuffer() ).byteLength
+		}, originalHref )
+
+		expect( optimized.size ).toBeGreaterThan( 0 )
+		expect( originalSize ).toBeGreaterThan( 0 )
+		expect( optimized.size ).toBeLessThan( originalSize )
+		expect( Math.abs( originalSize - before.size ) ).toBeLessThan( 2048 )
+
+		await optimizedRow.locator( '.cimo-bulk-optimizer-action-restore' ).click()
+		await expect( attachmentRows( page, attachmentId ) ).toHaveCount( 0, {
+			timeout: 60_000,
+		} )
+
+		await selectFilterTab( page, 'unoptimized' )
+		const restoredRow = attachmentRow( page, attachmentId )
+		await expect( restoredRow ).toBeVisible()
+		await expect(
+			restoredRow.locator( '.cimo-bulk-optimizer-action-view-original' )
+		).toHaveCount( 0 )
+
+		const restored = await openPopupAndGetByteLength(
+			page,
+			restoredRow.locator( '.cimo-bulk-optimizer-action-view-image' )
+		)
+		expect( Math.abs( restored.size - before.size ) ).toBeLessThan( 2048 )
+	} )
+
+	test( 'skipped files are excluded from bulk optimize and 100% progress', async ( {
+		admin,
+		page,
+		requestUtils,
+	} ) => {
+		const keepA = await requestUtils.uploadMedia( SAMPLE_JPG )
+		const keepB = await requestUtils.uploadMedia( SAMPLE_LARGE_JPG )
+		const skipped = await requestUtils.uploadMedia( SAMPLE_PNG )
+		expect( keepA?.id && keepB?.id && skipped?.id ).toBeTruthy()
+
+		await gotoCimoSettings( admin, page )
+		const initialUnoptimized = await readUnoptimizedCount( page )
+		expect( initialUnoptimized ).toBeGreaterThanOrEqual( 3 )
+
+		const progressText = page.locator( '.cimo-bulk-optimizer-progress-bar-text' )
+		await openFileList( page )
+		await selectFilterTab( page, 'unoptimized' )
+
+		await attachmentRow( page, skipped.id )
+			.locator( '.cimo-bulk-optimizer-action-skip' )
+			.click()
+		await expect( attachmentRows( page, skipped.id ) ).toHaveCount( 0 )
+		await expect( page.getByText( /Skipped \(1\)/ ) ).toBeVisible()
+
+		const toOptimize = initialUnoptimized - 1
+		const bulkButton = page.locator( '.cimo-bulk-optimize-button' )
+		await expect( bulkButton ).toContainText(
+			new RegExp( `Bulk Optimize \\(${ toOptimize }\\)` )
+		)
+
+		await bulkButton.click()
+		await waitForBulkIdle( page )
+
+		await expect( progressText ).toContainText(
+			new RegExp( `${ toOptimize } of ${ toOptimize } optimized`, 'i' )
+		)
+		await expect( progressText ).toContainText( /100%/ )
+		await expect( page.getByText( /Unoptimized \(0\)/ ) ).toBeVisible()
+		await expect(
+			page.getByText( new RegExp( `Optimized \\(${ toOptimize }\\)` ) )
+		).toBeVisible()
+		await expect( page.getByText( /Skipped \(1\)/ ) ).toBeVisible()
+
+		await selectFilterTab( page, 'skipped' )
+		await expect( attachmentRow( page, skipped.id ) ).toBeVisible()
+		await expect(
+			attachmentRow( page, skipped.id ).locator( '.cimo-bulk-optimizer-skip-reason' )
+		).toContainText( /Skipped manually/i )
+
+		const skippedMeta = await getAttachmentCimoMeta( requestUtils, skipped.id )
+		expect( skippedMeta?.cimo?.bulk_optimization?.full?.status ).toBe( 'skip' )
+
+		const optimizedMeta = await getAttachmentCimoMeta( requestUtils, keepA.id )
+		expect( optimizedMeta?.cimo?.bulk_optimization?.full?.status ).toBe( 'bulk' )
 	} )
 } )

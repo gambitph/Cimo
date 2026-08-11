@@ -17,6 +17,12 @@ export const SAMPLE_LARGE_JPG = path.resolve(
 	'../fixtures/sample-large.jpg'
 )
 
+/** Short MP4 fixture for premium video upload optimization. */
+export const SAMPLE_MP4 = path.resolve( __dirname, '../fixtures/sample.mp4' )
+
+/** Short high-bitrate MP3 fixture for premium audio upload optimization. */
+export const SAMPLE_MP3 = path.resolve( __dirname, '../fixtures/sample.mp3' )
+
 type DropFileSpec = {
 	path: string;
 	mimeType?: string;
@@ -267,9 +273,67 @@ export async function uploadSampleViaMediaNew(
 
 	await expect.poll( async () => {
 		return ( await getMediaCreatedAfter( requestUtils, afterId ) ).length
-	}, { timeout: 60_000 } ).toBeGreaterThan( 0 )
+	}, { timeout: 120_000 } ).toBeGreaterThan( 0 )
 
 	return ( await getMediaCreatedAfter( requestUtils, afterId ) )[ 0 ]
+}
+
+/**
+ * Byte length of a URL fetched in the page context (same-origin cookies).
+ */
+export async function fetchUrlByteLength( page: Page, url: string ) {
+	return await page.evaluate( async ( targetUrl ) => {
+		const response = await fetch( targetUrl, { credentials: 'same-origin' } )
+		if ( ! response.ok ) {
+			throw new Error( `Failed to fetch ${ targetUrl }: ${ response.status }` )
+		}
+		return ( await response.arrayBuffer() ).byteLength
+	}, url )
+}
+
+/**
+ * Click a control that opens a new tab/window and return that document's byte size.
+ */
+export async function openPopupAndGetByteLength(
+	page: Page,
+	clickLocator: Locator
+) {
+	const [ popup ] = await Promise.all( [
+		page.waitForEvent( 'popup' ),
+		clickLocator.click(),
+	] )
+	await popup.waitForLoadState( 'domcontentloaded' )
+	const url = popup.url()
+	const size = await popup.evaluate( async () => {
+		const response = await fetch( window.location.href, {
+			credentials: 'same-origin',
+		} )
+		if ( ! response.ok ) {
+			throw new Error( `Failed to fetch popup URL: ${ response.status }` )
+		}
+		return ( await response.arrayBuffer() ).byteLength
+	} )
+	await popup.close()
+	return { size, url }
+}
+
+/**
+ * Media file size from edit-context REST (falls back to downloading source_url).
+ */
+export async function getMediaFileByteLength(
+	page: Page,
+	requestUtils: RequestUtils,
+	mediaId: number
+) {
+	const media = await getMediaById( requestUtils, mediaId )
+	const reported = media.media_details?.filesize
+	if ( typeof reported === 'number' && reported > 0 ) {
+		return reported
+	}
+	if ( ! media.source_url ) {
+		throw new Error( `Media ${ mediaId } has no source_url or filesize` )
+	}
+	return await fetchUrlByteLength( page, media.source_url )
 }
 
 /**

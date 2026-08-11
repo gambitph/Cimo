@@ -108,8 +108,10 @@ WP_PASSWORD=password
 
 | Surface | Flow |
 |---------|------|
-| Settings | Gated controls enabled; working bulk UI (not upsell) |
-| Bulk optimizer | Progress to 100%, stop mid-run, one-by-one optimize, search, restore to original, unoptimized/optimized/skipped filters |
+| Settings | Gated controls enabled; LQIP/video/audio/stealth present; no upsell/placeholders |
+| Bulk optimizer | Progress to 100%, stop mid-run, one-by-one, search, restore, filters, view original vs optimized sizes, skipped excluded from 100% |
+| Smart optimization | On by default; smaller uploads than quality-only mode |
+| Media uploads | MP4 and MP3 optimize on Media → Add New |
 
 ## Files
 
