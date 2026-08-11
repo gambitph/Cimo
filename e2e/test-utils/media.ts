@@ -8,6 +8,53 @@ import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright'
 /** JPEG fixture used by upload interception tests. */
 export const SAMPLE_JPG = path.resolve( __dirname, '../fixtures/sample.jpg' )
 
+/** Small PNG fixture for format conversion tests. */
+export const SAMPLE_PNG = path.resolve( __dirname, '../fixtures/sample.png' )
+
+/** Large JPEG (2000×1500) for max-dimension / progress tests. */
+export const SAMPLE_LARGE_JPG = path.resolve(
+	__dirname,
+	'../fixtures/sample-large.jpg'
+)
+
+type DropFileSpec = {
+	path: string;
+	mimeType?: string;
+}
+
+/**
+ * Dispatch dragenter → dragover → drop with one or more real File payloads.
+ * Needed for Cimo's capture-phase drop interceptor (and Gutenberg DropZone).
+ */
+export async function dropFiles(
+	target: Locator,
+	files: DropFileSpec[]
+) {
+	const payloads = files.map( ( file ) => {
+		const buffer = fs.readFileSync( file.path )
+		return {
+			data: Array.from( buffer ),
+			name: path.basename( file.path ),
+			type: file.mimeType || 'application/octet-stream',
+		}
+	} )
+
+	const dataTransfer = await target.evaluateHandle(
+		( element, filePayloads ) => {
+			const dt = new DataTransfer()
+			for ( const { data, name, type } of filePayloads ) {
+				dt.items.add( new File( [ new Uint8Array( data ) ], name, { type } ) )
+			}
+			return dt
+		},
+		payloads
+	)
+
+	await target.dispatchEvent( 'dragenter', { dataTransfer } )
+	await target.dispatchEvent( 'dragover', { dataTransfer } )
+	await target.dispatchEvent( 'drop', { dataTransfer } )
+}
+
 /**
  * Dispatch dragenter → dragover → drop with a real File payload.
  * Needed for Cimo's capture-phase drop interceptor (and Gutenberg DropZone).
@@ -17,29 +64,7 @@ export async function dropFile(
 	filePath: string = SAMPLE_JPG,
 	mimeType: string = 'image/jpeg'
 ) {
-	const buffer = fs.readFileSync( filePath )
-	const fileName = path.basename( filePath )
-	// A plain array of byte values (rather than a base64 string, which also
-	// requires `fetch()`/`atob()` that can run afoul of the block editor
-	// iframe's CSP) serializes reliably as the evaluateHandle arg.
-	const bytes = Array.from( buffer )
-
-	// Note: Locator#evaluateHandle calls pageFunction as (element, arg), not
-	// just (arg) — the element itself is unused here, but the parameter is
-	// required so `arg` correctly receives our payload.
-	const dataTransfer = await target.evaluateHandle(
-		( element, { data, name, type } ) => {
-			const file = new File( [ new Uint8Array( data ) ], name, { type } )
-			const dt = new DataTransfer()
-			dt.items.add( file )
-			return dt
-		},
-		{ data: bytes, name: fileName, type: mimeType }
-	)
-
-	await target.dispatchEvent( 'dragenter', { dataTransfer } )
-	await target.dispatchEvent( 'dragover', { dataTransfer } )
-	await target.dispatchEvent( 'drop', { dataTransfer } )
+	await dropFiles( target, [ { path: filePath, mimeType } ] )
 }
 
 /**
@@ -91,10 +116,16 @@ export async function waitForCimoEditorIframeReady( page: Page ) {
 	}, undefined, { timeout: 30_000 } )
 }
 
-type MediaItem = {
+export type MediaItem = {
 	id: number;
 	mime_type: string;
 	source_url: string;
+	media_details?: {
+		width?: number;
+		height?: number;
+		filesize?: number;
+		cimo?: Record<string, unknown>;
+	};
 }
 
 /**
@@ -109,6 +140,7 @@ export async function listMediaNewestFirst(
 			per_page: 100,
 			orderby: 'id',
 			order: 'desc',
+			context: 'edit',
 		},
 	} ) as MediaItem[]
 }
@@ -181,4 +213,109 @@ export async function expectNewMediaIsWebp(
 	const newest = created[ 0 ]
 	expect( newest.source_url ).toMatch( /\.webp(\?|$)/i )
 	return newest
+}
+
+/**
+ * Assert that N new WebP media items were uploaded after `afterId`.
+ */
+export async function expectNewMediaCount(
+	requestUtils: RequestUtils,
+	afterId: number,
+	count: number,
+	options: { timeout?: number; mime?: string } = {}
+) {
+	const timeout = options.timeout ?? 90_000
+	const mime = options.mime ?? 'image/webp'
+
+	await expect.poll(
+		async () => {
+			const created = await getMediaCreatedAfter( requestUtils, afterId )
+			return created.filter( ( item ) => item.mime_type === mime ).length
+		},
+		{
+			timeout,
+			message: `Expected ${ count } new ${ mime } attachments after upload`,
+		}
+	).toBe( count )
+
+	return ( await getMediaCreatedAfter( requestUtils, afterId ) )
+		.filter( ( item ) => item.mime_type === mime )
+}
+
+/**
+ * Upload via Media → Add New file picker and wait for WebP conversion.
+ */
+export async function uploadSampleViaMediaNew(
+	page: Page,
+	requestUtils: RequestUtils,
+	filePath: string = SAMPLE_JPG,
+	mimeType: string = 'image/jpeg'
+) {
+	await page.goto( '/wp-admin/media-new.php' )
+	await waitForCimoReady( page )
+	const afterId = await getMaxMediaId( requestUtils )
+
+	const fileInput = page.locator(
+		'.media-upload-form input[type="file"], #async-upload, input[name="async-upload"]'
+	).first()
+	await expect( fileInput ).toBeAttached( { timeout: 15_000 } )
+	await fileInput.setInputFiles( filePath )
+
+	if ( mimeType.startsWith( 'image/' ) && mimeType !== 'image/webp' ) {
+		return await expectNewMediaIsWebp( requestUtils, afterId )
+	}
+
+	await expect.poll( async () => {
+		return ( await getMediaCreatedAfter( requestUtils, afterId ) ).length
+	}, { timeout: 60_000 } ).toBeGreaterThan( 0 )
+
+	return ( await getMediaCreatedAfter( requestUtils, afterId ) )[ 0 ]
+}
+
+/**
+ * Fetch a single media item (edit context includes media_details).
+ */
+export async function getMediaById(
+	requestUtils: RequestUtils,
+	id: number
+): Promise<MediaItem> {
+	return await requestUtils.rest( {
+		path: `/wp/v2/media/${ id }`,
+		params: { context: 'edit' },
+	} ) as MediaItem
+}
+
+/**
+ * Assert Cimo sidebar stats are visible in the open media modal.
+ */
+export async function expectCimoSidebarStats( page: Page ) {
+	const root = page.locator( '.media-modal .cimo-media-manager-metadata' ).first()
+	await expect( root ).toBeVisible( { timeout: 30_000 } )
+	await expect( root.locator( '.cimo-converted' ) ).toContainText( /WebP/i )
+	await expect( root.locator( '.cimo-compression-savings' ) ).toBeVisible()
+	return root
+}
+
+/**
+ * Assert the attachment edit screen meta box shows Cimo optimization data.
+ */
+export async function expectCimoMetaBox( page: Page ) {
+	const box = page.locator( '#cimo-data-meta-box' )
+	await expect( box ).toBeVisible( { timeout: 15_000 } )
+	await expect( box ).not.toContainText( /Cimo did not optimize this attachment/i )
+	await expect( box.locator( '.cimo-converted, .cimo-compression-savings' ).first() ).toBeVisible( {
+		timeout: 15_000,
+	} )
+	return box
+}
+
+/**
+ * Open an attachment in the Media Library grid modal.
+ */
+export async function openAttachmentInLibraryModal( page: Page, mediaId: number ) {
+	await page.goto( '/wp-admin/upload.php' )
+	const attachment = page.locator( `.attachment[data-id="${ mediaId }"]` )
+	await expect( attachment ).toBeVisible( { timeout: 30_000 } )
+	await attachment.click()
+	await expect( page.locator( '.media-modal' ) ).toBeVisible( { timeout: 15_000 } )
 }
