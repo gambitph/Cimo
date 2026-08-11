@@ -3,6 +3,7 @@
  * Download Elementor into e2e/fixtures/plugins/elementor.zip for the Elementor
  * Playwright suite. The zip is gitignored (*.zip); CI/local must fetch it once.
  */
+/* eslint-disable no-console */
 const fs = require( 'fs' )
 const path = require( 'path' )
 const https = require( 'https' )
@@ -23,13 +24,13 @@ console.log( `Fetching ${ URL }` )
 const file = fs.createWriteStream( OUT_FILE )
 
 https
-	.get( URL, ( response ) => {
+	.get( URL, response => {
 		if (
 			response.statusCode >= 300 &&
 			response.statusCode < 400 &&
 			response.headers.location
 		) {
-			https.get( response.headers.location, ( redirected ) => {
+			https.get( response.headers.location, redirected => {
 				redirected.pipe( file )
 			} ).on( 'error', fail )
 			return
