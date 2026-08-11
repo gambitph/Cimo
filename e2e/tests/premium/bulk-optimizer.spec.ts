@@ -13,8 +13,17 @@ async function seedUnoptimizedImages( requestUtils, count = 4 ) {
 	const files = [ SAMPLE_JPG, SAMPLE_LARGE_JPG, SAMPLE_JPG, SAMPLE_LARGE_JPG ]
 	const uploaded = []
 	for ( let i = 0; i < count; i++ ) {
-		uploaded.push( await requestUtils.uploadMedia( files[ i % files.length ] ) )
+		const media = await requestUtils.uploadMedia( files[ i % files.length ] )
+		expect( media?.id ).toBeTruthy()
+		uploaded.push( media )
 	}
+
+	const listed = await requestUtils.rest( {
+		path: '/wp/v2/media',
+		params: { per_page: 100 },
+	} ) as Array<{ id: number }>
+	expect( listed.length ).toBeGreaterThanOrEqual( count )
+
 	return uploaded
 }
 
@@ -26,11 +35,30 @@ async function waitForBulkIdle( page ) {
 	} )
 }
 
+/**
+ * Wait until BulkOptimizer finishes GET /cimo/v1/attachments.
+ * While loading, the button already says "Bulk Optimize (0)" which caused
+ * false reads of an empty library in slower CI.
+ */
+async function waitForBulkCollectionLoaded( page ) {
+	await expect(
+		page.locator( '.cimo-bulk-optimizer-progress-bar.is-loading' )
+	).toHaveCount( 0, { timeout: 60_000 } )
+	await expect(
+		page.locator( '.cimo-bulk-optimizer-progress-bar-text' )
+	).not.toContainText( '-', { timeout: 30_000 } )
+}
+
 async function readUnoptimizedCount( page ) {
+	await waitForBulkCollectionLoaded( page )
+
 	const bulkButton = page.locator( '.cimo-bulk-optimize-button' )
 	await expect( bulkButton ).toContainText( /Bulk Optimize \(\d+\)/, {
 		timeout: 30_000,
 	} )
+	// With seeded unoptimized media the button must become enabled.
+	await expect( bulkButton ).toBeEnabled( { timeout: 30_000 } )
+
 	const label = await bulkButton.innerText()
 	return Number( ( label.match( /\((\d+)\)/ ) || [] )[ 1 ] || 0 )
 }

@@ -34,8 +34,12 @@ test.describe( 'Premium settings unlocked', () => {
 
 		const bulkButton = page.locator( '.cimo-bulk-optimize-button' )
 		await expect( bulkButton ).toBeVisible( { timeout: 30_000 } )
-		await expect( bulkButton ).toContainText( /Bulk Optimize \(\d+\)/ )
+		await expect(
+			page.locator( '.cimo-bulk-optimizer-progress-bar.is-loading' )
+		).toHaveCount( 0, { timeout: 60_000 } )
+		await expect( bulkButton ).toContainText( /Bulk Optimize \([1-9]\d*\)/ )
 		await expect( bulkButton ).not.toContainText( /with Premium/i )
+		await expect( bulkButton ).toBeEnabled()
 
 		await expect(
 			page.locator( '.cimo-bulk-optimize-button-view-images' )
