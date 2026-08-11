@@ -26,7 +26,8 @@
 		"test": "npm run test:e2e",
 		"test:e2e": "playwright test",
 		"test:e2e:premium": "playwright test -c playwright.premium.config.js",
-		"test:debug": "playwright test --ui"
+		"test:debug": "playwright test --ui",
+		"test:debug:premium": "playwright test -c playwright.premium.config.js --ui"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"

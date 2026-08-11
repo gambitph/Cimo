@@ -5,6 +5,7 @@ import {
 	saveCimoOptions,
 	SAMPLE_JPG,
 	SAMPLE_LARGE_JPG,
+	SAMPLE_PNG,
 } from '../../test-utils'
 
 test.describe.configure( { timeout: 180_000 } )
@@ -63,6 +64,68 @@ async function readUnoptimizedCount( page ) {
 	return Number( ( label.match( /\((\d+)\)/ ) || [] )[ 1 ] || 0 )
 }
 
+async function openFileList( page ) {
+	const viewButton = page.locator( '.cimo-bulk-optimize-button-view-images' )
+	await expect( viewButton ).toBeEnabled( { timeout: 30_000 } )
+	const list = page.locator( '.cimo-bulk-optimizer-image-list' )
+	if ( ! await list.isVisible() ) {
+		await viewButton.click()
+	}
+	await expect( list ).toBeVisible()
+}
+
+async function selectFilterTab(
+	page,
+	tab: 'unoptimized' | 'optimized' | 'skipped'
+) {
+	const labels = {
+		unoptimized: /Unoptimized \(\d+\)/,
+		optimized: /Optimized \(\d+\)/,
+		skipped: /Skipped \(\d+\)/,
+	}
+	const tabs = page.locator( '.cimo-bulk-optimizer-image-list-tabs' )
+	const option = tabs
+		.getByRole( 'radio', { name: labels[ tab ] } )
+		.or( tabs.getByRole( 'button', { name: labels[ tab ] } ) )
+	await expect( option ).toBeVisible()
+	await option.click()
+}
+
+function attachmentRows( page, attachmentId: number ) {
+	return page.locator(
+		`.cimo-bulk-optimizer-table tr[data-attachment-id="${ attachmentId }"]`
+	)
+}
+
+function attachmentRow( page, attachmentId: number ) {
+	return attachmentRows( page, attachmentId ).first()
+}
+
+async function waitForSingleOptimizeDone( page, attachmentId: number ) {
+	// Rows leave the Unoptimized tab once optimize finishes (or skip).
+	await expect( attachmentRows( page, attachmentId ) ).toHaveCount( 0, {
+		timeout: 120_000,
+	} )
+}
+
+async function getAttachmentCimoMeta( requestUtils, attachmentId: number ) {
+	const attachments = await requestUtils.rest( {
+		path: '/cimo/v1/attachments',
+	} ) as Array<{
+		id: number
+		file: string
+		filesize: number | null
+		cimo: {
+			bulk_optimization?: Record<string, {
+				status?: string
+				originalFilesize?: number
+				convertedFilesize?: number
+			}>
+		} | null
+	}>
+	return attachments.find( ( item ) => item.id === attachmentId )
+}
+
 test.describe( 'Premium bulk optimizer', () => {
 	test.beforeEach( async ( { requestUtils } ) => {
 		await saveCimoOptions( requestUtils, {
@@ -93,8 +156,7 @@ test.describe( 'Premium bulk optimizer', () => {
 		expect( total ).toBeGreaterThanOrEqual( 4 )
 
 		const bulkButton = page.locator( '.cimo-bulk-optimize-button' )
-		await page.locator( '.cimo-bulk-optimize-button-view-images' ).click()
-		await expect( page.locator( '.cimo-bulk-optimizer-image-list' ) ).toBeVisible()
+		await openFileList( page )
 		await expect( page.getByText( new RegExp( `Unoptimized \\(${ total }\\)` ) ) ).toBeVisible()
 
 		const startedAt = Date.now()
@@ -127,8 +189,9 @@ test.describe( 'Premium bulk optimizer', () => {
 		expect( elapsedMs ).toBeLessThan( 120_000 )
 
 		await expect( progressText ).toContainText(
-			new RegExp( `${ total } of ${ total } optimized|100%`, 'i' )
+			new RegExp( `${ total } of ${ total } optimized`, 'i' )
 		)
+		await expect( progressText ).toContainText( /100%/ )
 		await expect( bulkButton ).toBeDisabled()
 		await expect( page.getByText( new RegExp( `Optimized \\(${ total }\\)` ) ) ).toBeVisible()
 		await expect( page.getByText( /Unoptimized \(0\)/ ) ).toBeVisible()
@@ -163,5 +226,203 @@ test.describe( 'Premium bulk optimizer', () => {
 			} )
 			await expect( bulkButton ).toBeDisabled()
 		}
+	} )
+
+	test( 'optimizes images one by one from the file list', async ( {
+		admin,
+		page,
+		requestUtils,
+	} ) => {
+		await seedUnoptimizedImages( requestUtils, 2 )
+		await gotoCimoSettings( admin, page )
+
+		const total = await readUnoptimizedCount( page )
+		expect( total ).toBeGreaterThanOrEqual( 2 )
+
+		const progressText = page.locator( '.cimo-bulk-optimizer-progress-bar-text' )
+		await openFileList( page )
+		await selectFilterTab( page, 'unoptimized' )
+
+		for ( let done = 0; done < total; done++ ) {
+			const optimizeButton = page.locator( '.cimo-bulk-optimizer-action-optimize' ).first()
+			await expect( optimizeButton ).toBeVisible()
+			await optimizeButton.click()
+
+			await expect.poll(
+				async () => {
+					const text = await progressText.innerText()
+					const match = text.match( /(\d+)\s+of\s+(\d+)\s+optimized/i )
+					return match ? Number( match[ 1 ] ) : 0
+				},
+				{
+					timeout: 120_000,
+					message: `Expected optimized count to reach ${ done + 1 }`,
+				}
+			).toBe( done + 1 )
+		}
+
+		await expect( progressText ).toContainText(
+			new RegExp( `${ total } of ${ total } optimized`, 'i' )
+		)
+		await expect( progressText ).toContainText( /100%/ )
+		await expect( page.getByText( /Unoptimized \(0\)/ ) ).toBeVisible()
+		await expect( page.getByText( new RegExp( `Optimized \\(${ total }\\)` ) ) ).toBeVisible()
+		await expect( page.locator( '.cimo-bulk-optimize-button' ) ).toBeDisabled()
+	} )
+
+	test( 'search filters the file list by name', async ( {
+		admin,
+		page,
+		requestUtils,
+	} ) => {
+		const jpg = await requestUtils.uploadMedia( SAMPLE_JPG )
+		const large = await requestUtils.uploadMedia( SAMPLE_LARGE_JPG )
+		expect( jpg?.id ).toBeTruthy()
+		expect( large?.id ).toBeTruthy()
+
+		await gotoCimoSettings( admin, page )
+		await readUnoptimizedCount( page )
+		await openFileList( page )
+		await selectFilterTab( page, 'unoptimized' )
+
+		await expect( attachmentRow( page, jpg.id ) ).toBeVisible()
+		await expect( attachmentRow( page, large.id ) ).toBeVisible()
+
+		const search = page.getByPlaceholder( /Search by file name/i )
+		await search.fill( 'sample-large' )
+
+		await expect( attachmentRow( page, large.id ) ).toBeVisible()
+		await expect( attachmentRows( page, jpg.id ) ).toHaveCount( 0 )
+		await expect(
+			page.locator( '.cimo-bulk-optimizer-table tbody tr' )
+		).toHaveCount( 1 )
+		await expect(
+			attachmentRow( page, large.id ).locator( '.cimo-bulk-optimizer-filename-text' )
+		).toContainText( /sample-large/i )
+
+		await search.fill( '' )
+		await expect( attachmentRow( page, jpg.id ) ).toBeVisible()
+		await expect( attachmentRow( page, large.id ) ).toBeVisible()
+	} )
+
+	test( 'restore returns an optimized image to the original', async ( {
+		admin,
+		page,
+		requestUtils,
+	} ) => {
+		const [ media ] = await seedUnoptimizedImages( requestUtils, 1 )
+		const attachmentId = media.id as number
+
+		const before = await getAttachmentCimoMeta( requestUtils, attachmentId )
+		expect( before ).toBeTruthy()
+		const originalFile = before!.file
+		const originalFilesize = before!.filesize
+
+		await gotoCimoSettings( admin, page )
+		await readUnoptimizedCount( page )
+		await openFileList( page )
+		await selectFilterTab( page, 'unoptimized' )
+
+		const row = attachmentRow( page, attachmentId )
+		await row.locator( '.cimo-bulk-optimizer-action-optimize' ).click()
+		await waitForSingleOptimizeDone( page, attachmentId )
+
+		await selectFilterTab( page, 'optimized' )
+		const optimizedRow = attachmentRow( page, attachmentId )
+		await expect( optimizedRow ).toBeVisible()
+		await expect(
+			optimizedRow.locator( '.cimo-bulk-optimizer-action-restore' )
+		).toBeVisible()
+
+		const afterOptimize = await getAttachmentCimoMeta( requestUtils, attachmentId )
+		expect( afterOptimize?.cimo?.bulk_optimization?.full?.status ).toBe( 'bulk' )
+
+		await optimizedRow.locator( '.cimo-bulk-optimizer-action-restore' ).click()
+		await expect( attachmentRows( page, attachmentId ) ).toHaveCount( 0, {
+			timeout: 60_000,
+		} )
+
+		await selectFilterTab( page, 'unoptimized' )
+		const restoredRow = attachmentRow( page, attachmentId )
+		await expect( restoredRow ).toBeVisible()
+		await expect(
+			restoredRow.locator( '.cimo-bulk-optimizer-action-optimize' )
+		).toBeVisible()
+		await expect(
+			restoredRow.locator( '.cimo-bulk-optimizer-action-restore' )
+		).toHaveCount( 0 )
+
+		const afterRestore = await getAttachmentCimoMeta( requestUtils, attachmentId )
+		expect( afterRestore?.cimo?.bulk_optimization?.full ).toBeUndefined()
+		expect( afterRestore?.file ).toBe( originalFile )
+		if ( originalFilesize != null ) {
+			expect( afterRestore?.filesize ).toBe( originalFilesize )
+		}
+
+		await expect( page.getByText( /Unoptimized \(1\)/ ) ).toBeVisible()
+		await expect( page.getByText( /Optimized \(0\)/ ) ).toBeVisible()
+		await expect( page.locator( '.cimo-bulk-optimize-button' ) ).toBeEnabled()
+	} )
+
+	test( 'unoptimized, optimized, and skipped filters work', async ( {
+		admin,
+		page,
+		requestUtils,
+	} ) => {
+		const jpg = await requestUtils.uploadMedia( SAMPLE_JPG )
+		const large = await requestUtils.uploadMedia( SAMPLE_LARGE_JPG )
+		const png = await requestUtils.uploadMedia( SAMPLE_PNG )
+		expect( jpg?.id && large?.id && png?.id ).toBeTruthy()
+
+		await gotoCimoSettings( admin, page )
+		const total = await readUnoptimizedCount( page )
+		expect( total ).toBeGreaterThanOrEqual( 3 )
+
+		await openFileList( page )
+		await selectFilterTab( page, 'unoptimized' )
+		await expect( attachmentRow( page, jpg.id ) ).toBeVisible()
+		await expect( attachmentRow( page, large.id ) ).toBeVisible()
+		await expect( attachmentRow( page, png.id ) ).toBeVisible()
+
+		// Skip one manually.
+		await attachmentRow( page, png.id )
+			.locator( '.cimo-bulk-optimizer-action-skip' )
+			.click()
+		await expect( attachmentRows( page, png.id ) ).toHaveCount( 0 )
+		await expect( page.getByText( /Skipped \(1\)/ ) ).toBeVisible()
+
+		await selectFilterTab( page, 'skipped' )
+		await expect( attachmentRow( page, png.id ) ).toBeVisible()
+		await expect( attachmentRows( page, jpg.id ) ).toHaveCount( 0 )
+		await expect(
+			attachmentRow( page, png.id ).locator( '.cimo-bulk-optimizer-skip-reason' )
+		).toContainText( /Skipped manually/i )
+
+		// Optimize one from the unoptimized list.
+		await selectFilterTab( page, 'unoptimized' )
+		await attachmentRow( page, jpg.id )
+			.locator( '.cimo-bulk-optimizer-action-optimize' )
+			.click()
+		await waitForSingleOptimizeDone( page, jpg.id )
+
+		await expect( page.getByText( /Optimized \(1\)/ ) ).toBeVisible()
+
+		await selectFilterTab( page, 'optimized' )
+		await expect( attachmentRow( page, jpg.id ) ).toBeVisible()
+		await expect( attachmentRows( page, large.id ) ).toHaveCount( 0 )
+		await expect( attachmentRows( page, png.id ) ).toHaveCount( 0 )
+		await expect(
+			attachmentRow( page, jpg.id ).locator( '.cimo-bulk-optimizer-action-restore' )
+		).toBeVisible()
+
+		await selectFilterTab( page, 'unoptimized' )
+		await expect( attachmentRow( page, large.id ) ).toBeVisible()
+		await expect( attachmentRows( page, jpg.id ) ).toHaveCount( 0 )
+		await expect( attachmentRows( page, png.id ) ).toHaveCount( 0 )
+
+		await selectFilterTab( page, 'skipped' )
+		await expect( attachmentRow( page, png.id ) ).toBeVisible()
+		await expect( attachmentRows( page, jpg.id ) ).toHaveCount( 0 )
+		await expect( attachmentRows( page, large.id ) ).toHaveCount( 0 )
 	} )
 } )

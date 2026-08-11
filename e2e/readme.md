@@ -49,6 +49,12 @@ npm run build:e2e:premium
 npm run test:e2e:premium
 ```
 
+or with the Playwright UI:
+
+```bash
+npm run test:debug:premium
+```
+
 Premium uses port `9411`, `playwright.premium.config.js`, and
 `e2e/playground-blueprint.premium.json` (seeds a mock Freemius `premium` plan).
 
@@ -103,7 +109,7 @@ WP_PASSWORD=password
 | Surface | Flow |
 |---------|------|
 | Settings | Gated controls enabled; working bulk UI (not upsell) |
-| Bulk optimizer | Progress, complete 4 images under timeout, stop mid-run |
+| Bulk optimizer | Progress to 100%, stop mid-run, one-by-one optimize, search, restore to original, unoptimized/optimized/skipped filters |
 
 ## Files
 
@@ -129,6 +135,7 @@ WP_PASSWORD=password
   `npm run build:e2e` (or `build:e2e:premium`) so `build/admin/` exists for enqueue.
 - **Premium suite missing Bulk Optimizer** — ensure `pro__premium_only/` is present,
   `CIMO_BUILD` is `premium`, and the Freemius seed in the premium blueprint applied.
+  Kill any stale Playground on port `9411` so the blueprint re-runs.
 
 ## Dev Notes
 
