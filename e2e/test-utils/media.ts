@@ -3,8 +3,7 @@ import path from 'path'
 
 import type { Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
-
-import type { ExtendedRequestUtils } from './requestUtils'
+import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright'
 
 /** JPEG fixture used by upload interception tests. */
 export const SAMPLE_JPG = path.resolve( __dirname, '../fixtures/sample.jpg' )
@@ -53,6 +52,29 @@ export async function waitForCimoReady( page: Page ) {
 }
 
 /**
+ * Dismiss leftover Gutenberg inserter / starter-pattern modals that can
+ * intercept clicks on the image block placeholder (common on WordPress
+ * "latest" in Playground).
+ */
+export async function dismissEditorOverlays( page: Page ) {
+	for ( let i = 0; i < 4; i++ ) {
+		const patternDialog = page.getByRole( 'dialog', { name: /Choose a pattern/i } )
+		if ( await patternDialog.isVisible().catch( () => false ) ) {
+			await patternDialog.getByRole( 'button', { name: 'Close' } ).click()
+			await patternDialog.waitFor( { state: 'hidden', timeout: 5_000 } ).catch( () => {} )
+			continue
+		}
+
+		const overlay = page.locator( '.components-modal__screen-overlay' )
+		if ( ! await overlay.count() ) {
+			break
+		}
+		await page.keyboard.press( 'Escape' )
+		await overlay.first().waitFor( { state: 'hidden', timeout: 3_000 } ).catch( () => {} )
+	}
+}
+
+/**
  * Wait until drop/select listeners are attached inside the block editor iframe.
  */
 export async function waitForCimoEditorIframeReady( page: Page ) {
@@ -69,11 +91,69 @@ export async function waitForCimoEditorIframeReady( page: Page ) {
 	}, undefined, { timeout: 30_000 } )
 }
 
+type MediaItem = {
+	id: number;
+	mime_type: string;
+	source_url: string;
+}
+
+/**
+ * List media newest-first (id desc).
+ */
+export async function listMediaNewestFirst(
+	requestUtils: RequestUtils
+): Promise<MediaItem[]> {
+	return await requestUtils.rest( {
+		path: '/wp/v2/media',
+		params: {
+			per_page: 100,
+			orderby: 'id',
+			order: 'desc',
+		},
+	} ) as MediaItem[]
+}
+
+/**
+ * Highest media attachment ID currently in the library (0 if empty).
+ */
+export async function getMaxMediaId( requestUtils: RequestUtils ): Promise<number> {
+	const media = await listMediaNewestFirst( requestUtils )
+	if ( ! media.length ) {
+		return 0
+	}
+	return media[ 0 ].id
+}
+
+/**
+ * Newest media items created after `afterId`.
+ */
+export async function getMediaCreatedAfter(
+	requestUtils: RequestUtils,
+	afterId: number
+): Promise<MediaItem[]> {
+	const media = await listMediaNewestFirst( requestUtils )
+	return media.filter( ( item ) => item.id > afterId )
+}
+
+/**
+ * Force-delete a page by REST ID.
+ * (`RequestUtils` in this package version has createPage but not deletePage.)
+ */
+export async function deletePage( requestUtils: RequestUtils, pageId: number ) {
+	await requestUtils.rest( {
+		method: 'DELETE',
+		path: `/wp/v2/pages/${ pageId }`,
+		params: {
+			force: true,
+		},
+	} )
+}
+
 /**
  * Assert that a new media item was uploaded as WebP after `afterId`.
  */
 export async function expectNewMediaIsWebp(
-	requestUtils: ExtendedRequestUtils,
+	requestUtils: RequestUtils,
 	afterId: number,
 	options: { timeout?: number } = {}
 ) {
@@ -81,7 +161,7 @@ export async function expectNewMediaIsWebp(
 
 	await expect.poll(
 		async () => {
-			const created = await requestUtils.getMediaCreatedAfter( afterId )
+			const created = await getMediaCreatedAfter( requestUtils, afterId )
 			if ( ! created.length ) {
 				return null
 			}
@@ -89,7 +169,7 @@ export async function expectNewMediaIsWebp(
 			return {
 				id: newest.id,
 				mime: newest.mime_type,
-				url: newest.source_url as string,
+				url: newest.source_url,
 			}
 		},
 		{ timeout, message: 'Expected a new WebP media attachment after upload' }
@@ -97,7 +177,7 @@ export async function expectNewMediaIsWebp(
 		mime: 'image/webp',
 	} )
 
-	const created = await requestUtils.getMediaCreatedAfter( afterId )
+	const created = await getMediaCreatedAfter( requestUtils, afterId )
 	const newest = created[ 0 ]
 	expect( newest.source_url ).toMatch( /\.webp(\?|$)/i )
 	return newest

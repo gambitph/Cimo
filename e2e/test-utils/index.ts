@@ -1,9 +1,12 @@
 export { test, expect } from './test'
-export { ExtendedRequestUtils } from './requestUtils'
 export {
 	SAMPLE_JPG,
 	dropFile,
 	waitForCimoReady,
 	waitForCimoEditorIframeReady,
+	dismissEditorOverlays,
+	getMaxMediaId,
+	getMediaCreatedAfter,
+	deletePage,
 	expectNewMediaIsWebp,
 } from './media'

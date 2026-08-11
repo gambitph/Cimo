@@ -50,8 +50,8 @@ Roadmap / version targeting: [org project #12](https://github.com/orgs/gambitph/
 
 ### Testing
 
-Playwright for UI / e2e (`e2e/`, `@wordpress/env`).
-Run with `npm test` (or `npm run test:debug` for the UI).
+Playwright for UI / e2e (`e2e/`, `@wp-playground/cli` — no Docker).
+Run with `npm run test:e2e` (or `npm run test:debug` for the UI) after `npm run build:e2e`.
 See [`e2e/readme.md`](./e2e/readme.md).
 There is no PHPUnit suite today - prefer Playwright for regressions that matter to upload and settings flows.
 

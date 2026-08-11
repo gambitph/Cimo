@@ -22,8 +22,9 @@
 		"format": "wp-scripts format",
 		"package": "node scripts/package.js ${npm_config_suffix}",
 		"sync-version": "node scripts/sync-version.js",
-		"test": "npx playwright test --config e2e/playwright.config.ts",
-		"test:debug": "npx playwright test --config e2e/playwright.config.ts --ui"
+		"test": "npm run test:e2e",
+		"test:e2e": "playwright test",
+		"test:debug": "playwright test --ui"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -32,13 +33,12 @@
 		"@playwright/test": "^1.61.1",
 		"@types/node": "^20.19.43",
 		"@wordpress/e2e-test-utils-playwright": "^1.51.0",
-		"@wordpress/env": "^10.39.0",
 		"@wordpress/eslint-plugin": "^22.15.0",
 		"@wordpress/prettier-config": "^4.29.0",
 		"@wordpress/scripts": "^30.0.0",
 		"@wordpress/stylelint-config": "^23.21.0",
+		"@wp-playground/cli": "^3.1.49",
 		"archiver": "^6.0.1",
-		"dotenv": "^16.6.1",
 		"eslint": "^8.57.0",
 		"eslint-plugin-compat": "^6.0.2",
 		"prettier": "^3.3.3"

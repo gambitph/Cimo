@@ -5,13 +5,16 @@ import {
 	dropFile,
 	waitForCimoReady,
 	waitForCimoEditorIframeReady,
+	dismissEditorOverlays,
+	getMaxMediaId,
+	deletePage,
 	expectNewMediaIsWebp,
-} from 'e2e/test-utils'
+} from '../test-utils'
 
 test.describe.configure( { timeout: 120_000 } )
 
 test.describe( 'Upload interception (JPG → WebP)', () => {
-	let pageId: string | null = null
+	let pageId: number | null = null
 
 	test.beforeEach( async ( { requestUtils } ) => {
 		await requestUtils.deleteAllMedia()
@@ -19,21 +22,39 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 
 	test.afterEach( async ( { requestUtils } ) => {
 		if ( pageId ) {
-			await requestUtils.deletePost( pageId, 'pages' )
+			await deletePage( requestUtils, pageId )
 			pageId = null
 		}
 		await requestUtils.deleteAllMedia()
 	} )
 
-	async function openNewPage( admin, editor, page ) {
-		await admin.createNewPost( {
-			postType: 'page',
+	/**
+	 * Seed a draft page via REST, then open it in the editor.
+	 * Avoids `editor.saveDraft()`'s brittle "Draft saved" notice wait, which
+	 * flakes on current Gutenberg + Playground.
+	 */
+	async function openNewPage( admin, editor, page, requestUtils ) {
+		// Seed a non-empty block so Gutenberg does not open the "Choose a pattern"
+		// starter modal (empty drafts / empty paragraphs still count as empty).
+		const draft = await requestUtils.createPage( {
 			title: 'Cimo Upload E2E',
-			showWelcomeGuide: false,
+			status: 'draft',
+			content: '<!-- wp:paragraph --><p>Cimo e2e</p><!-- /wp:paragraph -->',
 		} )
-		await editor.saveDraft()
-		const postQuery = new URL( editor.page.url() ).search
-		pageId = new URLSearchParams( postQuery ).get( 'post' )
+		pageId = draft.id
+
+		await admin.visitAdminPage(
+			'post.php',
+			`post=${ pageId }&action=edit`
+		)
+		await editor.setPreferences( 'core/edit-post', {
+			welcomeGuide: false,
+			fullscreenMode: false,
+		} )
+		await editor.setPreferences( 'core', {
+			enableChoosePatternModal: false,
+		} )
+		await dismissEditorOverlays( page )
 		await waitForCimoReady( page )
 		await waitForCimoEditorIframeReady( page )
 	}
@@ -44,10 +65,11 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		page,
 		requestUtils,
 	} ) => {
-		await openNewPage( admin, editor, page )
-		const afterId = await requestUtils.getMaxMediaId()
+		await openNewPage( admin, editor, page, requestUtils )
+		const afterId = await getMaxMediaId( requestUtils )
 
 		await editor.insertBlock( { name: 'core/image' } )
+		await dismissEditorOverlays( page )
 
 		const fileInput = editor.canvas.locator(
 			'.components-form-file-upload input[type="file"]'
@@ -67,10 +89,11 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		page,
 		requestUtils,
 	} ) => {
-		await openNewPage( admin, editor, page )
-		const afterId = await requestUtils.getMaxMediaId()
+		await openNewPage( admin, editor, page, requestUtils )
+		const afterId = await getMaxMediaId( requestUtils )
 
 		await editor.insertBlock( { name: 'core/image' } )
+		await dismissEditorOverlays( page )
 		await editor.canvas.getByRole( 'button', { name: 'Media Library' } ).click()
 
 		const modal = page.locator( '.media-modal' )
@@ -127,8 +150,8 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		page,
 		requestUtils,
 	} ) => {
-		await openNewPage( admin, editor, page )
-		const afterId = await requestUtils.getMaxMediaId()
+		await openNewPage( admin, editor, page, requestUtils )
+		const afterId = await getMaxMediaId( requestUtils )
 
 		const canvas = editor.canvas.locator( '.editor-styles-wrapper' )
 		await expect( canvas ).toBeVisible( { timeout: 15_000 } )
@@ -146,8 +169,8 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		page,
 		requestUtils,
 	} ) => {
-		await openNewPage( admin, editor, page )
-		const afterId = await requestUtils.getMaxMediaId()
+		await openNewPage( admin, editor, page, requestUtils )
+		const afterId = await getMaxMediaId( requestUtils )
 
 		// Open the Page / Document sidebar (featured image lives there).
 		// Skip clicking tabs that are already selected — Playwright can hang
@@ -207,7 +230,7 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 	} ) => {
 		await page.goto( '/wp-admin/media-new.php' )
 		await waitForCimoReady( page )
-		const afterId = await requestUtils.getMaxMediaId()
+		const afterId = await getMaxMediaId( requestUtils )
 
 		const fileInput = page.locator(
 			'.media-upload-form input[type="file"], #async-upload, input[name="async-upload"]'
