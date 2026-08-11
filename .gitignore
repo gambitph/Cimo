@@ -30,4 +30,12 @@ src/**/*.map
 ehthumbs.db
 Thumbs.db
 
+# Playwright / e2e
+wp-auth.json
+e2e/.auth/
+playwright-report/
+test-results/
+blob-report/
+.playwright-browsers/
+
 pro__premium_only/
