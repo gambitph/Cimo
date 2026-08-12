@@ -4,15 +4,21 @@
 
 | Kind | Where |
 | --- | --- |
-| Product overview | [`README.md`](./README.md) |
+| Glossary | [`CONTEXT.md`](./CONTEXT.md) |
+| Product PRDs (should) | [`docs/prd/README.md`](./docs/prd/README.md) |
+| Premium PRDs (should) | [`pro__premium_only/docs/prd/README.md`](./pro__premium_only/docs/prd/README.md) |
+| Subsystem contracts | Colocated `CONTRACT.md` (see PRD index) |
+| Architecture map | [`docs/architecture.md`](./docs/architecture.md) |
+| ADRs | [`docs/adr/`](./docs/adr/) |
 | Build / packaging | [`BUILD.md`](./BUILD.md) |
-| Media upload notes | [`DEVELOPMENT.md`](./DEVELOPMENT.md) |
 | E2E harness | [`e2e/readme.md`](./e2e/readme.md) |
 | Release roadmap | [GitHub Project #12](https://github.com/orgs/gambitph/projects/12/views/1) |
 | Free / premium repos | [`.cursor/rules/cimo-project-repos.mdc`](./.cursor/rules/cimo-project-repos.mdc) |
 
-When code and docs disagree: **user-visible behaviour and WordPress.org constraints win**.
-How-it-works notes under `DEVELOPMENT.md` and `src/admin/README.md` map current implementation.
+When code and docs disagree: **PRD/contract win** (WordPress.org / Plugin Check constraints still apply to free packaging).
+How-it-works maps (colocated `*.md`, plus older notes like `DEVELOPMENT.md` / `src/admin/README.md`) describe current machinery only - they must not invent product law.
+
+Changing a deep-module **interface** requires updating the PRD/contract and tests in the same change.
 
 ## General guidelines
 
