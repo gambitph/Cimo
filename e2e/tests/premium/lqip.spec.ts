@@ -35,6 +35,7 @@ test.describe( 'Premium LQIP', () => {
 			lqip_enabled: 0,
 			disable_thumbnail_generation: 0,
 			max_image_dimension: 0,
+			smart_optimization: 1,
 		} )
 	} )
 

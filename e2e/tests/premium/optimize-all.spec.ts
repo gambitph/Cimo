@@ -33,6 +33,7 @@ test.describe( 'Premium optimize all media uploads', () => {
 		await saveCimoOptions( requestUtils, {
 			optimize_all_media: 0,
 			disable_thumbnail_generation: 0,
+			smart_optimization: 1,
 		} )
 	} )
 
