@@ -16,6 +16,7 @@ If no tests are discovered, do not invent a stack - note it and continue unless 
 ## Test-quality rule (anti-slop)
 
 This is the test-stage half of the anti-slop gate (`reference/anti-slop.md`).
+The review stage also flags **newly added** source-grep-only tests in the changed scope; this stage owns rewrite/fix of those findings.
 
 Never add a test whose only evidence is that it opens, reads, greps, parses, or snapshots implementation source and finds or omits particular strings, tokens, function names, prompt phrases, or incidental snapshots.
 That does not prove behavior - matching text can be dead code, and a behaviour-preserving refactor can change it.

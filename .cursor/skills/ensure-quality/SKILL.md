@@ -1,9 +1,10 @@
 ---
 name: ensure-quality
 description: >-
-  Local quality gate and anti-AI-slop check for the current worktree: review
-  (standards, spec, anti-slop), test, document, lint, with mechanical auto-fix
-  and HITL for ask-user findings, then a ship-readiness summary.
+  Local quality gate for the current worktree: review for risk/correctness
+  (break, leak, undo intent), standards, spec, and anti-slop; then test,
+  document, lint. Mechanical one-liner auto-fix and HITL for ask-user
+  findings; ship-readiness summary.
   Use when the user asks to ensure quality, run the quality gate, validate before
   commit, or gate changes; after finishing substantive or AI-generated code
   changes; and always before the agent commits.
@@ -11,9 +12,9 @@ description: >-
 
 # Ensure quality
 
-Inner-loop quality gate and **anti-AI-slop** check.
+Inner-loop quality gate: **risk/correctness** review plus **anti-AI-slop**.
+Asks whether the change will **break, leak, or silently undo what the user wanted**, and catches parallel structure, hand-synced catalogues, phantom names, and other common agent failure modes early.
 Moves review, test, docs, and lint closer to the work before it leaves the machine.
-Catches parallel structure, hand-synced catalogues, phantom names, and other common agent failure modes early.
 No daemon, no second worktree, no push/PR - this skill *is* the gate.
 
 Self-contained: everything needed lives under this skill folder.
@@ -36,7 +37,7 @@ Skip auto-invoke for pure Q&A, exploration with no edits, or when the user said 
 
 ## Preconditions
 
-1. **Synthesize intent.** Capture what the user set out to accomplish - goal, constraints, tradeoffs, ruled-in/out approaches - in their terms, enriched with decisions you made while working. A thin "fixed stuff" line is not enough; rewrite from conversation context first.
+1. **Synthesize intent.** Capture what the user set out to accomplish - goal, constraints, tradeoffs, ruled-in/out approaches - in their terms, enriched with decisions you made while working. A thin "fixed stuff" line is not enough; rewrite from conversation context first. This intent is **authoritative acceptance criteria** for the review stage.
 2. **Discover the project.** Follow `reference/discover.md`. Record the chosen test commands, lint commands, standards sources, anti-slop / maintainability docs, checklists, and doc surfaces for this run.
 3. **Pin the fixed point.** Default: merge-base of the current `HEAD` (and dirty worktree) against the first existing of: upstream tracking remote's default branch, then `origin/develop`, `origin/main`, `origin/master`, then local `develop` / `main` / `master`. Honor an explicit user override (`since abc123`, `origin/main`, …). Confirm the ref resolves.
 4. **Scope the diff.** Include committed commits since the fixed point *and* uncommitted/staged work. Warn if on a default branch; still proceed.
@@ -50,7 +51,9 @@ For each stage in order:
 
 1. Read `stages/<stage>.md` and run it.
 2. Collect **findings** using the taxonomy in `reference/findings.md`.
-3. **Auto-fix** every `auto-fix` finding (mechanical, low-risk) without asking. Re-run the stage after fixes. Cap at **2** auto-fix rounds for that stage; leftover findings escalate to HITL.
+3. **Auto-fix** every `auto-fix` finding without asking, then re-run the stage. Cap at **2** auto-fix rounds for that stage; leftover findings escalate to HITL.
+   - **Review stage:** `auto-fix` is **mechanical one-liners only**. After any review fix, follow the root-cause fixer rules and **adversarial re-review** in `stages/review.md` (treat fixer output as untrusted new code).
+   - **Test / document / lint:** mechanical/low-risk auto-fix as each stage file allows.
 4. If any `ask-user` findings remain, **pause** - see [HITL pause](#hitl-pause). Do not start the next stage until the pause resolves.
 5. `no-op` findings are reported only; nothing to do.
 6. If the stage stays red after rounds / declined fixes, go to [Blocked](#blocked).
@@ -61,6 +64,7 @@ Leave all quality fixes **uncommitted** unless the user already asked you to com
 
 Batch every current-stage `ask-user` finding in one message.
 Present each like a grill round - question, options, recommendation - then wait.
+When review recorded `risk_level: high`, prefer recommending careful `fix` over casual `approve`/`skip`.
 
 ```
 ⏸ **Quality gate - <stage>** (<n> ask-user findings)
@@ -77,6 +81,7 @@ Options:
 ```
 
 Translate the user's answers into actions, apply agreed fixes, re-run the stage, then continue.
+For review-stage fixes agreed in HITL, still apply fixer discipline and adversarial re-review from `stages/review.md`.
 Do not paraphrase away finding detail.
 Do not continue past unresolved `ask-user` findings.
 
@@ -94,9 +99,9 @@ Do not silently skip the failing stage.
 Always end a completed or blocked run with this fixed brief (this order):
 
 1. **Intent** - short paragraph
-2. **Risk** - Low / Med / High + one sentence why
+2. **Risk** - Low / Med / High + one sentence why (use the review-stage risk assessment when review ran)
 3. **Diff scope** - fixed point → worktree; key files
-4. **Findings** - counts by stage; call out anti-slop hits; auto-fixed vs HITL vs accepted vs remaining
+4. **Findings** - counts by stage; call out risk-lens and anti-slop hits; auto-fixed vs HITL vs accepted vs remaining
 5. **Tests run** - commands + pass/fail; note skipped suites and why
 6. **Docs** - updated / checked / none needed
 7. **Lint** - commands + result

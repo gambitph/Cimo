@@ -70,13 +70,17 @@ Use only as a lens for anti-layering findings - not a full redesign mandate insi
 
 ## Classification hints
 
+Review (and all stages) follow mechanical one-liner `auto-fix` in `reference/findings.md`.
+Default to `ask-user` for anti-slop unless the edit is truly a one-liner.
+
 | Pattern | Typical action |
 | --- | --- |
-| Phantom name in prompt/docs; one-line remove or catalog wire-up already obvious | `auto-fix` if tiny and intent-aligned; else `ask-user` |
-| Hand-synced sibling list clearly derivable | `ask-user` unless a one-line derive is obvious |
+| Phantom name in prompt/docs; one-line remove of a stray mention | `auto-fix` only if a pure one-liner and intent-aligned; else `ask-user` |
+| Phantom name needing catalog wire-up or multi-file sync | `ask-user` |
+| Hand-synced sibling list clearly derivable | `ask-user` (re-derive / checklist pass is not a one-liner) |
 | New parallel registry / twin API / shadow state store | `ask-user` (product/architecture) |
-| nth copy-paste of existing boilerplate | `ask-user` if extract is non-trivial; `auto-fix` if helper already exists and call-site swap is mechanical |
-| Speculative abstraction unused by intent | `ask-user` or `auto-fix` delete when clearly dead in this diff |
-| Source-grep-only test added in diff | treat under test stage; often `ask-user` rewrite |
+| nth copy-paste of existing boilerplate | `ask-user` if extract is needed; `auto-fix` only for a trivial call-site swap onto an **already existing** helper |
+| Speculative abstraction unused by intent | `ask-user` (even if deletion looks clean) |
+| Source-grep-only test added in diff | flag in review; rewrite usually `ask-user` in test stage |
 
 When unsure, choose **`ask-user`**.
