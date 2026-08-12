@@ -3,11 +3,23 @@ import {
 	expect,
 	gotoCimoSettings,
 	SAMPLE_JPG,
+	saveCimoOptions,
 } from '../../test-utils'
 
 test.describe.configure( { timeout: 120_000 } )
 
 test.describe( 'Premium settings unlocked', () => {
+	test.beforeEach( async ( { requestUtils } ) => {
+		// Prior premium specs often leave smart_optimization off; restore defaults
+		// so this smoke test asserts the true premium out-of-box settings.
+		await saveCimoOptions( requestUtils, {
+			smart_optimization: 1,
+			optimize_all_media: 0,
+			show_optimization_toggle: 0,
+			stealth_mode_enabled: 0,
+		} )
+	} )
+
 	test( 'premium build enables gated controls and working bulk UI', async ( {
 		admin,
 		page,

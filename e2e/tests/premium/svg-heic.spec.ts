@@ -34,6 +34,7 @@ test.describe( 'Premium SVG and HEIC uploads', () => {
 		await saveCimoOptions( requestUtils, {
 			svg_upload: 0,
 			disable_thumbnail_generation: 0,
+			smart_optimization: 1,
 		} )
 	} )
 
@@ -78,7 +79,10 @@ test.describe( 'Premium SVG and HEIC uploads', () => {
 			page,
 			requestUtils,
 			SAMPLE_HEIC,
-			'image/heic'
+			'image/heic',
+			// heic2any ships a ~1.3MB WASM worker; cold load on CI regularly
+			// exceeds the default 60s media poll window.
+			{ timeout: 180_000 }
 		)
 		expect( media.mime_type ).toBe( 'image/webp' )
 		expect( media.source_url ).toMatch( /\.webp(\?|$)/i )

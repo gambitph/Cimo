@@ -224,19 +224,19 @@ export async function expectNewMediaMime(
 		async () => {
 			const created = await getMediaCreatedAfter( requestUtils, afterId )
 			if ( ! created.length ) {
-				return null
+				return 'none'
 			}
 			const mimeType = created[ 0 ].mime_type
 			if ( mime instanceof RegExp ) {
-				return mime.test( mimeType ) ? mimeType : null
+				return mime.test( mimeType ) ? mimeType : `unexpected:${ mimeType }`
 			}
-			return mimeType === mime ? mimeType : null
+			return mimeType === mime ? mimeType : `unexpected:${ mimeType }`
 		},
 		{
 			timeout,
 			message: `Expected a new ${ mimeLabel } media attachment after upload`,
 		}
-	).not.toBeNull()
+	).toMatch( mime instanceof RegExp ? mime : new RegExp( `^${ mime.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) }$` ) )
 
 	const created = await getMediaCreatedAfter( requestUtils, afterId )
 	const newest = created[ 0 ]
@@ -316,7 +316,11 @@ export async function uploadSampleViaMediaNew(
 		'.media-upload-form input[type="file"], #async-upload, input[name="async-upload"]'
 	).first()
 	await expect( fileInput ).toBeAttached( { timeout: 15_000 } )
-	await fileInput.setInputFiles( filePath )
+	await fileInput.setInputFiles( {
+		name: path.basename( filePath ),
+		mimeType,
+		buffer: fs.readFileSync( filePath ),
+	} )
 
 	if ( options.expectedMime ) {
 		return await expectNewMediaMime(
