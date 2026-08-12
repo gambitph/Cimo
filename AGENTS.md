@@ -69,6 +69,8 @@ There is no PHPUnit suite today - prefer Playwright for regressions that matter 
 Local review (incl. anti-slop) → test → document → lint before commit / after substantive or AI-generated changes.
 Skill: `.cursor/skills/ensure-quality/` (project-agnostic; loads this repo's anti-slop rules via discovery).
 
+When shipping to a pull request after that gate (commit + triage PR: `LOW_RISK_MERGE` / `MEDIUM_REVIEW` / `HIGH_HOLD`): `.cursor/skills/to-quality-pr/` (runs ensure-quality first; prefer over opening a PR without a quality gate).
+
 ## Free / premium
 
 Agent workflow files (`AGENTS.md`, `.cursor/rules/`, `.cursor/skills/`) live in the **free** repo root so they apply to main plugin work and premium work checked out under `pro__premium_only/`.

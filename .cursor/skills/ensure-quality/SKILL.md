@@ -8,6 +8,7 @@ description: >-
   Use when the user asks to ensure quality, run the quality gate, validate before
   commit, or gate changes; after finishing substantive or AI-generated code
   changes; and always before the agent commits.
+  For commit plus pull request, use to-quality-pr instead (it runs this gate first).
 ---
 
 # Ensure quality
@@ -16,6 +17,7 @@ Inner-loop quality gate: **risk/correctness** review plus **anti-AI-slop**.
 Asks whether the change will **break, leak, or silently undo what the user wanted**, and catches parallel structure, hand-synced catalogues, phantom names, and other common agent failure modes early.
 Moves review, test, docs, and lint closer to the work before it leaves the machine.
 No daemon, no second worktree, no push/PR - this skill *is* the gate.
+To gate then commit and open a triage PR, use [`to-quality-pr`](../to-quality-pr/SKILL.md).
 
 Self-contained: everything needed lives under this skill folder.
 Project-agnostic: discover how *this* repo tests, lints, documents, and states maintainability rules - do not assume a stack.
@@ -31,7 +33,7 @@ Fire this skill when any of these hold:
 
 - The user asks to ensure quality / validate / gate / check before commit.
 - You just finished substantive source changes (feature, fix, refactor).
-- You are about to create a git commit.
+- You are about to create a git commit (local only). If the next step is also a pull request, invoke `to-quality-pr` instead.
 
 Skip auto-invoke for pure Q&A, exploration with no edits, or when the user said to keep iterating without gating.
 
