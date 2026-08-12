@@ -29,6 +29,7 @@ test.describe( 'Premium stealth mode', () => {
 			stealth_mode_enabled: 0,
 			show_optimization_toggle: 0,
 			disable_thumbnail_generation: 0,
+			smart_optimization: 1,
 		} )
 	} )
 

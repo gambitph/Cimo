@@ -49,6 +49,7 @@ test.describe( 'Premium optimization toggle', () => {
 			show_optimization_toggle: 0,
 			persist_optimization_toggle: 0,
 			disable_thumbnail_generation: 0,
+			smart_optimization: 1,
 		} )
 	} )
 
