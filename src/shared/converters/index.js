@@ -37,6 +37,11 @@ export const getFileConverter = _file => {
 		)
 	}
 
+	const skipWebpOptimization = String( window.cimoSettings?.skipWebpOptimization ?? '0' ) === '1'
+	if ( skipWebpOptimization && file.type.toLowerCase() === 'image/webp' ) {
+		return new NullConverter( file )
+	}
+
 	if ( file.type.startsWith( 'image/' ) ) {
 		const max = parseFloat( window.cimoSettings?.maxImageDimension || 0 )
 		const wp = parseFloat( window.cimoSettings?.wpScalingThreshold || 0 )

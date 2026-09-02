@@ -32,6 +32,7 @@ const AdminSettings = () => {
 		// Image optimization settings
 		smartOptimization: 1,
 		webpQuality: 80,
+		skipWebpOptimization: 0,
 		maxImageDimension: '',
 
 		// LQIP settings
@@ -96,6 +97,7 @@ const AdminSettings = () => {
 				// Image Optimization settings
 				smartOptimization: cimoOptions.smart_optimization !== undefined ? cimoOptions.smart_optimization : 1,
 				webpQuality: cimoOptions.webp_quality !== undefined ? cimoOptions.webp_quality : 80,
+				skipWebpOptimization: cimoOptions.skip_webp_optimization !== undefined ? cimoOptions.skip_webp_optimization : 0,
 				maxImageDimension: cimoOptions.max_image_dimension || '',
 
 				// LQIP settings
@@ -192,6 +194,7 @@ const AdminSettings = () => {
 				...settings,
 				smartOptimization: 1,
 				webpQuality: 80,
+				skipWebpOptimization: 0,
 				maxImageDimension: 1920,
 			}
 		} )
@@ -203,6 +206,7 @@ const AdminSettings = () => {
 				...settings,
 				smartOptimization: 1,
 				webpQuality: '',
+				skipWebpOptimization: 0,
 				maxImageDimension: '',
 			}
 		} )
@@ -296,6 +300,7 @@ const AdminSettings = () => {
 						// Image Optimization settings
 						smart_optimization: settings.smartOptimization,
 						webp_quality: parseInt( settings.webpQuality ) || 0,
+						skip_webp_optimization: settings.skipWebpOptimization,
 						max_image_dimension: parseInt( settings.maxImageDimension ) || 0,
 
 						// LQIP settings
@@ -626,6 +631,17 @@ const AdminSettings = () => {
 									/>
 								</div>
 							) }
+
+							{ /* Skip WebP Optimization */ }
+							<div className="cimo-setting-field">
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={ __( 'Skip WebP Optimization', 'cimo-image-optimizer' ) }
+									checked={ settings.skipWebpOptimization === 1 }
+									onChange={ checked => handleInputChange( 'skipWebpOptimization', checked ? 1 : 0 ) }
+									help={ __( 'Keep uploaded WebP images unchanged. Cimo will not re-compress or resize them, even when a maximum image dimension is set.', 'cimo-image-optimizer' ) }
+								/>
+							</div>
 
 							{ /* Maximum Image Dimension */ }
 							<div className="cimo-setting-field">

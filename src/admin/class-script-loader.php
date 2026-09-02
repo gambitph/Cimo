@@ -101,6 +101,7 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'smartOptimization' => CIMO_BUILD === 'premium'
 						? ( isset( $settings['smart_optimization'] ) ? (int) $settings['smart_optimization'] : 1 )
 						: 0,
+					'skipWebpOptimization' => isset( $settings['skip_webp_optimization'] ) ? (int) $settings['skip_webp_optimization'] : 0,
 					'webpQuality' => ! empty( $settings['webp_quality'] ) ? (int) $settings['webp_quality'] : 80,
 					'maxImageDimension' => ! empty( $settings['max_image_dimension'] ) ? (int) $settings['max_image_dimension'] : 0,
 					'videoOptimizationEnabled' => isset( $settings['video_optimization_enabled'] ) ? (int) $settings['video_optimization_enabled'] : 1,
