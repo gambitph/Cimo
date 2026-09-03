@@ -20,6 +20,7 @@ test.describe( 'Cimo settings', () => {
 			webp_quality: 80,
 			max_image_dimension: 0,
 			disable_wp_scaling: 1,
+			skip_webp_optimization: 0,
 		} )
 	} )
 
@@ -29,6 +30,7 @@ test.describe( 'Cimo settings', () => {
 			webp_quality: 80,
 			max_image_dimension: 0,
 			disable_wp_scaling: 1,
+			skip_webp_optimization: 0,
 		} )
 	} )
 
@@ -43,6 +45,7 @@ test.describe( 'Cimo settings', () => {
 		await expect( page.getByRole( 'heading', { name: 'General Settings' } ) ).toBeVisible()
 		await expect( page.getByRole( 'heading', { name: 'Image Optimization Settings' } ) ).toBeVisible()
 		await expect( page.locator( '.cimo-webp-quality-range-control' ) ).toBeVisible()
+		await expect( page.getByRole( 'checkbox', { name: 'Skip WebP Optimization' } ) ).not.toBeChecked()
 		await expect( page.getByLabel( 'Maximum Image Dimension' ) ).toBeVisible()
 		await expect( page.locator( '.cimo-save-button' ) ).toBeVisible()
 	} )
@@ -63,12 +66,14 @@ test.describe( 'Cimo settings', () => {
 
 		// UI save smoke: tweak max dimension and persist via Save Changes.
 		await page.getByLabel( 'Maximum Image Dimension' ).fill( '640' )
+		await page.getByRole( 'checkbox', { name: 'Skip WebP Optimization' } ).check()
 		await saveSettingsUi( page )
 
 		await reloadCimoRuntime( page )
 		const settings = await getCimoSettings( page )
 		expect( Number( settings.webpQuality ) ).toBe( 55 )
 		expect( Number( settings.maxImageDimension ) ).toBe( 640 )
+		expect( Number( settings.skipWebpOptimization ) ).toBe( 1 )
 
 		const media = await uploadSampleViaMediaNew(
 			page,

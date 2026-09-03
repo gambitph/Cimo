@@ -153,6 +153,9 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 								'webp_quality' => [
 									'type' => 'integer',
 								],
+								'skip_webp_optimization' => [
+									'type' => 'integer',
+								],
 								'max_image_dimension' => [
 									'type' => 'integer',
 								],
@@ -361,6 +364,11 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 				$quality = absint( $options['webp_quality'] );
 				// 0 means disabled/not set
 				$sanitized['webp_quality'] = $quality > 0 ? max( 1, min( 100, $quality ) ) : 0;
+			}
+
+			// Sanitize skip WebP optimization.
+			if ( isset( $options['skip_webp_optimization'] ) ) {
+				$sanitized['skip_webp_optimization'] = $options['skip_webp_optimization'] ? 1 : 0;
 			}
 
 			// Sanitize max image dimension

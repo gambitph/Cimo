@@ -22,6 +22,7 @@ test.describe( 'WebP quality and already-WebP uploads', () => {
 			disable_wp_scaling: 1,
 			disable_thumbnail_generation: 1,
 			smart_optimization: 0,
+			skip_webp_optimization: 0,
 		} )
 	} )
 
@@ -31,6 +32,7 @@ test.describe( 'WebP quality and already-WebP uploads', () => {
 			webp_quality: 80,
 			max_image_dimension: 0,
 			disable_thumbnail_generation: 0,
+			skip_webp_optimization: 0,
 		} )
 	} )
 
@@ -109,5 +111,31 @@ test.describe( 'WebP quality and already-WebP uploads', () => {
 		expect( uploadedSize ).toBeGreaterThan( 0 )
 		// Re-encode may shrink or skip if larger; either way upload must succeed.
 		expect( uploadedSize ).toBeLessThanOrEqual( originalSize * 1.25 )
+	} )
+
+	test( 'can leave an oversized WebP unchanged', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await saveCimoOptions( requestUtils, {
+			max_image_dimension: 800,
+			skip_webp_optimization: 1,
+		} )
+		await reloadCimoRuntime( page )
+
+		const originalSize = fs.statSync( SAMPLE_LARGE_WEBP ).size
+		const media = await uploadSampleViaMediaNew(
+			page,
+			requestUtils,
+			SAMPLE_LARGE_WEBP,
+			'image/webp',
+			{
+				expectedMime: 'image/webp',
+				urlPattern: /\.webp(\?|$)/i,
+			}
+		)
+
+		expect( media.media_details?.width ?? 0 ).toBeGreaterThan( 800 )
+		expect( await getMediaFileByteLength( page, requestUtils, media.id ) ).toBe( originalSize )
 	} )
 } )
