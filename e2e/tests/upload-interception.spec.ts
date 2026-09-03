@@ -153,9 +153,12 @@ test.describe( 'Upload interception (JPG → WebP)', () => {
 		await openNewPage( admin, editor, page, requestUtils )
 		const afterId = await getMaxMediaId( requestUtils )
 
-		const canvas = editor.canvas.locator( '.editor-styles-wrapper' )
-		await expect( canvas ).toBeVisible( { timeout: 15_000 } )
-		await dropFile( canvas )
+		// Drop on an actual block, as a browser user does, rather than the
+		// canvas wrapper. Gutenberg needs this stable insertion target when
+		// Cimo re-dispatches the converted-file drop event.
+		const dropTarget = editor.canvas.getByText( 'Cimo e2e' )
+		await expect( dropTarget ).toBeVisible( { timeout: 15_000 } )
+		await dropFile( dropTarget )
 
 		await expectNewMediaIsWebp( requestUtils, afterId )
 		await expect(
