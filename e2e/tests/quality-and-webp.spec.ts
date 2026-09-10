@@ -5,11 +5,40 @@ import {
 	expect,
 	SAMPLE_LARGE_JPG,
 	SAMPLE_LARGE_WEBP,
+	expectNewMediaMime,
+	getMaxMediaId,
 	saveCimoOptions,
 	uploadSampleViaMediaNew,
 	getMediaFileByteLength,
 	reloadCimoRuntime,
+	waitForCimoReady,
 } from '../test-utils'
+
+const SMALL_ANIMATED_GIF = Buffer.from(
+	'R0lGODlhAQABAIAAAP8AAAD/ACH/C05FVFNDQVBFMi4wAwEAAAAh+QQACgAAACwAAAAAAQABAAACAkQBACH5BAAKAAAALAAAAAABAAEAAAICTAEAOw==',
+	'base64'
+)
+
+async function uploadBufferViaMediaNew(
+	page: import( '@playwright/test' ).Page,
+	requestUtils: import( '@wordpress/e2e-test-utils-playwright' ).RequestUtils,
+	file: { name: string, mimeType: string, buffer: Buffer },
+	expectedMime = 'image/webp'
+) {
+	await page.goto( '/wp-admin/media-new.php' )
+	await waitForCimoReady( page )
+	const afterId = await getMaxMediaId( requestUtils )
+	const fileInput = page.locator(
+		'.media-upload-form input[type="file"], #async-upload, input[name="async-upload"]'
+	).first()
+	await expect( fileInput ).toBeAttached( { timeout: 15_000 } )
+	await fileInput.setInputFiles( file )
+
+	return await expectNewMediaMime( requestUtils, afterId, expectedMime, {
+		timeout: 120_000,
+		urlPattern: new RegExp( `\\.${ expectedMime === 'image/webp' ? 'webp' : 'gif' }(\\?|$)`, 'i' ),
+	} )
+}
 
 test.describe.configure( { timeout: 180_000 } )
 
@@ -110,4 +139,24 @@ test.describe( 'WebP quality and already-WebP uploads', () => {
 		// Re-encode may shrink or skip if larger; either way upload must succeed.
 		expect( uploadedSize ).toBeLessThanOrEqual( originalSize * 1.25 )
 	} )
+
+	test( 'keeps an animated GIF when its WebP conversion would be larger', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await saveCimoOptions( requestUtils, {
+			webp_quality: 100,
+			smart_optimization: 0,
+			disable_thumbnail_generation: 1,
+		} )
+		await reloadCimoRuntime( page )
+
+		const retainedGif = await uploadBufferViaMediaNew( page, requestUtils, {
+			name: 'animated.gif',
+			mimeType: 'image/gif',
+			buffer: SMALL_ANIMATED_GIF,
+		}, 'image/gif' )
+		expect( retainedGif.source_url ).toMatch( /\.gif(\?|$)/i )
+	} )
+
 } )
