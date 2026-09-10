@@ -41,7 +41,7 @@ function composeGifFrames( frames, width, height ) {
 		throw new Error( 'Canvas is unavailable for GIF conversion' )
 	}
 
-	return frames.map( ( frame ) => {
+	return frames.map( frame => {
 		const {
 			left,
 			top,
@@ -160,7 +160,7 @@ async function decodeAnimation( file ) {
 	return {
 		width: frames[ 0 ].width,
 		height: frames[ 0 ].height,
-		frames: frames.map( ( frame ) => ( {
+		frames: frames.map( frame => ( {
 			data: new Uint8Array( frame.data ),
 			duration: frame.duration || 100,
 		} ) ),
@@ -203,7 +203,7 @@ function resizeAnimation( animation, maxDimension ) {
 	return {
 		...animation,
 		...dimensions,
-		frames: animation.frames.map( ( frame ) => {
+		frames: animation.frames.map( frame => {
 			// Load the source RGBA pixels, resize them, then read back WebP-ready RGBA data.
 			sourceContext.putImageData(
 				new ImageData(
@@ -261,27 +261,32 @@ export async function convertAnimatedImageToWebp( file, quality, maxDimension ) 
 		Math.min( 100, Math.max( 0, quality <= 1 ? quality * 100 : quality ) ),
 	)
 	const frames = new webpModule.VectorWebPAnimationFrame()
-	animation.frames.forEach( ( frame ) => {
-		// Keep timing and alpha-capable RGBA pixels with their per-frame quality setting.
-		frames.push_back( {
-			duration: frame.duration,
-			data: frame.data,
-			config: { lossless: 0, quality: normalizedQuality },
-			has_config: true,
+	try {
+		animation.frames.forEach( frame => {
+			// Keep timing and alpha-capable RGBA pixels with their per-frame quality setting.
+			frames.push_back( {
+				duration: frame.duration,
+				data: frame.data,
+				config: { lossless: 0, quality: normalizedQuality },
+				has_config: true,
+			} )
 		} )
-	} )
-	// The encoder assembles the supplied full-size frames into one animated WebP container.
-	const data = webpModule.encodeAnimation(
-		animation.width,
-		animation.height,
-		true,
-		frames,
-	)
-	if ( ! data ) {
-		throw new Error( 'Failed to encode animated WebP' )
-	}
+		// The encoder assembles the supplied full-size frames into one animated WebP container.
+		const data = webpModule.encodeAnimation(
+			animation.width,
+			animation.height,
+			true,
+			frames,
+		)
+		if ( ! data ) {
+			throw new Error( 'Failed to encode animated WebP' )
+		}
 
-	return new Blob( [ data ], { type: 'image/webp' } )
+		return new Blob( [ data ], { type: 'image/webp' } )
+	} finally {
+		// Emscripten vectors own native memory and must be explicitly released.
+		frames.delete()
+	}
 }
 
 /**

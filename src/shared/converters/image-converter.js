@@ -289,7 +289,7 @@ class ImageConverter extends Converter {
 				convertedBlob = await convertAnimatedImageToWebp(
 					file,
 					quality,
-					this.options?.maxDimension || 0
+					this.options?.maxDimension || 0,
 				)
 			}
 			if ( format.value === 'png' ) {
