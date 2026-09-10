@@ -268,6 +268,7 @@ export async function convertAnimatedImageToWebp( file, quality, maxDimension ) 
 				duration: frame.duration,
 				data: frame.data,
 				config: { lossless: 0, quality: normalizedQuality },
+				// eslint-disable-next-line camelcase -- This is the WASM encoder's required field name.
 				has_config: true,
 			} )
 		} )
