@@ -1,0 +1,32 @@
+---
+description: Cimo uses plain JavaScript; React for settings, vanilla JS for media upload
+alwaysApply: true
+---
+
+# JavaScript & React
+
+Cimo uses **regular JavaScript** (`.js`), not TypeScript, for plugin UI and runtime code. Do not add `.ts` / `.tsx` source files outside e2e tests (`e2e/**/*.ts` is fine).
+
+## Two JS surfaces
+
+1. **Media upload interception** (primary product runtime) — mostly **vanilla JS** under `src/admin/js/media-manager/` and shared converters under `src/shared/converters/`. This hooks Media Manager / editor / page-builder uploads and runs client-side optimize/convert before save.
+2. **Settings UI** — **React** via `@wordpress/element` under `src/admin/js/page/` (and related bulk-optimizer UI). Mount with `createRoot` into `#cimo-admin-settings`.
+
+Prefer putting interactive upload/optimize logic in shared JS modules. PHP should expose settings, enqueue assets, REST/AJAX, and capability gates — not reimplement conversion in PHP when the product path is client-side.
+
+## React (settings / admin UI)
+
+- Build admin UI with **React** via `@wordpress/element` (WordPress’s React wrapper).
+- Use JSX inside `.js` files (wp-scripts handles transpilation).
+- Prefer WordPress packages (`@wordpress/element`, `@wordpress/components`, `@wordpress/i18n`, `@wordpress/api-fetch`, `@wordpress/hooks`, etc.) over adding a separate `react` / `react-dom` dependency.
+- Text domain: `cimo-image-optimizer`.
+- Freemium UI extensions use `applyFilters( 'cimo.…' )` so premium can swap/inject components without putting premium logic in the free tree.
+
+## Import alias
+
+- Use the `~cimo` alias (maps to `src/`) for cross-folder imports, e.g. `~cimo/shared/pricing-url`.
+
+## Media & converters
+
+- New optimize/convert formats deepen `src/shared/converters/` (extend `converter-abstract` / registry in `index.js`) rather than forking one-off paths in each media-manager file.
+- Keep upload UX (drop zone, select files, progress, sidebar info) in `src/admin/js/media-manager/`; keep pure conversion/util code in `src/shared/`.

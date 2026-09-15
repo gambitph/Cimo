@@ -1,0 +1,19 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nupdate_option( 'cimo_activation_data', [\n\t'status' => 'activated',\n\t'install_id' => 'e2e-install-id',\n\t'activation_params' => [\n\t\t'uid' => 'e2e-uid',\n\t\t'license_key' => 'e2e-license-key',\n\t],\n\t'install_data' => [\n\t\t'license_plan_name' => 'premium',\n\t\t'install_public_key' => 'e2e-public',\n\t\t'install_secret_key' => 'e2e-secret',\n\t],\n], 'no' );\n"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginName": "Cimo - Image Optimizer",
+			"pluginPath": "/wordpress/wp-content/plugins/cimo/cimo.php"
+		}
+	]
+}

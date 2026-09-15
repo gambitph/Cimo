@@ -7,7 +7,7 @@
  * Author URI: http://gambit.ph
  * License: GPLv2 or later
  * Text Domain: cimo-image-optimizer
- * Version: 1.4.1
+ * Version: 1.4.2
  * 
  * @fs_premium_only /freemius.php, /freemius/, /lib/freemius-php-sdk
  */
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 defined( 'CIMO_FILE' ) || define( 'CIMO_FILE', __FILE__ );
-defined( 'CIMO_BUILD' ) || define( 'CIMO_BUILD', 'free' );
+defined( 'CIMO_BUILD' ) || define( 'CIMO_BUILD', 'premium' );
 defined( 'CIMO_SETTINGS_SLUG' ) || define( 'CIMO_SETTINGS_SLUG', 'cimo-settings' );
 
 require_once __DIR__ . '/src/admin/class-script-loader.php';
@@ -37,6 +37,7 @@ if ( ! function_exists( 'cimo_enqueue_assets' ) ) {
 require_once __DIR__ . '/src/admin/class-meta-box.php';
 require_once __DIR__ . '/src/admin/class-metadata.php';
 require_once __DIR__ . '/src/admin/class-admin-notices.php';
+require_once __DIR__ . '/src/admin/class-bulk-library.php';
 require_once __DIR__ . '/src/admin/class-stats.php';
 require_once __DIR__ . '/src/admin/class-admin.php';
 

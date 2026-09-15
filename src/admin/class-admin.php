@@ -259,10 +259,12 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			
 			// Enqueue JavaScript
 			$script_asset = include $build_dir . 'admin-page.asset.php';
+			// Depend on cimo-script so premium filters (BulkOptimizer, buildType peers)
+			// register before admin-settings.js evaluates applyFilters at module load.
 			wp_enqueue_script(
 				'cimo-admin-page',
 				$build_url . 'admin-page.js',
-				array_merge( $script_asset['dependencies'], $dependencies['js'] ),
+				array_merge( $script_asset['dependencies'], $dependencies['js'], [ 'cimo-script' ] ),
 				$script_asset['version'],
 				true
 			);
@@ -285,7 +287,6 @@ if ( ! class_exists( 'Cimo_Admin' ) ) {
 			wp_localize_script( 'cimo-admin-page', 'cimoAdmin', [
 				'stats' => $stats,
 				'imageSizes' => $formatted_sizes,
-				'ratingDismissed' => '1' === get_option( 'cimo_rating_dismissed', '0' ) ? '1' : '0',
 				'isPremium' => CIMO_BUILD === 'premium',
 				'uploadsUrl' => wp_upload_dir()['baseurl'],
 			] );

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- unoptimized sample for Cimo SVG e2e -->
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120">
+  <metadata>redundant metadata for svgo to strip</metadata>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#336699;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#66aacc;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="200" height="120" fill="url(#grad)" />
+  <circle cx="100" cy="60" r="30" fill="#ffffff" fill-opacity="0.8" />
+  <text x="70" y="68" fill="#003366" font-family="Arial" font-size="18">Cimo</text>
+  <g id="unused-group">
+    <rect x="0" y="0" width="1" height="1" fill="none" />
+  </g>
+</svg>

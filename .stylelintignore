@@ -1,7 +1,12 @@
 node_modules/
 vendor/
 build/
+build-plugin/
 dist/
 *.min.css
+e2e/
+playwright-report/
+playwright-report-*/
+test-results/
 
 

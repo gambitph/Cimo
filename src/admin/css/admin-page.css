@@ -87,6 +87,22 @@
 	line-height: 1.1;
 }
 
+.cimo-premium-savings-estimate {
+	display: inline-block;
+	margin-top: 10px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: #3c83f6;
+	text-decoration: none;
+
+	&:hover,
+	&:focus {
+		color: #1d4ed8;
+		text-decoration: underline;
+	}
+}
+
 .cimo-stat-icon {
 	background: #3c83f61a;
 	color: #3c83f6;
@@ -350,7 +366,7 @@
 	margin-right: 4px;
 }
 
-.cimo-button, .cimo-save-button, .cimo-rating-buttons, .cimo-recommended-button {
+.cimo-button, .cimo-save-button, .cimo-recommended-button {
 	gap: 8px !important;
 	border-radius: 6px;
 	
@@ -361,7 +377,7 @@
 	}
 }
 
-.cimo-button:not(.is-secondary), .cimo-save-button, .cimo-rating-buttons {
+.cimo-button:not(.is-secondary), .cimo-save-button {
 	--wp-components-color-accent: #31BF43;
 	--wp-components-color-accent-darker-10: #249433;
 	--wp-components-color-accent-darker-20: #196a24;
@@ -379,66 +395,6 @@
 	--wp-components-color-accent: #ef4343;
 	--wp-components-color-accent-darker-10: #cd3939;
 	--wp-components-color-accent-darker-20: #982a2a;
-}
-
-.cimo-rating-buttons {
-	display: flex;
-	gap: 16px;
-}
-
-.cimo-rating-no-thanks {
-	--wp-components-color-accent: #666;
-    --wp-components-color-accent-darker-10: #555;
-    --wp-components-color-accent-darker-20: #333;
-}
-
-.cimo-rating-notice {
-    background: #3c83f61a;
-    color: #23425e;
-    border-radius: 16px;
-    position: relative;
-    box-shadow: 0 4px 18px 0 #3c83f610;
-    border: 1px solid #4e80ac; /* dark blue border */
-}
-
-.cimo-rating-title {
-	margin-top: 0 !important;
-}
-
-.cimo-rating-description {
-	margin-bottom: 2em;
-}
-
-.cimo-rating-notice .cimo-rating-title,
-.cimo-rating-notice .cimo-rating-description {
-    color: #23425e !important;
-}
-
-.cimo-rating-notice .cimo-rating-buttons .cimo-rating-rate-now {
-    --wp-components-color-accent: #3c83f6;
-    --wp-components-color-accent-darker-10: #2163b0;
-    --wp-components-color-accent-darker-20: #153a64;
-    background: #3c83f6;
-    color: #fff;
-    border: none;
-    font-weight: 600;
-	border-radius: 6px;
-	gap: 8px;
-}
-
-.cimo-rating-rate-now svg {
-	fill: none;
-	width: 18px;
-	height: 18px;
-}
-
-.cimo-rating-notice .cimo-rating-buttons .cimo-rating-no-thanks {
-    background: transparent;
-    color: #3c83f6;
-    border: 1.5px solid #3c83f6;
-    font-weight: 600;
-    box-shadow: none !important;
-	border-radius: 6px;
 }
 
 .cimo-reset-button {
@@ -643,8 +599,23 @@
 	}
 }
 
-.cimo-is-premium .cimo-settings-bulk-optimization {
+/* Bulk Optimization first (after info) in free and premium */
+.cimo-settings-bulk-optimization {
 	order: 1;
+}
+
+.cimo-bulk-optimizer-upsell .cimo-bulk-optimize-button {
+	background: #3c83f6;
+	background-image: linear-gradient(to right, #9833ff, #4d2fe5);
+	color: #fff;
+	border: none;
+	justify-content: center;
+
+	&:hover {
+		background: #226be0 !important;
+		background-image: linear-gradient(to right, #8114ef, #3516d2) !important;
+		color: #fff;
+	}
 }
 
 .cimo-smart-optimization-toggle {

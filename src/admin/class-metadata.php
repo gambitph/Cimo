@@ -266,6 +266,15 @@ if ( ! class_exists( 'Cimo_Metadata' ) ) {
 
 			// Update the attachment metadata.
 			update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
+
+			// Keep running totals fresh for admin stats / rating notice (O(1), no scan).
+			if ( class_exists( 'Cimo_Stats' ) ) {
+				Cimo_Stats::update_stats_upload_optimized(
+					$attachment_id,
+					isset( $cimo_metadata['originalFilesize'] ) ? (int) $cimo_metadata['originalFilesize'] : 0,
+					isset( $cimo_metadata['convertedFilesize'] ) ? (int) $cimo_metadata['convertedFilesize'] : 0
+				);
+			}
 		}
 
 		/**

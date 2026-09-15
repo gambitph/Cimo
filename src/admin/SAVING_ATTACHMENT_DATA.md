@@ -1,9 +1,18 @@
-Saving the metadata during image conversion
-1. First when our image is converted within the browser, already send the metadata along with the filename to the server (the JS should wait until this is finished before proceeding to uploading the converted image - this is essential)
-2. The server will queue the metadata/filename in a transient, waiting for new attachments to be added
-3. When a new attachment is added via a php hook, the queue should be looked up and the metadata should be saved.
-(we have no problem with the media manager UI showing the conversion info since we just do that via JS anyway)
+# Saving attachment data (how-it-works)
 
-Loading the image metadata from in the Media Manager:
-1. the attachment metadata is loaded via `wp_prepare_attachment_for_js`
-2. the metadata is displayed from the media manager via hooking in `wp.media.view.Attachment.Details.extend`
+> **Canonical should:** [Attachment intelligence PRD](../../docs/prd/attachment-intelligence.md) · **Contract:** [CONTRACT.md](./CONTRACT.md) · **Map:** [attachment-intelligence.md](./attachment-intelligence.md)  
+> This note remains a short implementation reminder. It must not invent product law.
+
+Saving the metadata during image conversion:
+
+1. When the file is converted in the browser, send metadata with the filename to the server first.
+   JS must wait until this finishes before uploading the converted image.
+2. The server queues metadata/filename in a transient until new attachments arrive.
+3. On `add_attachment`, look up the queue and save metadata.
+
+Media Manager UI can show conversion info via JS immediately (upload notice cache / sidebar) without waiting on that round-trip alone.
+
+Loading image metadata in the Media Manager:
+
+1. Attachment metadata is loaded via `wp_prepare_attachment_for_js`.
+2. The Media Manager displays it by extending `wp.media.view.Attachment.Details`.

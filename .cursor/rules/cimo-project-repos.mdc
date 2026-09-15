@@ -1,0 +1,35 @@
+---
+description: Cimo project GitHub repos, roadmap, and free/premium structure
+alwaysApply: true
+---
+
+# Cimo Project & Repositories
+
+## Release Roadmap
+
+The issues list, organized by targeted release version number, is the **Cimo Release Roadmap**:
+https://github.com/orgs/gambitph/projects/12/views/1
+
+## Repositories
+
+This project has two GitHub repositories, used depending on whether we're building the **free** or **premium** version of Cimo.
+
+### Free version
+
+- Main plugin repo: https://github.com/gambitph/Cimo
+- Contains **only** free plugin code and must remain free of premium logic (WordPress.org guidelines).
+- Must pass [WordPress Plugin Check](https://github.com/wordpress/plugin-check) for Plugin Directory inclusion (see `cimo-wordpress-plugin-check` rule).
+
+### Premium version
+
+- Uses the free version as the main plugin repo, and additionally uses:
+- Premium-only repo: https://github.com/bfintal/cimo-premium
+- The premium repo contains **only** the premium plugin code.
+- It is placed in the `pro__premium_only` directory inside the free plugin's root folder.
+
+## Free / Premium boundaries
+
+- Do not put premium feature logic in the free repo.
+- Premium code lives exclusively under `pro__premium_only/`.
+- The free plugin may gate-load premium via `CIMO_BUILD === 'premium'` and `pro__premium_only/index.php`.
+- When packaging the free build, `pro__premium_only` must not be included.

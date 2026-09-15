@@ -239,7 +239,7 @@ if ( ! class_exists( 'Cimo_Meta_Box' ) ) {
 						echo '</ul>';
 						if ( CIMO_BUILD === 'free' && ! $is_bulk_optimized && current_user_can( 'manage_options' ) ) {
 							echo '<p class="cimo-media-premium-hint">';
-							echo '<a href="' . esc_url( Cimo_Admin::pricing_url( 'attachment-meta', 'admin' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Unlock Smart Optimization for even smaller files →', 'cimo-image-optimizer' ) . '</a>';
+							echo '<a href="' . esc_url( Cimo_Admin::pricing_url( 'attachment-meta', 'admin' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Bulk optimize the rest of your Media Library →', 'cimo-image-optimizer' ) . '</a>';
 		
 							echo '</p>';
 						}

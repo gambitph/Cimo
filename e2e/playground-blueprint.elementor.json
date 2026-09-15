@@ -1,0 +1,37 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"features": {
+		"networking": true
+	},
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "vfs",
+				"path": "/wordpress/wp-content/plugins/cimo/e2e/fixtures/plugins/elementor.zip"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "activatePlugin",
+			"pluginName": "Elementor",
+			"pluginPath": "/wordpress/wp-content/plugins/elementor/elementor.php"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginName": "Cimo - Image Optimizer",
+			"pluginPath": "/wordpress/wp-content/plugins/cimo/cimo.php"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\nrequire_once ABSPATH . 'wp-admin/includes/plugin.php';\nactivate_plugin( 'elementor/elementor.php' );\nupdate_option( 'elementor_onboarded', true );\ndelete_transient( 'elementor_activation_redirect' );\n"
+		}
+	]
+}

@@ -1,6 +1,6 @@
 {
 	"name": "cimo",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"description": "Convert images to WebP on upload",
 	"private": true,
 	"license": "GPL-2.0-or-later",
@@ -13,6 +13,8 @@
 		"start": "node scripts/update-build-type.js free && wp-scripts start",
 		"build:premium": "cd pro__premium_only && npm run build",
 		"start:premium": "cd pro__premium_only && npm run start",
+		"build:e2e": "node scripts/update-build-type.js free && wp-scripts build",
+		"build:e2e:premium": "node scripts/update-build-type.js premium && npx wp-scripts build --config pro__premium_only/webpack.config.js",
 		"lint:js": "wp-scripts lint-js",
 		"lint:js:fix": "wp-scripts lint-js --fix",
 		"lint:css": "wp-scripts lint-style",
@@ -20,18 +22,31 @@
 		"lint": "npm run lint:js && npm run lint:css",
 		"format": "wp-scripts format",
 		"package": "node scripts/package.js ${npm_config_suffix}",
-		"sync-version": "node scripts/sync-version.js"
+		"sync-version": "node scripts/sync-version.js",
+		"test": "npm run test:e2e",
+		"test:e2e": "playwright test",
+		"test:e2e:premium": "playwright test -c playwright.premium.config.js",
+		"test:e2e:elementor": "node scripts/fetch-elementor-fixture.js && playwright test -c playwright.elementor.config.js",
+		"test:debug": "playwright test --ui",
+		"test:debug:premium": "playwright test -c playwright.premium.config.js --ui",
+		"test:debug:elementor": "node scripts/fetch-elementor-fixture.js && playwright test -c playwright.elementor.config.js --ui",
+		"e2e:fetch-elementor": "node scripts/fetch-elementor-fixture.js"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
 	"devDependencies": {
+		"@playwright/test": "^1.61.1",
+		"@types/node": "^20.19.43",
+		"@wordpress/e2e-test-utils-playwright": "^1.51.0",
 		"@wordpress/eslint-plugin": "^22.15.0",
 		"@wordpress/prettier-config": "^4.29.0",
 		"@wordpress/scripts": "^30.0.0",
 		"@wordpress/stylelint-config": "^23.21.0",
+		"@wp-playground/cli": "^3.1.49",
 		"archiver": "^6.0.1",
 		"eslint": "^8.57.0",
+		"eslint-import-resolver-typescript": "^4.4.4",
 		"eslint-plugin-compat": "^6.0.2",
 		"prettier": "^3.3.3"
 	},
