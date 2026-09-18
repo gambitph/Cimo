@@ -119,6 +119,7 @@ WP_PASSWORD=password
 | General | Thumbnail generation on/off (intermediate sizes) |
 | Quality | Lower WebP quality → smaller file than higher quality |
 | Already-WebP | Re-upload stays `image/webp` |
+| Animated WebP | GIF → animated WebP; still GIF → still WebP; animated WebP stays animated; transparent GIF keeps alpha |
 | Media Library grid | Drop → WebP |
 | Media modal | Select Files → WebP |
 | PNG / multi-file | Convert to WebP |

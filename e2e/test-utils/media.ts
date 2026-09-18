@@ -44,6 +44,30 @@ export const SAMPLE_SVG = path.resolve( __dirname, '../fixtures/sample.svg' )
 /** HEIC fixture for premium HEIC → WebP upload tests. */
 export const SAMPLE_HEIC = path.resolve( __dirname, '../fixtures/sample.heic' )
 
+/** Single-frame GIF for still-image conversion. */
+export const SAMPLE_STILL_GIF = path.resolve(
+	__dirname,
+	'../fixtures/sample-still.gif'
+)
+
+/** Two-frame photographic GIF for animated WebP conversion. */
+export const SAMPLE_ANIMATED_GIF = path.resolve(
+	__dirname,
+	'../fixtures/sample-animated.gif'
+)
+
+/** Two-frame animated WebP for re-optimization. */
+export const SAMPLE_ANIMATED_WEBP = path.resolve(
+	__dirname,
+	'../fixtures/sample-animated.webp'
+)
+
+/** Two-frame GIF with transparent margins for alpha-preserving conversion. */
+export const SAMPLE_ANIMATED_TRANSPARENT_GIF = path.resolve(
+	__dirname,
+	'../fixtures/sample-animated-transparent.gif'
+)
+
 type DropFileSpec = {
 	path: string;
 	mimeType?: string;
@@ -408,6 +432,46 @@ export async function fetchUrlByteLength( page: Page, url: string ) {
 		}
 		return ( await response.arrayBuffer() ).byteLength
 	}, url )
+}
+
+/**
+ * Same-origin file bytes for container checks (animated WebP ANIM/VP8X).
+ */
+export async function fetchUrlBytes( page: Page, url: string ) {
+	const data = await page.evaluate( async ( targetUrl ) => {
+		const response = await fetch( targetUrl, { credentials: 'same-origin' } )
+		if ( ! response.ok ) {
+			throw new Error( `Failed to fetch ${ targetUrl }: ${ response.status }` )
+		}
+		return Array.from( new Uint8Array( await response.arrayBuffer() ) )
+	}, url )
+
+	return Buffer.from( data )
+}
+
+/**
+ * True when a WebP RIFF container includes an ANIM chunk.
+ */
+export function isAnimatedWebp( data: Buffer ) {
+	if (
+		data.length < 12 ||
+		data.subarray( 0, 4 ).toString() !== 'RIFF' ||
+		data.subarray( 8, 12 ).toString() !== 'WEBP'
+	) {
+		return false
+	}
+
+	let offset = 12
+	while ( offset + 8 <= data.length ) {
+		const fourcc = data.subarray( offset, offset + 4 ).toString()
+		const chunkLength = data.readUInt32LE( offset + 4 )
+		if ( fourcc === 'ANIM' ) {
+			return true
+		}
+		offset += 8 + chunkLength + ( chunkLength % 2 )
+	}
+
+	return false
 }
 
 /**

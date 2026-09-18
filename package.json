@@ -48,16 +48,19 @@
 		"eslint": "^8.57.0",
 		"eslint-import-resolver-typescript": "^4.4.4",
 		"eslint-plugin-compat": "^6.0.2",
-		"prettier": "^3.3.3"
+		"prettier": "^3.3.3",
+		"typescript": "5.3.3"
 	},
 	"dependencies": {
 		"@mediabunny/mp3-encoder": "^1.25.0",
 		"browser-image-compression": "^2.0.2",
 		"classnames": "^2.5.1",
+		"gifuct-js": "2.1.2",
 		"heic2any": "^0.0.4",
 		"mediabunny": "^1.25.0",
 		"mime": "^4.1.0",
 		"resemblejs": "^5.0.0",
-		"svgo": "^4.0.0"
+		"svgo": "^4.0.0",
+		"wasm-webp": "0.1.0"
 	}
 }

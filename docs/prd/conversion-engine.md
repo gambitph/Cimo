@@ -39,7 +39,7 @@ Prefer the original file when output would be larger (unless forced), on unsuppo
 - MIME set filterable via `cimo.imageConverter.mimeTypes`
 - Prepare hook: `cimo.convertImage.prepare` (Premium HEIC → PNG)
 - Optimize hook: `cimo.imageConverter.optimize` (Premium Smart Optimization); else `convert()`
-- Animated GIF detection: do not corrupt animations
+- Animated GIFs convert to animated WebP, and animated WebP uploads are optimized
 - Progress: support determinate progress for UI when conversion is non-trivial
 
 ### Premium converters (via filters)

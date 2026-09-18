@@ -20,10 +20,32 @@ module.exports = {
 	},
 	resolve: {
 		...defaultConfig.resolve,
+		fallback: {
+			...defaultConfig.resolve?.fallback,
+			fs: false,
+			path: false,
+		},
 		alias: {
 			...defaultConfig.resolve?.alias,
 			'~cimo': require( 'path' ).resolve( __dirname, 'src' ),
 		},
+	},
+	module: {
+		...defaultConfig.module,
+		rules: [
+			...defaultConfig.module.rules,
+			{
+				test: /webp-wasm\.wasm$/,
+				type: 'asset/resource',
+				generator: {
+					filename: 'chunks/[name]-[contenthash:8][ext]',
+				},
+			},
+			{
+				test: /node_modules[/\\]wasm-webp[/\\]dist[/\\]cjs[/\\].*\.js$/,
+				type: 'javascript/auto',
+			},
+		],
 	},
 	output: {
 		...defaultConfig.output,

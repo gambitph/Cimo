@@ -16,7 +16,7 @@ Max dimension is min(user max, WP scaling threshold) when both set.
 
 - `convert()`: canvas resize/compress; PNG path may use `browser-image-compression`; skip write if larger.
 - `optimize()`: if smart flag, async filter `cimo.imageConverter.optimize`; else `convert()`; may stamp `smartOptimized`.
-- Animated GIF scan avoids breaking animations.
+- Animated GIF and animated WebP decode to full frames, then re-encode through the animated WebP codec so upload interception never flattens them.
 
 ## Premium registration (reference)
 

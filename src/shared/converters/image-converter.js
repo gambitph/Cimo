@@ -1,4 +1,5 @@
 import { Converter } from './converter-abstract'
+import { convertAnimatedImageToWebp } from './animated-image'
 import { applyFilters, applyFiltersAsync } from '@wordpress/hooks'
 import { __ } from '@wordpress/i18n'
 
@@ -32,6 +33,7 @@ class ImageConverter extends Converter {
 	static get mimeTypes() {
 		// Accept all images supported by most browsers for conversion.
 		return applyFilters( 'cimo.imageConverter.mimeTypes', [
+			'image/gif',
 			'image/jpeg',
 			'image/png',
 			'image/webp',
@@ -267,34 +269,6 @@ class ImageConverter extends Converter {
 			}
 		}
 
-		// Detect if the image is an animated GIF, if so just return the file unchanged
-		if ( file.type === 'image/gif' ) {
-			// Read the first few bytes to check for animation
-			const buffer = await file.slice( 0, 50 * 1024 ).arrayBuffer()
-			const bytes = new Uint8Array( buffer )
-
-			// Look for multiple Graphic Control Extension blocks (0x21, 0xF9, 0x04)
-			let gceCount = 0
-			for ( let i = 0; i < bytes.length - 2; i++ ) {
-				if (
-					bytes[ i ] === 0x21 &&
-					bytes[ i + 1 ] === 0xF9 &&
-					bytes[ i + 2 ] === 0x04
-				) {
-					gceCount++
-					// If more than one GCE block, it's animated
-					if ( gceCount > 1 ) {
-						return {
-							file,
-							metadata: null,
-							reason: 'animated-gif',
-						}
-					}
-				}
-			}
-			// If not animated, continue to convert
-		}
-
 		// Create a fileItem object for the convertImage function
 		const fileItem = { file }
 
@@ -308,7 +282,16 @@ class ImageConverter extends Converter {
 
 			const start = performance.now()
 
-			let convertedBlob
+			let convertedBlob = null
+			// Only GIF and WebP sources can contain animation.
+			const mayBeAnimated = file.type === 'image/gif' || file.type === 'image/webp'
+			if ( format.value === 'webp' && mayBeAnimated ) {
+				convertedBlob = await convertAnimatedImageToWebp(
+					file,
+					quality,
+					this.options?.maxDimension || 0,
+				)
+			}
 			if ( format.value === 'png' ) {
 				const { default: imageCompression } = await import( /* webpackChunkName: "browser-image-compression" */ 'browser-image-compression' )
 				convertedBlob = await imageCompression( fileItem.file, {
@@ -317,7 +300,7 @@ class ImageConverter extends Converter {
 					maxIteration: 5,
 					// initialQuality: quality, // Use default
 				} )
-			} else {
+			} else if ( ! convertedBlob ) {
 				convertedBlob = await this.convertImage( fileItem, format.value, {
 					quality,
 					maxDimension: this.options?.maxDimension || 0,
