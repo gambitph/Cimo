@@ -54,6 +54,11 @@ React composition / best-practice skills apply mainly to `src/admin/js/page/` an
 GitHub Issues on this repo (`gambitph/Cimo`) via the `gh` CLI.
 Roadmap / version targeting: [org project #12](https://github.com/orgs/gambitph/projects/12/views/1).
 
+### Changelog
+
+User-facing WordPress.org changelog lives in `readme.txt` (`== Changelog ==`).
+Skill: `.cursor/skills/add-changelog/`.
+
 ### Testing
 
 Playwright for UI / e2e (`e2e/`, `@wp-playground/cli` — no Docker).
