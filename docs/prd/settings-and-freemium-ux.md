@@ -23,6 +23,7 @@ The settings page shell, `cimo_options` schema surfacing, free vs premium contro
 - Disable WP big-image scaling
 - Thumbnail generation / per-size toggles
 - WebP quality
+- Skip WebP optimization, including Cimo resizing
 - Max image dimension
 - Stats dashboard consumption
 

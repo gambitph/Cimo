@@ -126,6 +126,7 @@ WP_PASSWORD=password
 | Progress modal | Cancel when visible |
 | Post-upload | Sidebar stats + attachment meta box |
 | Freemium | Locked premium sections (LQIP/video/audio/SVG/stealth), bulk upsell, plugins links |
+| Developer API | Frontend enqueue + PHP selectors convert JPG → WebP; unrelated inputs stay JPEG; `optimizeFiles()` returns WebP + metadata |
 | Elementor | Image widget media upload → WebP |
 
 ### Premium (`e2e/tests/premium/`)
@@ -147,10 +148,11 @@ WP_PASSWORD=password
 
 | Path | Role |
 | --- | --- |
-| `../playwright.config.js` | Free suite; Playground on 9410; ignores `tests/premium/` and `tests/elementor/` |
+| `../playwright.config.js` | Free suite; Playground on 9410; ignores `tests/premium/` and `tests/elementor/`; mounts `e2e/fixtures/mu-plugins` |
 | `../playwright.premium.config.js` | Premium suite; Playground on 9411 |
 | `../playwright.elementor.config.js` | Elementor smoke; Playground on 9412 |
 | `playground-blueprint.json` | Login + activate Cimo (free) |
+| `fixtures/mu-plugins/` | Free-suite mu-plugin that registers integrator selectors and enqueues Cimo on Dev API e2e pages |
 | `playground-blueprint.premium.json` | Activate + seed Freemius premium plan |
 | `playground-blueprint.elementor.json` | Install Elementor + activate Cimo |
 | `config/global-setup.js` | Cookie-authenticates via `RequestUtils.setup()`, persists `storageState` |

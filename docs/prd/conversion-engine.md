@@ -20,6 +20,7 @@ They do not know whether the implementation is image canvas, mediabunny video, S
 - Always return a Converter; never throw for unknown types
 - Reconstruct cross-realm `File` objects when `instanceof File` fails (iframes)
 - Images: ImageConverter when MIME supported; prefer WebP when the browser can encode it; otherwise keep source-friendly format
+- When `skipWebpOptimization` is enabled, `image/webp` returns NullConverter so Cimo does not re-compress or resize it
 - Non-images: `applyFilters( 'cimo.getFileConverter', null, file )` then NullConverter
 - Settings read from `window.cimoSettings` at construction (quality, max dimension vs WP scaling threshold, smart flag)
 
