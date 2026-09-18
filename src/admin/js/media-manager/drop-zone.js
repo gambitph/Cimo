@@ -8,26 +8,13 @@
 import { domReady } from '~cimo/shared/dom-ready'
 import { getFileConverter, requiresFileConversion } from '~cimo/shared/converters'
 import { watchForEditorIframe } from '~cimo/shared/util'
-import { saveMetadata } from '~cimo/shared/metadata-saver'
-import { cacheConverterNotice } from '~cimo/shared/upload-notice-cache'
-import { ProgressModal } from './progress-modal'
-import { applyFilters } from '@wordpress/hooks'
+import { optimizeFileConverters } from '../optimize-files'
+import { closestAllowedLocation, getDropZoneAllowedLocations } from './allowed-locations'
 
 /**
  * Intercept editor media uploads and convert images to WebP on the client
  * before uploading to WordPress. This affects the block editor only.
  */
-
-// Allowed locations to be able to select files.
-const ALLOWED_LOCATIONS = applyFilters( 'cimo.dropZone.allowedLocations', [
-	'.media-frame-uploader', // Allowed to drop in the Media Manager
-	'.media-upload-form', // Allowed to drop in the admin Media > Add Media File
-	'.editor-post-featured-image', // Allowed to drop in the featured image drop zone
-	'.editor-styles-wrapper', // Allowed to drop in the block editor when adding new image blocks
-	'.uploader-window', // Allowed to drop in the admin Media > Library grid view
-	'.uploader-editor', // Allowed to drop in the WooCommerce description editor
-	'.block-library-utils__media-control', // Allowed to drop in the block editor image block media control
-] )
 
 // Add event listener to the Media Manager's drop zone
 function addDropZoneListenerToMediaManager( targetDocument ) {
@@ -59,18 +46,8 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			return
 		}
 
-		// TODO: We also want to filter out the target so we can set when this
-		// is triggered. We might break other funcitonality that we don't have
-		// the conversion to happen.
-
 		// Find the matched element based on the locations
-		let matchedElement
-		for ( const location of ALLOWED_LOCATIONS ) {
-			matchedElement = event.target.closest( location )
-			if ( matchedElement ) {
-				break
-			}
-		}
+		let matchedElement = closestAllowedLocation( event.target, getDropZoneAllowedLocations() )
 
 		// Allowed a fallback to drop in the Media Manager
 		matchedElement = matchedElement || event.target.closest( '.supports-drag-drop' )
@@ -99,48 +76,18 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 			uploaderWindow.style.display = 'none'
 		}
 
-		// Cancel the conversion if the user closes the progress modal.
-		const onCancel = () => {
-			// This is enough to cancel the entire process since the promises below will finish resolving.
-			fileConverters.forEach( converter => converter.cancel() )
-		}
-
-		// Show the progress modal
-		const progressModal = new ProgressModal( fileConverters, onCancel )
-		progressModal.open()
-
 		// Process and optimize each media file here,
 		// e.g. converting to webp, resizing, compressing, etc.
-		const optimizedResults = await Promise.all(
-			fileConverters.map( async converter => {
-				try {
-					const result = await converter.optimize()
-					cacheConverterNotice( result )
-					if ( result.error ) {
-						// eslint-disable-next-line no-console
-						console.warn( result.error )
-					}
-					return result
-				} catch ( error ) {
-					// eslint-disable-next-line no-console
-					console.warn( error )
-					return { file: converter.file, metadata: null }
-				}
-			} )
-		)
+		const optimizedResults = await optimizeFileConverters( fileConverters )
 
 		// Extract files and metadata from results
 		const optimizedFiles = optimizedResults.map( result => result.file )
-		const conversionMetadata = optimizedResults.map( result => result.metadata )
 
 		// Create a DataTransfer to hold the optimized file
 		const dataTransfer = new DataTransfer()
 		optimizedFiles.forEach( file => {
 			dataTransfer.items.add( file )
 		} )
-
-		// Save the metadata to the server.
-		await saveMetadata( conversionMetadata )
 
 		// Find the correct target to dispatch the event to
 		let target = event.target.closest( '.components-drop-zone, [data-is-drop-zone="true"]' ) || event.target
@@ -218,9 +165,6 @@ function addDropZoneListenerToMediaManager( targetDocument ) {
 				target.dispatchEvent( dropEvent )
 			}
 		}
-
-		// Close when optimization finishes, including when we fall back to the original file after an error.
-		progressModal.close()
 	}
 
 	// Add our custom drop listener

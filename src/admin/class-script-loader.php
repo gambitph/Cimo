@@ -48,6 +48,67 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 			}
 		}
 
+		/**
+		 * Get selectors where Cimo should intercept file input selections.
+		 *
+		 * @return array
+		 */
+		public static function get_select_files_allowed_locations() {
+			$locations = [
+				'.components-form-file-upload', // Allow uploads to the image block.
+				'.media-frame', // Allow uploads from the Media Manager.
+				'.media-upload-form', // Allow uploads from the admin Media > Add Media File.
+				'.moxie-shim', // Allow uploads from the admin Media > Library grid view.
+			];
+
+			// Public integration point for plugins/themes that want Cimo to auto-intercept
+			// file inputs inside their own upload UI.
+			return self::sanitize_allowed_locations(
+				apply_filters( 'cimo/select_files/allowed_locations', $locations )
+			);
+		}
+
+		/**
+		 * Get selectors where Cimo should intercept file drops.
+		 *
+		 * @return array
+		 */
+		public static function get_drop_zone_allowed_locations() {
+			$locations = [
+				'.media-frame-uploader', // Allowed to drop in the Media Manager.
+				'.media-upload-form', // Allowed to drop in the admin Media > Add Media File.
+				'.editor-post-featured-image', // Allowed to drop in the featured image drop zone.
+				'.editor-styles-wrapper', // Allowed to drop in the block editor when adding new image blocks.
+				'.uploader-window', // Allowed to drop in the admin Media > Library grid view.
+				'.uploader-editor', // Allowed to drop in the WooCommerce description editor.
+				'.block-library-utils__media-control', // Allowed to drop in the block editor image block media control.
+			];
+
+			// Public integration point for plugins/themes that want Cimo to auto-intercept
+			// dropped files inside their own upload UI.
+			return self::sanitize_allowed_locations(
+				apply_filters( 'cimo/drop_zone/allowed_locations', $locations )
+			);
+		}
+
+		/**
+		 * Keep localized selector settings as a clean list of strings.
+		 *
+		 * @param mixed $locations Selectors from defaults and filters.
+		 * @return array
+		 */
+		private static function sanitize_allowed_locations( $locations ) {
+			if ( ! is_array( $locations ) ) {
+				return [];
+			}
+
+			$locations = array_filter( $locations, 'is_string' );
+			$locations = array_map( 'trim', $locations );
+			$locations = array_filter( $locations );
+
+			return array_values( array_unique( $locations ) );
+		}
+
 		public static function enqueue_cimo_assets() {
 			// If cimo-script is already enqueued, don't enqueue again.
 			if ( wp_script_is( 'cimo-script', 'enqueued' ) ) {
@@ -112,6 +173,9 @@ if ( ! class_exists( 'Cimo_Script_Loader' ) ) {
 					'svgOptimizationEnabled' => isset( $settings['svg_optimization_enabled'] ) ? (int) $settings['svg_optimization_enabled'] : 1,
 					'stealthModeEnabled' => isset( $settings['stealth_mode_enabled'] ) ? (int) $settings['stealth_mode_enabled'] : 0,
 					'wpScalingThreshold' => $threshold,
+					// Public PHP selector filters are localized for the browser-side interceptors.
+					'selectFilesAllowedLocations' => self::get_select_files_allowed_locations(),
+					'dropZoneAllowedLocations' => self::get_drop_zone_allowed_locations(),
 				]
 			);
 

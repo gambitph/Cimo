@@ -44,6 +44,7 @@ module.exports = defineConfig( {
 		command: [
 			'npx @wp-playground/cli server',
 			'--mount=.:/wordpress/wp-content/plugins/cimo',
+			'--mount=./e2e/fixtures/mu-plugins:/wordpress/wp-content/mu-plugins',
 			`--blueprint=${ PLAYGROUND_BLUEPRINT }`,
 			'--php=8.2',
 			`--port=${ PORT }`,

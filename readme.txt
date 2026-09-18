@@ -45,6 +45,7 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 3. **Privacy-First** – your images never leave your device until they're uploaded to WordPress.
 4. **Future-Proof Format** – automatic WebP conversion reduces file sizes by up to 80%, with full control over quality, dimensions, and thumbnail generation.
 5. **Universal Compatibility** – works seamlessly with the WordPress Block Editor, Elementor, Beaver Builder, and all major page builders.
+6. **Developer Friendly** – integrate your own upload UI with a small PHP helper and optional JavaScript API. See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt).
 
 = Works with =
 
@@ -68,6 +69,19 @@ Just upload images to your Media Manager as you normally would, then Cimo instan
 		* WooCommerce
 
 **Since Cimo's optimization works during the upload process, Cimo should be compatible with any plugin that uses images**
+
+= For developers =
+
+Cimo can optimize files in the browser before your plugin or theme uploads them.
+Your existing upload code can stay as it is.
+
+On frontend pages, load Cimo with `cimo_enqueue_assets()`, then either:
+
+* Register your file input wrapper with `cimo/select_files/allowed_locations`
+* Register a drop zone with `cimo/drop_zone/allowed_locations`
+* Or call `window.cimo.optimizeFiles()` from your own JavaScript
+
+See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) for the full walkthrough.
 
 = What's in Cimo Premium? =
 
@@ -99,6 +113,11 @@ Video & Audio optimization are also performed as you upload your files, even bef
 3. That's it! Cimo automatically optimizes images when you upload
 
 == Frequently Asked Questions ==
+
+= Can I use Cimo with my own plugin or theme upload form? =
+
+Yes. Load Cimo on that page with `cimo_enqueue_assets()`, then tell Cimo about your file input or drop zone, or call `window.cimo.optimizeFiles()` from your JavaScript.
+See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=faq&utm_campaign=readme-txt).
 
 = What makes Cimo different from other image optimizers? =
 
