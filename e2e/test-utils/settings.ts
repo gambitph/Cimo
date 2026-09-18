@@ -6,6 +6,7 @@ import { waitForCimoReady } from './media'
 
 export type CimoOptions = {
 	webp_quality?: number;
+	skip_webp_optimization?: number;
 	max_image_dimension?: number;
 	disable_wp_scaling?: number;
 	smart_optimization?: number;
