@@ -37,6 +37,27 @@ npm run build
 npm run package
 ```
 
+### Release ready (free WordPress.org + paid Freemius)
+
+```bash
+# Full flow: build free, build premium, upload paid to Freemius (pending),
+# diff free vs WordPress.org, diff paid vs previous paid, optional agent review
+npm run release:ready
+
+# Flags: --build-only, --check-only, --no-review
+```
+
+Requirements:
+
+- `FREEMIUS_API_TOKEN` in `.env` or the environment (product 21431).
+- `pro__premium_only/` checked out (cimo-premium repo).
+- Changelog section `= {version} =` in `readme.txt` matching `cimo.php` `Version`.
+- Premium packaging needs Composer runtime: run `composer install --no-dev` when `vendor/` is missing (ships `enshrined/svg-sanitize` for premium SVG optimization).
+
+Free builds go to the Plugin Directory from `dist/cimo-{version}.zip` after `npm run build`.
+Only the premium zip is uploaded to Freemius deploy; a copy is archived under `releases/` with `-free` / `-premium` suffixes.
+Diff artifacts land in `build/release-ready/`.
+
 The `build` script now automatically:
 
 1. Runs the build process to compile JavaScript and CSS
