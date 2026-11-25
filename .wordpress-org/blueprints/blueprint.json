@@ -1,0 +1,47 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Cimo live preview",
+		"description": "Installs Cimo, then opens Media → Add New so a JPG or PNG can be optimized to WebP in the browser.",
+		"author": "bfintal",
+		"categories": [
+			"media"
+		]
+	},
+	"landingPage": "/wp-admin/media-new.php",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "7.1"
+	},
+	"features": {
+		"networking": true
+	},
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "cimo-image-optimizer"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "Cimo demo",
+				"blogdescription": "Upload a large JPG or PNG and watch it become WebP in your browser."
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nwp_set_current_user( 1 );\n\n$content = <<<'HTML'\n<!-- wp:paragraph -->\n<p><strong>Upload a large JPG or PNG</strong> and watch Cimo optimize it to WebP in your browser, before WordPress saves the file.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Drop a file on the Image block below, or open <a href=\"/wp-admin/media-new.php\">Media → Add New</a>. Cimo runs on your device, with no quotas and no external image server. Quality and resize options are under <a href=\"/wp-admin/options-general.php?page=cimo-settings\">Settings → Cimo</a>.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:image -->\n<figure class=\"wp-block-image\"><img alt=\"\"/></figure>\n<!-- /wp:image -->\nHTML;\n\n$postarr = array(\n\t'post_title'   => 'Try Cimo',\n\t'post_content' => $content,\n\t'post_status'  => 'publish',\n\t'post_name'    => 'try-cimo',\n);\n\n$existing = get_post( 1 );\nif ( $existing && 'post' === $existing->post_type ) {\n\t$postarr['ID'] = 1;\n}\n\n$post_id = wp_insert_post( wp_slash( $postarr ), true );\nif ( is_wp_error( $post_id ) ) {\n\tfwrite( STDERR, $post_id->get_error_message() );\n\texit( 1 );\n}\n\nupdate_option( 'cimo_playground_demo_post_id', (int) $post_id, false );\n\n$mu_dir = WP_CONTENT_DIR . '/mu-plugins';\nif ( ! is_dir( $mu_dir ) ) {\n\twp_mkdir_p( $mu_dir );\n}\n\n$notice = <<<'PHP'\n<?php\n/**\n * Explains the Cimo Playground preview on the upload screen.\n */\n\nif ( ! defined( 'ABSPATH' ) ) {\n\texit;\n}\n\nadd_action(\n\t'admin_notices',\n\tstatic function () {\n\t\tglobal $pagenow;\n\n\t\tif ( 'media-new.php' !== $pagenow ) {\n\t\t\treturn;\n\t\t}\n\n\t\t$post_id = (int) get_option( 'cimo_playground_demo_post_id' );\n\n\t\techo '<div class=\"notice notice-info\"><p>';\n\t\techo '<strong>Try Cimo.</strong> ';\n\t\techo esc_html( 'Upload a large JPG or PNG and watch it get optimized to WebP in your browser before WordPress saves the file.' );\n\t\techo ' ';\n\t\techo esc_html( 'Nothing is sent to an external server.' );\n\t\tif ( $post_id ) {\n\t\t\techo ' ';\n\t\t\tprintf(\n\t\t\t\t'<a href=\"%s\">%s</a>',\n\t\t\t\tesc_url( admin_url( 'post.php?post=' . $post_id . '&action=edit' ) ),\n\t\t\t\tesc_html( 'Open the Try Cimo post' )\n\t\t\t);\n\t\t\techo ' ';\n\t\t\techo esc_html( 'to upload from an Image block.' );\n\t\t}\n\t\techo ' ';\n\t\tprintf(\n\t\t\t'<a href=\"%s\">%s</a>',\n\t\t\tesc_url( admin_url( 'options-general.php?page=cimo-settings' ) ),\n\t\t\tesc_html( 'Settings → Cimo' )\n\t\t);\n\t\techo '</p></div>';\n\t}\n);\nPHP;\n\nif ( false === file_put_contents( $mu_dir . '/cimo-playground-demo.php', $notice ) ) {\n\tfwrite( STDERR, 'Could not write the Playground demo notice.' );\n\texit( 1 );\n}\n"
+		}
+	]
+}

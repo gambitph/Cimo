@@ -1,0 +1,53 @@
+name: Update WordPress.org Live Preview blueprint
+
+# Copies .wordpress-org/blueprints/blueprint.json into the plugin SVN checkout
+# as assets/blueprints/blueprint.json. That is the file the WordPress.org
+# Live Preview button reads.
+#
+# Plugin code is still released from dist/cimo-{version}.zip. Listing banners,
+# icons, and screenshots live only in SVN, so this job adds the blueprint and
+# does not sync or delete the rest of assets/.
+#
+# Required repository secrets:
+#   SVN_USERNAME - WordPress.org committer username
+#   SVN_PASSWORD - WordPress.org committer password or application password
+#
+# After the commit lands, a plugin committer still sets the preview to public
+# under Advanced on https://wordpress.org/plugins/cimo-image-optimizer/.
+# Until then, committers see Test Preview.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  blueprint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Commit blueprint to WordPress.org SVN assets
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SVN_USERNAME}" ] || [ -z "${SVN_PASSWORD}" ]; then
+            echo "SVN_USERNAME and SVN_PASSWORD repository secrets are required."
+            exit 1
+          fi
+
+          slug="cimo-image-optimizer"
+          checkout="${RUNNER_TEMP}/svn-${slug}"
+          svn checkout --depth immediates "https://plugins.svn.wordpress.org/${slug}" "${checkout}"
+          svn update --set-depth infinity "${checkout}/assets"
+          mkdir -p "${checkout}/assets/blueprints"
+          cp .wordpress-org/blueprints/blueprint.json "${checkout}/assets/blueprints/blueprint.json"
+          svn add --force "${checkout}/assets/blueprints" "${checkout}/assets/blueprints/blueprint.json"
+          svn status "${checkout}"
+          svn commit "${checkout}/assets/blueprints" \
+            -m "Add the Cimo Playground blueprint for Live Preview." \
+            --username "${SVN_USERNAME}" \
+            --password "${SVN_PASSWORD}" \
+            --non-interactive \
+            --no-auth-cache

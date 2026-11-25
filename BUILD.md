@@ -126,6 +126,15 @@ The packaging process:
 2. Upload the generated zip file to your WordPress site
 3. Activate the plugin through the WordPress admin
 
+## WordPress.org Live Preview
+
+The Plugin Directory Live Preview button reads `assets/blueprints/blueprint.json` from the plugin SVN repository.
+In this repo that file is `.wordpress-org/blueprints/blueprint.json`.
+It installs and activates `cimo-image-optimizer` from WordPress.org, logs in as admin, and opens Media → Add New.
+The free plugin zip does not include `.wordpress-org/`.
+Listing banners and screenshots stay in SVN only, so do not rsync the whole assets directory from git.
+Run the **Update WordPress.org Live Preview blueprint** workflow to commit this file, then set the preview to public under Advanced on the plugin page.
+
 ## Troubleshooting
 
 If you encounter issues:
