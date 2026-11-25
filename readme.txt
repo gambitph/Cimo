@@ -1,6 +1,6 @@
-=== Cimo - Free Instant Image Optimizer & WebP Converter ===
+=== Cimo - Image Optimizer: Compress Images to WebP ===
 Contributors: bfintal, gambitph
-Tags: image, optimization, compress, convert, webp
+Tags: image optimization, compress images, optimize images, convert webp, webp
 Requires at least: 7.0.7
 Tested up to: 7.1.3
 Requires PHP: 8.0
@@ -8,185 +8,197 @@ Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Unlimited free image compression and WebP conversion, done instantly as you upload them. No quotas, no external servers, no limits.
+No account, no quota, and no server load. A fast in-browser image optimizer to compress images to WebP as you upload.
 
 == Description ==
 
-**Optimize all your images instantly and for free.**
+**No account, no quota, and no server load.**
 
-[Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) optimizes, resizes, and converts your images to WebP instantly as you upload them — right in your browser, before the files are ever added to your Media Library. From WordPress' point of view, it's as if the image was already optimized before you uploaded it, keeping your site's load speed fast without compromising quality.
+Cimo is a fast image optimizer.
+It compresses images in your browser as you upload them, and it converts JPEG, PNG, and GIF files to WebP when the browser can encode WebP.
+WordPress stores that prepared file.
+A successful conversion does not also upload the heavier original.
+The conversion itself does not run on the server.
+WordPress can still create thumbnail sizes afterward, and you can turn that off.
+There is no image-processing account, and there is no monthly quota on this upload path.
 
-[Visit Cimo's website](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) to learn more about how Cimo does things.
+[Learn more about Cimo](https://wpcimo.com/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt).
 
-* Unlimited usage - upload as many images as you want
-* Instant optimization - virtually no waiting time
-* No extra server load, bandwidth, or external image-processing services
+= What you can control =
 
-> **Note:** Cimo works in all modern browsers (Chrome, Firefox, Edge, Opera). In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.
+* WebP quality from 1 to 100. Uploads use 80 when you leave this unset.
+* A maximum width or height, with the aspect ratio kept.
+* Skip images that are already WebP, so Cimo does not compress or resize them again.
+* Turn WordPress automatic scaling of images larger than 2560px on or off.
+* Turn off every thumbnail size, or turn off individual sizes.
+* If the compressed file would be larger than the original, Cimo keeps the original.
+* When the browser can encode WebP, animated GIFs are converted to animated WebP, and animated WebP files can be optimized again.
+* Settings shows the storage saved, the size reduction, how many files were optimized, and the original versus optimized size.
+* The Media Library sidebar and the Edit Media screen show the same savings for each optimized file.
 
-Image Optimization options:
-
-* **WebP quality** – set the quality level for WebP conversion (1-100), defaults at 80%
-* **Max image dimension** – automatically resize images to a maximum dimension while preserving aspect ratio
-* **WordPress automatic scaling** – disable WordPress's built-in 2560px image scaling
-* **Thumbnail generation** – disable all WordPress thumbnail generation to save disk space
-* **Individual thumbnail sizes** – selectively enable/disable specific thumbnail sizes
-* **Preset configurations** – one-click "Recommended" settings for optimal performance
-* **Statistics dashboard** – view total storage saved, compression ratio, and optimization metrics
+The Image Optimization **Recommended** button sets WebP quality to 80 and the maximum dimension to 1920 pixels.
+The General **Recommended** button turns off WordPress thumbnail generation.
+You can change either result after you apply it.
 
 = How to use =
 
-Just upload images to your Media Manager as you normally would, then Cimo instantly optimizes the images to the next-gen format WebP on your browser during the upload process, the resulting optimized file is the one saved to your WordPress site. It's amazing!
+Upload images the way you already do, from the Media Library, the block editor, or a supported builder.
+Cimo compresses the image in the browser, then WordPress saves the result.
+Open the attachment and you will see the format, the original size, the optimized size, and the time it took.
 
-= Why use Cimo? =
+= Where uploads are optimized =
 
-1. **Completely Free & Unlimited** – no quotas, no limits, no paywalls. Optimize as many images as you want, forever.
-2. **Instant, Browser-Based Processing** – images are optimized as you upload, with zero server load and no external services.
-3. **Privacy-First** – your images never leave your device until they're uploaded to WordPress.
-4. **Future-Proof Format** – automatic WebP conversion reduces file sizes by up to 80%, with full control over quality, dimensions, and thumbnail generation.
-5. **Universal Compatibility** – works seamlessly with the WordPress Block Editor, Elementor, Beaver Builder, and all major page builders.
-6. **Developer Friendly** – integrate your own upload UI with a small PHP helper and optional JavaScript API. See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt).
+Cimo intercepts uploads in these places:
 
-= Works with =
+* The Media Library, Media > Add Media File, and the grid uploader
+* The block editor, including Image blocks and the featured image box
+* The Elementor, Beaver Builder, Bricks, and Oxygen editors. Cimo loads there so uploads that use the WordPress media modal are intercepted.
+* The Divi visual builder. Dragging a file onto the Divi canvas is not a drop target Cimo watches.
+* WooCommerce product text that uses the classic editor uploader
 
-* The native WordPress Block Editor / Gutenberg
-* Should work with any plugin, but we made sure it works with these:
-	* Popular Page Builders
-		* Elementor
-		* Divi (partial: dropping files is not yet supported)
-		* Breakdance
-		* Bricks Builder
-		* Oxygen
-		* Beaver Builder
-		* WP Bakery
-	* Popular Block Editor Builders
-		* Stackable
-		* Spectra
-		* Kadence
-		* Greenshift
-		* GenerateBlocks
-	* Popular plugins
-		* WooCommerce
-
-**Since Cimo's optimization works during the upload process, Cimo should be compatible with any plugin that uses images**
+Screens that upload through the WordPress media modal in wp-admin use that same interception.
+Automatic optimization of arbitrary front-end file inputs is part of Cimo Premium.
+A plugin or theme can opt its own upload UI in. See For developers below.
 
 = For developers =
 
-Cimo can optimize files in the browser before your plugin or theme uploads them.
+On a front-end screen, load Cimo with `cimo_enqueue_assets()`.
+Then register a file input with the `cimo/select_files/allowed_locations` filter, or a drop zone with the `cimo/drop_zone/allowed_locations` filter.
+You can also call `window.cimo.optimizeFiles()` from your own JavaScript.
 Your existing upload code can stay as it is.
 
-On frontend pages, load Cimo with `cimo_enqueue_assets()`, then either:
+See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt).
 
-* Register your file input wrapper with `cimo/select_files/allowed_locations`
-* Register a drop zone with `cimo/drop_zone/allowed_locations`
-* Or call `window.cimo.optimizeFiles()` from your own JavaScript
+= Cimo Premium =
 
-See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) for the full walkthrough.
+The free plugin compresses images as you upload them.
+[Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) adds tools around that same browser-side path:
 
-= What's in Cimo Premium? =
+* Bulk optimization for media that is already in the Media Library
+* Smart Optimization, which picks compression settings per image
+* Video and audio optimization on upload
+* SVG and HEIC on upload
+* Front-end and form uploads
+* Low quality image placeholders for native image blocks
+* Stealth mode, which hides Cimo's interface while optimization keeps running
 
-Free already optimizes images as you upload. [Cimo Premium](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) finishes the job on what's already on your site:
-
-* **Bulk Optimization** – optimize your existing images, videos and audio in your Media Library in one click, no server processing as well
-* **Optimize All Media Uploaded via Form Plugins** – automatically optimize images, videos, and audio uploaded through popular form plugins (Gravity Forms, WPForms, Ninja Forms, Formidable, Fluent Forms, etc.)
-* **Smart Optimization** – uses advanced algorithms to automatically select the optimal compression settings for each image, for the best results without manual tweaking.
-* **Video & Audio Optimization** – automatically optimize and optionally downscale the resolution of videos and audio quality as you upload them
-* **Low Quality Image Placeholders (LQIP)** – for native image blocks, display a subtle image placeholder while waiting for images to load, then fade the loaded image in.
-* **Stealth Mode** – completely hides all Cimo branding and interface elements, while all optimization features continue to work seamlessly in the background.
-
-[Visit our website](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=plugin-page&utm_campaign=readme-txt) to learn more
-
-Video & Audio optimization are also performed as you upload your files, even before the files are added to your Media Library.
-
-== Perfect For ==
-
-* Website owners and content creators who upload large images without optimizing them first
-* Developers and agencies building or managing sites that need fast, optimized images
-* Anyone wanting automatic WebP conversion without a manual workflow
-* Sites where server-side image processing isn't available or desired
-* Privacy-conscious users who don't want images sent to third-party servers
+Video and audio optimization also runs in the browser before those files are stored.
 
 == Installation ==
 
-1. Upload the `cimo` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. That's it! Cimo automatically optimizes images when you upload
+1. Upload the `cimo` folder to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the Plugins menu in WordPress.
+3. Upload an image. Cimo compresses it in the browser before WordPress stores it.
+4. Optional: open Settings > Cimo to set WebP quality, the maximum dimension, scaling, and thumbnails.
 
 == Frequently Asked Questions ==
 
-= Can I use Cimo with my own plugin or theme upload form? =
+= Why does Cimo convert images to WebP? =
 
-Yes. Load Cimo on that page with `cimo_enqueue_assets()`, then tell Cimo about your file input or drop zone, or call `window.cimo.optimizeFiles()` from your JavaScript.
+WebP is the file Cimo stores when your browser can encode it.
+A JPEG, PNG, or still GIF is compressed and saved as WebP, so the Media Library holds the file your pages will serve.
+Animated GIFs are converted to animated WebP, so they stay animated.
+You set the quality from 1 to 100.
+The settings screen records the bytes saved on your own uploads, which is the number to trust for your images.
+
+= How does in-browser optimization work? =
+
+When you pick or drop an image, Cimo compresses it in the browser before the upload request is sent.
+Still images are drawn to a canvas and encoded there.
+Animated GIF and animated WebP files are decoded and encoded again so the animation is kept.
+Your server receives the finished file and stores it the way WordPress always stores uploads.
+The conversion does not run in PHP.
+
+= Does Cimo work on shared hosting? =
+
+Yes.
+The person uploading does the conversion in their browser, so the host does not need ImageMagick or GD for this path.
+The server only has to meet the WordPress and PHP versions at the top of this readme and accept a normal media upload.
+Cimo does not add a remote image queue or a PHP image worker for new uploads.
+
+= Are my images private? =
+
+The browser compresses the image on the device that selected it.
+Cimo then uploads the optimized file to your WordPress site, and only there.
+It does not send the image to an external optimization service, and the free upload path does not ask you to open an account with one.
+
+= How does this compare with a cloud image optimizer? =
+
+A cloud optimizer sends the file to a remote service, then saves the file that service returns.
+That service usually requires an account and a quota.
+Cimo compresses the image in the browser and uploads the result to your own site, so this upload path has no image account and no image quota.
+A cloud service can still be a fit when you want their CDN, or when you want them to process files on their servers.
+Cimo Premium can optimize files that are already in the Media Library, and that work stays in the browser too.
+
+= Which formats can Cimo compress? =
+
+The free plugin accepts JPEG, PNG, GIF, and WebP uploads.
+When the browser can encode WebP, JPEG, PNG, and GIF are saved as WebP.
+When it cannot, JPEG and PNG are still compressed and keep their original format.
+A GIF in that case is uploaded unchanged.
+Turn on Skip WebP Optimization to leave existing WebP files unchanged.
+Video, audio, SVG, and HEIC are part of Cimo Premium.
+
+= What happens in Safari? =
+
+Cimo asks the browser whether it can encode WebP.
+Current Chrome, Firefox, Edge, and Opera can, and those uploads are saved as WebP.
+Some Safari versions cannot.
+On those versions, JPEG and PNG are still compressed in their original format, and a GIF is uploaded unchanged.
+
+= Does Cimo optimize images already in the Media Library? =
+
+The free plugin compresses images as you upload them.
+It does not rewrite files that are already in the Media Library.
+Cimo Premium adds bulk optimization for existing media, still in the browser rather than on an external image service.
+
+= Will this slow down uploads? =
+
+The browser converts the image first, then uploads the result.
+A very large image can take a moment, and Cimo shows that it is optimizing.
+The file that transfers is the compressed one, and PHP on the server does not do that conversion.
+
+= What if the WebP file is larger than the original? =
+
+Cimo keeps the original and does not replace it with a larger file.
+
+= Where are the settings? =
+
+In wp-admin, open Settings > Cimo.
+You can set WebP quality, the maximum dimension, WordPress scaling, thumbnail sizes, and whether existing WebP files are skipped.
+
+= What does Recommended change? =
+
+The Image Optimization Recommended button sets WebP quality to 80 and the maximum dimension to 1920 pixels.
+The General Recommended button turns off WordPress thumbnail generation.
+You can change either result afterward.
+
+= Can I see how much storage I have saved? =
+
+Yes.
+Settings > Cimo shows the storage saved, the reduction, the number of optimized files, and the original versus optimized size.
+Each optimized attachment also shows its savings in the Media Library and on the Edit Media screen.
+
+= Does the free plugin optimize video and audio? =
+
+No.
+Cimo Premium optimizes video and audio on upload.
+It also adds SVG and HEIC, Smart Optimization, bulk optimization, low quality image placeholders, and Stealth mode.
+
+= Can my plugin or theme send files through Cimo? =
+
+Yes.
+Call `cimo_enqueue_assets()` on that screen, then register your file input or drop zone, or call `window.cimo.optimizeFiles()` from your JavaScript.
 See the [developer integration guide](https://docs.wpcimo.com/article/798-developer-integration?utm_source=plugin-directory&utm_medium=faq&utm_campaign=readme-txt).
-
-= What makes Cimo different from other image optimizers? =
-
-Unlike server-side plugins, Cimo processes everything in your browser. No external APIs, no server processing, no waiting - just instant optimization as you upload.
-
-= How will I know if it worked? =
-
-When you upload an image into your Media Manager (let's say a .jpg), you'll notice that after uploading, it will be a .webp image! You will also find some additional information in the Media Manager about your uploaded image.
-
-= Does Cimo work in all browsers? =
-
-Cimo works in all modern browsers including Chrome, Firefox, Edge, and Opera. In Safari, images will be optimized but will keep their original file format. WebP conversion is not supported in Safari.```
-
-= Does Cimo really have no limits? =
-
-Yes! Unlike other plugins that charge per image or have monthly quotas, Cimo's image optimization and compression is completely unlimited and free forever.
-
-= Is my data sent to external servers? =
-
-No! Cimo processes everything locally in your browser. Your media assets never leave your device until they're uploaded to your WordPress site, nor do they go to another server for processing.
-
-= How does Cimo's client-side processing work? =
-
-Our browsers right now are quite powerful and already have the capabilities for converting images to different formats.
-
-At the very core, the conversion is done via a clever use of JavaScript's Canvas API to process your images in the browser right before they're uploaded to WordPress. 
-
-This means faster uploads, no server load, and complete privacy.
-
-= What image formats does Cimo support? =
-
-Currently WebP conversion is fully supported.
-
-= Does Cimo work with existing images? =
-
-Cimo optimizes images during the upload process. For existing images, we have bulk optimization available in Cimo Premium. Learn more on our [pricing page](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=faq&utm_campaign=readme-txt).
-
-= Does Cimo convert video and audio files? =
-
-Yes Cimo can convert video and audio files, but that's in our [premium version, check out website](https://wpcimo.com/pricing/?utm_source=plugin-directory&utm_medium=faq&utm_campaign=readme-txt) for more information on it.
-
-= Will Cimo slow down my uploads? =
-
-Actually, it speeds them up! Since images are compressed before upload, they transfer faster and take up less storage space.
-
-= How do I access the settings page? =
-
-Go to Settings > Cimo in your WordPress admin. There you can configure options such as WebP quality, set maximum image dimensions, control thumbnail generation, and view optimization statistics.
-
-= What are the recommended settings? =
-
-Click the "Recommended" button in the settings page to apply optimal settings:
-- WebP Quality: 80% (best balance of quality and file size)
-- Max Image Dimension: 1920px (perfect for modern web)
-- Thumbnail Generation: Disabled (saves disk space)
-
-These settings work great for most websites and provide excellent performance.
-
-= Can I see how much storage I've saved? =
-
-Yes! The settings page includes a statistics dashboard showing:
-- Total storage saved
-- Percentage reduction
-- Number of media files optimized
-- Original vs optimized file sizes
 
 == Screenshots ==
 
-1. Automatic WebP conversion on image upload
+1. Uploading an image in the Media Library. Cimo compresses it in the browser and stores a WebP file.
+2. Image optimization settings: WebP quality, maximum dimension, Skip WebP Optimization, and the Recommended button.
+3. The settings summary: storage saved, files optimized, and original versus optimized size.
+4. Attachment details in the Media Library, with savings, original size, optimized size, and the format it was converted to.
+5. An Image block upload in the block editor, compressed in the browser before the file is saved.
+6. WordPress automatic scaling and thumbnail generation, including individual image sizes.
 
 == Upgrade Notice ==
 

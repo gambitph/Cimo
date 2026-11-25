@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Cimo - Image Optimizer
+ * Plugin Name: Cimo - Image Optimizer: Compress Images to WebP
  * Plugin URI: https://wpcimo.com
- * Description: Unlimited free image compression and WebP conversion, done instantly as you upload them. No quotas, no external servers, no limits.
+ * Description: No account, no quota, and no server load. A fast in-browser image optimizer to compress images to WebP as you upload.
  * Author: Gambit Technologies, Inc
  * Author URI: http://gambit.ph
  * License: GPLv2 or later
