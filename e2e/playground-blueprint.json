@@ -8,7 +8,7 @@
 		},
 		{
 			"step": "activatePlugin",
-			"pluginName": "Cimo - Image Optimizer",
+			"pluginName": "Cimo - Image Optimizer: Compress Images to WebP",
 			"pluginPath": "/wordpress/wp-content/plugins/cimo/cimo.php"
 		}
 	]
